@@ -1,0 +1,6 @@
+#-- start of moc_header ------
+
+${CONSTITUENT} ::
+	@/bin/echo "-------------> ${CONSTITUENT} Build start"
+
+#-- end of moc_header ------

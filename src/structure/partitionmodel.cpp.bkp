@@ -1,0 +1,701 @@
+//including dbe functionality
+#include "structure/treeitem.h"
+#include "structure/partitionmodel.h"
+#include "internal/utility.h"
+#include "internal/sorting.h"
+#include "internal/undocommands.h"
+//including general
+#include <iostream>
+#include <sstream>
+// include TDAQ
+#include <config/Schema.h>
+// include Qt
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QApplication>
+#include <QDebug>
+
+using namespace daq::dbe;
+PartitionModel::PartitionModel ( ::Configuration * db, QObject * parent ) :
+  QAbstractItemModel ( parent ), m_progress ( 0 )
+{
+  configurationDB = db;
+  setupModelData ( configurationDB );
+}
+
+PartitionModel::~PartitionModel()
+{
+  delete rootItem;
+}
+
+void PartitionModel::rebuild()
+{
+  TreeItem * tmp_rootItem = rootItem;
+  setupModelData ( configurationDB );
+  delete tmp_rootItem;
+  this->reset();
+}
+
+QVariant PartitionModel::data ( const QModelIndex & index, int role ) const
+{
+  ERS_DEBUG ( 4, "PartitionModel::data()" );
+
+  if ( !index.isValid() )
+  {
+    return QVariant();
+  }
+
+  TreeItem * item = static_cast<TreeItem *> ( index.internalPointer() );
+
+  switch ( role )
+  {
+  case Qt::DisplayRole:
+  case Qt::DecorationRole:
+    return item->data ( index.column(), role );
+
+  default:
+    return QVariant();
+  }
+
+}
+
+Qt::ItemFlags PartitionModel::flags ( const QModelIndex & index ) const
+{
+  if ( !index.isValid() )
+  {
+    return 0;
+  }
+
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+int PartitionModel::columnCount ( const QModelIndex & parent ) const
+{
+
+  if ( parent.isValid() )
+  {
+    return static_cast<TreeItem *> ( parent.internalPointer() )->columnCount();
+  }
+  else
+  {
+    return rootItem->columnCount();
+  }
+}
+
+
+/*
+ * Update a single item of the model, instead of the whole model.
+ */
+void PartitionModel::rebuildItem ( ConfigObject & obj )
+{
+  ERS_DEBUG ( 2, "PartitionModel::rebuildItem()" );
+
+  ERS_DEBUG ( 2, "Updating object: " << obj.UID() );
+
+  // get the object from the tree/model
+  ObjectTreeItem * objectItem = TreeUtils::findObjectItem ( obj, rootItem );
+
+  if ( objectItem )
+  {
+    ERS_DEBUG ( 2, "Found item for " << obj.UID() );
+    // get the parent item
+    TreeItem * parent = objectItem->parent();
+    // get the indexes
+    QModelIndex parentIndex = TreeUtils::getIndexOf ( parent, this, QModelIndex() );
+    QModelIndex objectIndex = TreeUtils::getIndexOf ( dynamic_cast<TreeItem *> ( objectItem ),
+                                                      this, QModelIndex() );
+
+    if ( objectIndex.isValid() && parentIndex.isValid() )
+    {
+      // create a new object
+      ObjectTreeItem * newItem = this->buildObjectItem ( obj, parent );
+      // remove row with the old item
+      beginRemoveRows ( parentIndex, objectIndex.row(), objectIndex.row() );
+      parent->removeChild ( objectItem );
+      endRemoveRows();
+      // add new row with the new item
+      beginInsertRows ( parentIndex, 0, 0 );
+      parent->appendChild ( newItem );
+      endInsertRows(); // it's a method of Qt QAbstractItemModel
+    }
+  }
+}
+
+
+
+
+/**
+ *
+ */
+QVariant PartitionModel::headerData ( int section, Qt::Orientation orientation,
+                                      int role ) const
+{
+  if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
+  {
+    return rootItem->data ( section );
+  }
+
+  return QVariant();
+}
+
+/**
+ *
+ */
+QModelIndex PartitionModel::index ( int row, int column, const QModelIndex & parent ) const
+{
+  if ( !hasIndex ( row, column, parent ) )
+  {
+    return QModelIndex();
+  }
+
+  TreeItem * parentItem;
+
+  if ( !parent.isValid() )
+  {
+    parentItem = rootItem;
+  }
+  else
+  {
+    parentItem = static_cast<TreeItem *> ( parent.internalPointer() );
+  }
+
+  TreeItem * childItem = parentItem->child ( row );
+
+  if ( childItem )
+  {
+    return createIndex ( row, column, childItem );
+  }
+  else
+  {
+    return QModelIndex();
+  }
+}
+
+/**
+ * Retrieves parent for a given index
+ * \param index
+ * \return parent index
+ */
+QModelIndex PartitionModel::parent ( const QModelIndex & index ) const
+{
+  if ( !index.isValid() )
+  {
+    return QModelIndex();
+  }
+
+  TreeItem * childItem = static_cast<TreeItem *> ( index.internalPointer() );
+  TreeItem * parentItem = childItem->parent();
+
+  if ( parentItem == rootItem )
+  {
+    return QModelIndex();
+  }
+
+  return createIndex ( parentItem->row(), 0, parentItem );
+}
+
+/**
+ * number of rows for a given parent index
+ * Retrieves internal TreeItem* and returns child count
+ */
+int PartitionModel::rowCount ( const QModelIndex & parent ) const
+{
+
+  TreeItem * parentItem;
+
+  if ( !parent.isValid() )
+  {
+    parentItem = rootItem;
+  }
+  else
+  {
+    parentItem = static_cast<TreeItem *> ( parent.internalPointer() );
+  }
+
+  return parentItem->childCount();
+}
+
+
+void PartitionModel::buildRelItem ( RelationshipTreeItem * relItem,
+                                    const QModelIndex & index )
+{
+  daq::config::relationship_t rel = relItem->getRelationship();
+  ConfigObject parentObj = static_cast<ObjectTreeItem *> ( relItem->parent() )->getObject();
+
+  //distinguish single and multivalue relationship
+  if ( rel.p_cardinality == daq::config::only_one
+       || rel.p_cardinality == daq::config::zero_or_one )
+  {
+    try
+    {
+      ConfigObject child;
+      parentObj.get ( rel.p_name, child );
+
+      beginInsertRows ( index, 0, 0 );
+
+      if ( !child.is_null() ) //check that object is valid
+      {
+        ObjectTreeItem * obj = this->buildObjectItem ( child, relItem );
+
+        if ( obj != NULL )
+        {
+          relItem->appendChild ( obj );
+        }
+      }
+
+      endInsertRows(); // it's a method of Qt QAbstractItemModel
+    }
+    catch ( ers::Issue & e )
+    {
+      ers::error ( e );
+    }
+  }
+  else
+  {
+    try
+    {
+      std::vector<ConfigObject> children;
+      parentObj.get ( rel.p_name, children );
+      beginInsertRows ( index, 0, children.size() - 1 );
+
+      for ( unsigned int k = 0; k < children.size(); ++k )
+      {
+        //recursively build object item
+        ObjectTreeItem * obj = this->buildObjectItem ( children.at ( k ), relItem );
+
+        if ( obj != NULL )
+        {
+          relItem->appendChild ( obj );
+        }
+      }//for
+
+      endInsertRows(); // it's a method of Qt QAbstractItemModel
+    }
+    catch ( ers::Issue & e )
+    {
+      ers::error ( e );
+    }
+  }
+}
+/**
+ * Builds a relationship item
+ * This includes the relationship and its children (object items), but no further
+ */
+TreeItem * PartitionModel::buildRelationshipItem ( daq::config::relationship_t rel,
+                                                   ConfigObject & parentObj, TreeItem * parentItem )
+{
+  std::string relationshipName = rel.p_name;
+  RelationshipTreeItem * relItem = new RelationshipTreeItem ( rel, parentItem );
+  relItem->setFetched ( false );
+
+  try
+  {
+
+    switch ( rel.p_cardinality )
+    {
+    case daq::config::only_one:
+    case daq::config::zero_or_one:
+    {
+      ConfigObject child;
+      parentObj.get ( rel.p_name, child );
+
+      if ( !child.is_null() ) //check that object is valid
+      {
+        relItem->setHasStructure ( true );
+      }
+    }
+    break;
+
+    default:
+      std::vector<ConfigObject> children;
+      parentObj.get ( rel.p_name, children );
+
+      if ( children.size() > 0 )
+      {
+        relItem->setHasStructure ( true );
+      }
+    }
+  }
+  catch ( daq::config::NotFound & e )
+  {}
+  catch ( ers::Issue & e )
+  {}
+
+  return relItem;
+}
+
+
+/**
+ * Builds an objectItem and all its relationships
+ * \param obj object to build
+ * \param parentItem pointer to parent item in the tree
+ * \return pointer to the new ObjectItem
+ */
+ObjectTreeItem * PartitionModel::buildObjectItem ( ConfigObject & obj,
+                                                   TreeItem * parentItem )
+{
+//  qDebug() << "PartitionModel::buildObjectItem()";
+//  qDebug() << "parent:"
+
+  QString cName = obj.class_name().c_str();
+  ERS_DEBUG ( 2, "className:" << obj.class_name() );
+
+  ObjectTreeItem * objItem = NULL;
+
+  try
+  {
+    daq::config::class_t objClass = ConfigWrapper::instance().GetClassInfo ( cName, false );
+    objItem = new ObjectTreeItem ( obj, parentItem );
+    objItem->setFetched ( true );
+    //loop over all relationships
+    const std::vector< daq::config::relationship_t> objRelationships = objClass.p_relationships;
+
+    for ( unsigned int j = 0; j < objRelationships.size(); ++j )
+    {
+//          qDebug()<< "rel name:"
+//              << QString::fromStdString(objRelationships[j].p_name)
+//              << "- type:"
+//                  << QString::fromStdString(objRelationships[j].p_type);
+      TreeItem * relItem = buildRelationshipItem ( objRelationships[j],
+                                                   obj, objItem );
+      objItem->appendChild ( relItem );
+    }//end of relationships loop
+  }
+  catch ( daq::config::NotFound & e )
+  {
+    ers::error ( e );
+    return NULL;
+  }
+  catch ( ers::Issue & e )
+  {
+    ers::error ( e );
+    return NULL;
+  }
+
+  return objItem;
+}
+
+void PartitionModel::updateProgress ( int value )
+{
+  if ( m_progress )
+  {
+    m_progress->setValue ( m_progress->value() + value );
+    QApplication::processEvents();
+  }
+}
+/**
+ * Builds the entire model
+ * Top level nodes include all partitions + Onlinesegments
+ * \param db Configuration to read from
+ */
+void PartitionModel::setupModelData ( ::Configuration * db )
+{
+  QList<QVariant> rootData;
+  rootData << "Name"; // only one header/one column
+  rootItem = new TreeItem ( rootData, NULL );
+
+  std::vector<ConfigObject> objects;
+  db->get ( "Partition", objects );
+
+  ERS_DEBUG ( 0, "There are " << objects.size() << " partition objects" );
+  QList<QString> parents;
+
+  for ( unsigned int i = 0; i < objects.size(); ++i )
+  {
+    parents.clear();
+    TreeItem * obj = buildObjectItem ( objects.at ( i ), rootItem );
+
+    if ( obj != NULL )
+    {
+      rootItem->appendChild ( obj );
+    }
+  }
+
+  this->reset();
+}
+
+TreeItem * PartitionModel::getItem ( const QModelIndex & index ) const
+{
+  ERS_DEBUG ( 3, "here" );
+
+  if ( index.isValid() )
+  {
+    return static_cast<TreeItem *> ( index.internalPointer() );
+  }
+  else
+  {
+    return rootItem;
+  }
+}
+
+bool PartitionModel::hasChildren ( const QModelIndex & index ) const
+{
+  if ( index.isValid() )
+  {
+    TreeItem * thisItem;
+    thisItem = static_cast<TreeItem *> ( index.internalPointer() );
+    ERS_DEBUG ( 3, "The class " << ( thisItem->data ( 0 ) ).toString().toStdString() << " has "
+                << thisItem->hasStructure() << " children" );
+    //return true;
+    return ( thisItem->hasStructure() || ( thisItem->childCount() > 0 ) );
+  }
+  else
+  {
+    return true; //this is called 2x, probably on the begining when no inex hierarchy                    //exist, never understood when
+  }
+
+}
+/**
+ * Check whether further information can be fetched for an item
+*/
+bool PartitionModel::canFetchMore ( const QModelIndex & index ) const
+{
+  if ( index.isValid() )
+  {
+    TreeItem * treeItem;
+    treeItem = static_cast<TreeItem *> ( index.internalPointer() );
+    ERS_DEBUG ( 3, "Can fetch more for " << treeItem->data ( 0 ).toString().toStdString() <<
+                " = " << !treeItem->wasItemFetched() );
+    return ( !treeItem->wasItemFetched() );
+  }
+
+  return false;
+}
+/**
+ * fetches subtree.
+ * This is only possible for relationship treeitems
+*/
+void PartitionModel::fetchMore ( const QModelIndex & index )
+{
+  if ( index.isValid() )
+  {
+    TreeItem * treeItem = static_cast<TreeItem *> ( index.internalPointer() );
+
+    if ( RelationshipTreeItem * rel = dynamic_cast<RelationshipTreeItem *> ( treeItem ) )
+    {
+      ERS_DEBUG ( 3, "Building for relitem " << rel->getRelationship().p_name );
+
+      buildRelItem ( rel, index );
+
+      rel->setFetched ( true );
+
+    }
+  }
+
+}
+
+bool PartitionModel::removeRow ( int position, const QModelIndex & parent )
+{
+
+  TreeItem * parentItem = getItem ( parent );
+  bool success = true;
+
+  //beginRemoveRows(parent, position, position + rows - 1);
+  success = parentItem->removeChildren ( position, 1 );
+  ERS_DEBUG ( 3, " removal a " << position << " " << " parent " <<
+              ( void * ) parentItem << " " << rowCount ( parent ) );
+  //endRemoveRows();
+
+  return success;
+}
+
+bool PartitionModel::removeRows ( int position, int rows, const QModelIndex & parent )
+{
+
+  TreeItem * parentItem = getItem ( parent );
+  bool success = true;
+
+  beginRemoveRows ( parent, position, position + rows - 1 );
+  success = parentItem->removeChildren ( position, rows );
+  ERS_DEBUG ( 3, " removal  " << position << " " << " parent " << ( void * ) parentItem << " "
+              << rows );
+  endRemoveRows();
+
+  return success;
+}
+
+bool PartitionModel::setData ( const QModelIndex & index, const QVariant & value, int role )
+{
+  ERS_DEBUG ( 3, "PartitionModel::setData() - role:" << role );
+  TreeItem * parentItem = getItem ( index );
+
+  if ( ( parentItem->parent() )->parent() == rootItem )
+  {
+    QList<QVariant> data;
+
+    for ( int i = 0; i < parentItem->columnCount(); i++ )
+    {
+      i == 0 ? data << value.toString() : data << QString ( "" ) ;
+    }
+
+    //parentItem->setData(data);
+
+    TreeItem * firstChild = ( parentItem->parent() )->child ( 0 );
+    QVariant dd = firstChild->data ( 0 );
+
+    try
+    {
+      daq::config::class_t myc = configurationDB->get_class_info ( ( ( (
+                                                                         parentItem->parent() )->data ( 0 ) ).toString() ).toStdString(), false );
+      std::vector< ConfigObject > objects;
+      std::cout << " class " << ( ( ( parentItem->parent() )->data (
+                                      0 ) ).toString() ).toStdString() << std::endl;
+      configurationDB->get ( ( ( ( parentItem->parent() )->data (
+                                   0 ) ).toString() ).toStdString(), objects );
+      ConfigObject & obj = objects[0];
+      ConfigObject objNew;
+      std::string file = obj.contained_in();
+      std::cout << " file " << file << std::endl;
+      configurationDB->create ( file,
+                                ( ( ( parentItem->parent() )->data ( 0 ) ).toString() ).toStdString() ,
+                                ( value.toString() ).toStdString(), objNew );
+      return true;
+    }
+    catch ( daq::config::NotFound & e )
+    {
+      ers::error ( e );
+      return false;
+
+    }
+    catch ( ers::Issue & e )
+    {
+      ers::error ( e );
+      return false;
+    }
+  }
+
+//    else
+//    {
+  return true;
+//    }
+}
+
+
+ConfigObject PartitionModel::getObjectFromIndex ( const QModelIndex & index ) const
+{
+  TreeItem * item = getItem ( index );
+  ObjectTreeItem * objItem = dynamic_cast<ObjectTreeItem *> ( item );
+
+  if ( objItem )
+  {
+    return objItem->getObject();
+  }
+
+  return ConfigObject();
+}
+
+
+daq::config::class_t * PartitionModel::getClassFromIndex ( const QModelIndex & index )
+const
+{
+  //(void) index; /* avoid warning about unused parameter */
+  //return NULL;
+  ERS_DEBUG ( 2, "PartitionModel::getClassFromIndex()" );
+  TreeItem * item = getItem ( index );
+
+  if ( item != 0 )
+  {
+    //qDebug() << "calling getClassInfo()...";
+    return getClassInfo ( item );
+  }
+
+  return NULL;
+}
+
+daq::config::class_t * PartitionModel::getClassInfo ( TreeItem * item ) const
+{
+  ERS_DEBUG ( 2, "PartitionModel::getClassInfo()" );
+
+  ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
+
+  //qDebug() << "class item:" << ci << "- tree item:" << item;
+
+  if ( ci )
+  {
+    //qDebug() << "returning class-item class";
+    return ci->getClass();
+  }
+
+  if ( item->parent() != 0 )
+  {
+    //qDebug() << "calling again to return class-item parent class";
+    return getClassInfo ( item->parent() );
+  }
+
+  ERS_DEBUG ( 2, "returning NULL..." );
+  return NULL;
+
+}
+
+bool PartitionModel::isClassFromIndex ( const QModelIndex & index ) const
+{
+  TreeItem * item = getItem ( index );
+
+  if ( item != 0 )
+  {
+    ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
+
+    if ( ci )
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+bool PartitionModel::isOfClassFromIndex ( const QModelIndex & index,
+                                          const QString & className ) const
+{
+  TreeItem * item = getItem ( index );
+
+  if ( item != 0 )
+  {
+    ObjectTreeItem * obj = dynamic_cast<ObjectTreeItem *> ( item );
+
+    if ( obj )
+    {
+      return obj->isOfClass ( className );
+    }
+  }
+
+  return false;
+}
+
+void PartitionModel::objectAttributeUpdated ( ConfigObject & obj )
+{
+  ERS_DEBUG ( 2, "PartitionModel::objectAttributeUpdated() - for obj: " << obj );
+  //do nothing
+}
+void PartitionModel::objectRelationshipUpdated ( ConfigObject & obj )
+{
+  ERS_DEBUG ( 2, "PartitionModel::objectRelationshipUpdated() - for obj: " << obj );
+  //rebuild only affected component
+  rebuildItem ( obj ); // test
+  //this->rebuild(); // works fine, but it's slow
+}
+void PartitionModel::objectCreated ( ConfigObject & obj )
+{
+//  ERS_DEBUG(2, "PartitionModel::objectCreated() - obj: " << obj);
+  ERS_DEBUG ( 2, "PartitionModel::objectCreated(obj)" );
+  this->rebuild();
+}
+void PartitionModel::objectDeleted ( ConfigObject & obj )
+{
+//  ERS_DEBUG(2, "PartitionModel::objectDeleted() - obj: " << obj);
+  ERS_DEBUG ( 2, "PartitionModel::objectDeleted(obj)" );
+  this->rebuild();
+}
+void PartitionModel::objectCreated()
+{
+//  ERS_DEBUG(2, "PartitionModel::objectCreated() - obj: " << obj);
+  ERS_DEBUG ( 2, "PartitionModel::objectCreated()" );
+  this->rebuild();
+}
+void PartitionModel::objectDeleted()
+{
+//  ERS_DEBUG(2, "PartitionModel::objectDeleted() - obj: " << obj);
+  ERS_DEBUG ( 2, "PartitionModel::objectDeleted()" );
+  this->rebuild();
+}
+
+

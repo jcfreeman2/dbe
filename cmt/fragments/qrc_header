@@ -1,0 +1,6 @@
+#-- start of qrc_header ------
+
+${CONSTITUENT} ::
+	@/bin/echo "-------------> ${CONSTITUENT} Building from resource files "
+
+#-- end of qrc_header ------

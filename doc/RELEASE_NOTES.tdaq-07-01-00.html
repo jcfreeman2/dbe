@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="content-type">
+    <title>RELEASE_NOTES</title>
+  </head>
+  <body>
+    <h3> Main Changes With Respect to the Previous Release</h3>
+    <h3> </h3>
+    <h4>Overview</h4>
+    <p>This is a major release for DBE, as it can be noticed by the
+      number of fixed issues. Here is a brief list of major changes that
+      may affect the user's experience:<br>
+    </p>
+    <ul>
+      <li>The DBE's stability is greatly improved. Several causes of
+        failure have been identified and fixed;</li>
+      <li>There have been performance improvements in loading time,
+        especially when the RDB is used as a data source;</li>
+      <li>Command line options have been slightly modified (use the <i>-h</i>
+        switch to have additional details);</li>
+      <li>Fixed several editing issues related to specific data types;</li>
+      <li>Improved error message reporting;<br>
+      </li>
+      <li>Graphical changes:</li>
+      <ul>
+        <li>Cells in the table view trim long text; user can now modify
+          both row's height and width in order to better adapt the
+          cell's size to its content;</li>
+        <li>In the table view, vertical headers are now reporting the
+          UID of the database objects. This allows an easier horizontal
+          scrolling, with the object's UID always visible.
+          Double-clicking on the object's UID cell opens, as usual, the
+          object's editor widget;</li>
+        <li>Now objects can be dragged from the tree view and dropped to
+          the object editor (<i>i.e.,</i> for instance a <i>Rack</i>
+          object can now be filled taking dragging &amp; dropping <i>Computer</i>
+          objects from the tree);</li>
+        <li>The "include file" widget allows now to include multiple
+          files in a single action (proper inclusion order is left to
+          the user);</li>
+        <li>Objects in the tree are shown differently whether they are
+          modifiable or not;</li>
+        <li>A new widget editor is available for string-type attributes,
+          allowing easy insertion of long strings.</li>
+      </ul>
+    </ul>
+    <h4>List of relevant Jira issues for bugs and features patched into
+      the previous release or introduced with the current release<br>
+    </h4>
+    <ul>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-199"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-199">Batch
+          change table - The 'Make change' button needs to give clues of
+          the execution status</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-107"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-107">Including
+          multiple files</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-115"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-115">Editor
+          takes too long to start</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-225"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-225">Slow tree
+          scrolling</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-126"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-126">object
+          list attribute</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-143"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-143">Locking
+          the first column in table</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-206"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-206">Drag and
+          drop functionality for object editor</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-185"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-185">DBE should
+          be capable to retrieve ConfigObject values asynchronously;</a></li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-224"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-224">Command
+          line option to connect to RDB does not work</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-213"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-213">DBE should
+          inform the user if positional arguments have been provided but
+          ignored</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-202"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-202">Adding
+          multiple attributes/relations is difficult</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-216"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-216">DBE should
+          prefetch when working with RDB</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-222"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-222">Wrong
+          editing widget in table view for multi-value attribute;</a></li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-220"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-220">Tree
+          issues adding/removing objects</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-221"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-221">Duplicated
+          values in numerical multi-value attributes</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-223"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-223">Failure in
+          creating objects</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-162"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-162">Length and
+          window height should be dynamically adjusted for really long
+          strings/lists</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-212"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-212">Appropriate
+          message in DBE about dialogue</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-219"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-219">Emptying a
+          relationship fails for zero-or-many</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-171"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-171">DBE aborts
+          when trying to load inconsistent db from cmd line</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-197"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-197">Views are
+          not visible even if they are selected in the View Menu</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-172"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-172">Distinguish
+          modifiable objects</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-210"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-210">Operation
+          on relation ( referenced by ) causes crash</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-205"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-205">Insufficient
+          space for attribute values when create a new object</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-203"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-203">File menu
+          order and source names should be clarified</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-200"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-200">Make the
+          text selectable in the Information window following a Commit</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-196"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-196">DBE should
+          not include connection string to list of included files</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-125"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-125">Details of
+          error are hidden when commit failed</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-195"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-195">Command
+          line options now has a mandatory -f</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-113"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-113">drag&amp;drop
+          objects from multiple selection in the tree</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-154"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-154">files list
+          for a new object</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-192"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-192">Cannot set
+          attribute after invalidation failure When creating an object</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-190"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-190">Copying an
+          object into a new one fails but object is half-way created</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-187"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-187">Object was
+          not changed" message</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-168"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-168">The
+          internal dbe version should be accessible to the user e.g.
+          "about"</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-184"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-184">DBE takes
+          too long to retrieve data from RDB server at P1</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-165"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-165">Changing
+          value in object editor does not directly make it visible in a
+          table</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-129"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-129">issues
+          with Value of Variable class</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-183"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-183">Labels
+          should be selectable</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-182"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-182">Dbe cannot
+          commit changes on read/write resources</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-179"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-179">Cannot add
+          same computer in ComputerSet</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-157"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-157">Confusing
+          message when a file is read-only</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-170"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-170">Model is
+          not rebuilt when external changes are applied</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-180"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-180">Init value
+          reported when it should not</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-181"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-181">SEGV when
+          removing element from attribute list</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-175"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-175">Crash in
+          table batch changes</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-173"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-173">Crash when
+          removing attribute from list</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-161"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-161">Cannot
+          update attribute</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-155"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-155">Cannot
+          delete relation in edit window</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-174"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-174">updating
+          an empty relationship fails</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-159"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-159">Confirmation
+          dialog appears when the edit window is closed</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-102"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-102">Crash
+          trying to edit not set relationship</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-88"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-88">DBE crashed
+          when connecting to RDB_RW</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-133"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-133">Creation/renaming/moving
+          and object should be handled uniformly</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-163"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-163">dbe
+          crashes with ATLAS partition</a>;</li>
+      <li><a class="issue-link" data-issue-key="ATLASDBE-147"
+          href="https://its.cern.ch/jira/browse/ATLASDBE-147">Object
+          renaming can cause the application to crash</a>.</li>
+    </ul>
+  </body>
+</html>

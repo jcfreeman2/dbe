@@ -1,0 +1,568 @@
+//including dbe functionality
+#include "structure/treeitem.h"
+#include "structure/resourcemodel.h"
+//including general
+#include <iostream>
+#include <sstream>
+#include <config/Schema.h>
+#include "internal/sorting.h"
+#include <QMessageBox>
+using namespace daq::dbe;
+//ResourceModel::ResourceModel(const QString &data, QObject *parent)
+ResourceModel::ResourceModel ( ::Configuration * db, QObject * parent )
+  : QAbstractItemModel ( parent )
+{
+  ERS_DEBUG ( 1, "ResourceModel::ResourceModel()" );
+  configurationDB = db;
+  setupModelData ( configurationDB );
+}
+
+ResourceModel::~ResourceModel()
+{
+  ERS_DEBUG ( 1, "ResourceModel::ResourceModel()" );
+  delete rootItem;
+}
+
+void ResourceModel::rebuild()
+{
+  TreeItem * tmp_rootItem = rootItem;
+  setupModelData ( configurationDB );
+  delete tmp_rootItem;
+  this->reset();
+}
+
+QVariant ResourceModel::data ( const QModelIndex & index, int role ) const
+{
+  ERS_DEBUG ( 4, "ResourceModel::data()" );
+
+  if ( !index.isValid() )
+  {
+    return QVariant();
+  }
+
+  TreeItem * item ;
+
+  switch ( role )
+  {
+  case Qt::DisplayRole:
+    item = static_cast<TreeItem *> ( index.internalPointer() );
+    return item->data ( index.column() );
+
+  default:
+    return QVariant();
+  }
+
+  if ( role != Qt::DisplayRole )
+  {
+    return QVariant();
+  }
+
+}
+
+Qt::ItemFlags ResourceModel::flags ( const QModelIndex & index ) const
+{
+  if ( !index.isValid() )
+  {
+    return 0;
+  }
+
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+int ResourceModel::columnCount ( const QModelIndex & parent ) const
+{
+
+  if ( parent.isValid() )
+  {
+    return static_cast<TreeItem *> ( parent.internalPointer() )->columnCount();
+  }
+  else
+  {
+    return rootItem->columnCount();
+  }
+}
+
+
+
+QVariant ResourceModel::headerData ( int section, Qt::Orientation orientation,
+                                     int role ) const
+{
+  if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
+  {
+    return rootItem->data ( section );
+  }
+
+  return QVariant();
+}
+
+QModelIndex ResourceModel::index ( int row, int column, const QModelIndex & parent ) const
+{
+  if ( !hasIndex ( row, column, parent ) )
+  {
+    return QModelIndex();
+  }
+
+  TreeItem * parentItem;
+
+  if ( !parent.isValid() )
+  {
+    parentItem = rootItem;
+  }
+  else
+  {
+    parentItem = static_cast<TreeItem *> ( parent.internalPointer() );
+  }
+
+  TreeItem * childItem = parentItem->child ( row );
+
+  if ( childItem )
+  {
+    return createIndex ( row, column, childItem );
+  }
+  else
+  {
+    return QModelIndex();
+  }
+}
+
+QModelIndex ResourceModel::parent ( const QModelIndex & index ) const
+{
+  if ( !index.isValid() )
+  {
+    return QModelIndex();
+  }
+
+  TreeItem * childItem = static_cast<TreeItem *> ( index.internalPointer() );
+  TreeItem * parentItem = childItem->parent();
+
+  if ( parentItem == rootItem )
+  {
+    return QModelIndex();
+  }
+
+  return createIndex ( parentItem->row(), 0, parentItem );
+}
+
+int ResourceModel::rowCount ( const QModelIndex & parent ) const
+{
+
+  TreeItem * parentItem;
+
+  if ( !parent.isValid() )
+  {
+    parentItem = rootItem;
+  }
+  else
+  {
+    parentItem = static_cast<TreeItem *> ( parent.internalPointer() );
+  }
+
+  return parentItem->childCount();
+}
+
+
+/**
+ * Builds a segment sub-tree
+ * \param parent parent node of this sub-tree
+ * \param obj the segment object to build tree for
+ */
+void ResourceModel::buildSegment ( TreeItem * parent, ConfigObject obj )
+{
+  TreeItem * item = new ObjectTreeItem ( obj, parent );
+  parent->appendChild ( item );
+  std::vector<ConfigObject> objects;
+
+  try
+  {
+    obj.get ( "Segments", objects );
+
+    for ( size_t i = 0; i < objects.size(); i++ )
+    {
+      buildSegment ( item, objects.at ( i ) );
+    }
+  }
+  catch ( daq::config::Generic & e )
+  {
+    ers::info ( e );
+  }
+
+  try
+  {
+    objects.clear();
+    obj.get ( "Resources", objects );
+
+    for ( size_t i = 0; i < objects.size(); i++ )
+    {
+      buildResource ( item, objects.at ( i ) );
+    }
+
+  }
+  catch ( daq::config::Generic & e )
+  {
+    ers::info ( e );
+  }
+}
+/**
+ * Builds a resource sub-tree
+ * \param parent parent node of this sub-tree
+ * \param obj the resource object to build tree for
+ */
+void ResourceModel::buildResource ( TreeItem * parent, ConfigObject obj )
+{
+  TreeItem * item = new ObjectTreeItem ( obj, parent );
+  parent->appendChild ( item );
+  std::vector<ConfigObject> objects;
+
+  try
+  {
+    objects.clear();
+    obj.get ( "Contains", objects ); //if not ResourceSet then this might throw
+
+    for ( size_t i = 0; i < objects.size(); i++ )
+    {
+      buildResource ( item, objects.at ( i ) );
+    }
+
+  }
+  catch ( daq::config::Generic & e )
+  {
+    //ignore as this will throw very often
+  }
+
+}
+/**
+ * Builds a partition sub-tree
+ * \param parent parent node of this sub-tree
+ * \param obj the partition object to build tree for
+ */
+void ResourceModel::buildPartition ( TreeItem * parent, ConfigObject obj )
+{
+  TreeItem * item = new ObjectTreeItem ( obj, parent );
+  parent->appendChild ( item );
+  std::vector<ConfigObject> objects;
+
+  try
+  {
+    objects.clear();
+    obj.get ( "Segments", objects );
+
+    for ( size_t i = 0; i < objects.size(); i++ )
+    {
+      buildSegment ( item, objects.at ( i ) );
+    }
+
+  }
+  catch ( daq::config::Generic & e )
+  {
+    ers::info ( e );
+  }
+
+}
+/**
+ * Builds the entire model
+ * Top level nodes include all partitions + Onlinesegments
+ * \param db Configuration to read from
+ */
+void ResourceModel::setupModelData ( ::Configuration * db )
+{
+
+  QList<QVariant> rootData;
+  rootData << "Class Name"; // only one header/one column
+  ERS_DEBUG ( 3, "obj data" << rootData.size() );
+  rootItem = new TreeItem ( rootData, NULL );
+
+  std::vector<ConfigObject> objects;
+
+  // TODO: add a cache to store Partition objects if the do not change
+  ERS_DEBUG ( 2, "Getting the Partition objects from the configuration" );
+  db->get ( "Partition", objects );
+  ERS_DEBUG ( 0, "There are " << objects.size() << " partition objects" );
+
+  for ( unsigned int i = 0; i < objects.size(); ++i )
+  {
+    buildPartition ( rootItem, objects.at ( i ) );
+  }//end of loop over objects
+
+  ERS_DEBUG ( 2, "Partition items built" );
+
+
+  // clear objects to use it for Segment items
+  objects.clear();
+
+  // TODO: add a cache to store Segment objects if the do not change
+  ERS_DEBUG ( 2, "Getting the Segment objects from the configuration" );
+  db->get ( "OnlineSegment", objects );
+  ERS_DEBUG ( 0, "There are " << objects.size() << " onlinesegment objects" );
+
+  for ( unsigned int i = 0; i < objects.size(); ++i )
+  {
+    buildSegment ( rootItem, objects.at ( i ) );
+  }//end of loop over objects
+
+  ERS_DEBUG ( 2, "Segment items built" );
+
+  this->reset();
+  ERS_DEBUG ( 2, "the model has been reset." );
+
+}
+
+TreeItem * ResourceModel::getItem ( const QModelIndex & index ) const
+{
+  ERS_DEBUG ( 3, "here" );
+
+  if ( index.isValid() )
+  {
+    return static_cast<TreeItem *> ( index.internalPointer() );
+  }
+  else
+  {
+    return rootItem;
+  }
+}
+
+bool ResourceModel::hasChildren ( const QModelIndex & index ) const
+{
+  if ( index.isValid() )
+  {
+    TreeItem * thisItem;
+    thisItem = static_cast<TreeItem *> ( index.internalPointer() );
+    ERS_DEBUG ( 3, "The class " << ( thisItem->data ( 0 ) ).toString().toStdString() << " has "
+                << thisItem->hasStructure() << " children" );
+    //return true;
+    return ( thisItem->hasStructure() || ( thisItem->childCount() > 0 ) );
+  }
+  else
+  {
+    return true; //this is called 2x, probably on the begining when no inex hierarchy                    //exist, never understood when
+  }
+
+}
+/**
+*/
+bool ResourceModel::canFetchMore ( const QModelIndex & index ) const
+{
+  ( void ) index; /* avoid warning about unused parameter */
+  return false;
+}
+/**
+*/
+
+void ResourceModel::fetchMore ( const QModelIndex & index )
+{
+  ( void ) index; /* avoid warning about unused parameter */
+  return;
+}
+bool ResourceModel::insertRow ( int position, const QModelIndex & parent )
+{
+  ( void ) position; /* avoid warning about unused parameter */
+  ( void ) parent; /* avoid warning about unused parameter */
+  return true;
+}
+
+bool ResourceModel::insertRows ( int position, int rows, const QModelIndex & parent )
+{
+  ( void ) position; /* avoid warning about unused parameter */
+  ( void ) rows; /* avoid warning about unused parameter */
+  ( void ) parent; /* avoid warning about unused parameter */
+  return true;
+}
+
+bool ResourceModel::removeRow ( int position, const QModelIndex & parent )
+{
+
+  TreeItem * parentItem = getItem ( parent );
+  bool success = true;
+
+  //beginRemoveRows(parent, position, position + rows - 1);
+  success = parentItem->removeChildren ( position, 1 );
+  ERS_DEBUG ( 3, " removal a " << position << " " << " parent " <<
+              ( void * ) parentItem << " " << rowCount ( parent ) );
+  //endRemoveRows();
+
+  return success;
+}
+
+bool ResourceModel::removeRows ( int position, int rows, const QModelIndex & parent )
+{
+
+  TreeItem * parentItem = getItem ( parent );
+  bool success = true;
+
+  beginRemoveRows ( parent, position, position + rows - 1 );
+  success = parentItem->removeChildren ( position, rows );
+  ERS_DEBUG ( 3, " removal  " << position << " " << " parent " << ( void * ) parentItem << " "
+              << rows );
+  endRemoveRows();
+
+  return success;
+}
+
+bool ResourceModel::setData ( const QModelIndex & index, const QVariant & value, int role )
+{
+  ERS_DEBUG ( 3, "ResourceModel::setData() - role:" << role );
+  //qDebug() << "role:" << role;
+  TreeItem * parentItem = getItem ( index );
+
+  if ( ( parentItem->parent() )->parent() == rootItem )
+  {
+    QList<QVariant> data;
+
+    for ( int i = 0; i < parentItem->columnCount(); i++ )
+    {
+      i == 0 ? data << value.toString() : data << QString ( "" ) ;
+    }
+
+    //parentItem->setData(data);
+
+    TreeItem * firstChild = ( parentItem->parent() )->child ( 0 );
+    QVariant dd = firstChild->data ( 0 );
+
+    try
+    {
+      daq::config::class_t myc = configurationDB->get_class_info ( ( ( (
+                                                                         parentItem->parent() )->data ( 0 ) ).toString() ).toStdString(), false );
+      std::vector< ConfigObject > objects;
+      std::cout << " class " << ( ( ( parentItem->parent() )->data (
+                                      0 ) ).toString() ).toStdString() << std::endl;
+      configurationDB->get ( ( ( ( parentItem->parent() )->data (
+                                   0 ) ).toString() ).toStdString(), objects );
+      ConfigObject & obj = objects[0];
+      ConfigObject objNew;
+      std::string file = obj.contained_in();
+      std::cout << " file " << file << std::endl;
+      configurationDB->create ( file,
+                                ( ( ( parentItem->parent() )->data ( 0 ) ).toString() ).toStdString() ,
+                                ( value.toString() ).toStdString(), objNew );
+      return true;
+    }
+    catch ( daq::config::NotFound & e )
+    {
+      ers::error ( e );
+      return false;
+
+    }
+    catch ( ers::Issue & e )
+    {
+      ers::error ( e );
+      return false;
+    }
+  }
+
+//    else
+//    {
+  return true;
+//    }
+}
+
+ConfigObject ResourceModel::getObjectFromIndex ( const QModelIndex & index ) const
+{
+  TreeItem * item = getItem ( index );
+  ObjectTreeItem * objItem = dynamic_cast<ObjectTreeItem *> ( item );
+
+  if ( objItem )
+  {
+    return objItem->getObject();
+  }
+
+  return ConfigObject();
+}
+
+daq::config::class_t * ResourceModel::getClassFromIndex ( const QModelIndex & index ) const
+{
+  TreeItem * item = getItem ( index );
+
+  if ( item != 0 )
+  {
+    return getClassInfo ( item );
+  }
+
+  return NULL;
+}
+
+daq::config::class_t * ResourceModel::getClassInfo ( TreeItem * item ) const
+{
+  ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
+
+  if ( ci )
+  {
+    return ci->getClass();
+  }
+
+  if ( item->parent() != 0 )
+  {
+    return getClassInfo ( item->parent() );
+  }
+
+  return NULL;
+
+}
+
+bool ResourceModel::isClassFromIndex ( const QModelIndex & index ) const
+{
+  TreeItem * item = getItem ( index );
+
+  if ( item != 0 )
+  {
+    ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
+
+    if ( ci )
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+bool ResourceModel::isOfClassFromIndex ( const QModelIndex & index,
+                                         const QString & className ) const
+{
+  TreeItem * item = getItem ( index );
+
+  if ( item != 0 )
+  {
+    ObjectTreeItem * obj = dynamic_cast<ObjectTreeItem *> ( item );
+
+    if ( obj )
+    {
+      return obj->isOfClass ( className );
+    }
+  }
+
+  return false;
+}
+
+void ResourceModel::objectAttributeUpdated ( ConfigObject & obj )
+{
+  ERS_DEBUG ( 2, "ResourceModel::objectAttributeUpdated() - for obj: " << obj );
+  // do nothing // TODO: check it!
+}
+void ResourceModel::objectRelationshipUpdated ( ConfigObject & obj )
+{
+  ERS_DEBUG ( 2, "ResourceModel::objectRelationshipUpdated() - for obj: " << obj );
+  this->rebuild();
+}
+void ResourceModel::objectCreated ( ConfigObject & obj )
+{
+//  ERS_DEBUG(2, "ResourceModel::objectCreated() - obj: " << obj);
+  ERS_DEBUG ( 2, "ResourceModel::objectCreated(obj)" );
+  this->rebuild();
+}
+void ResourceModel::objectDeleted ( ConfigObject & obj )
+{
+//  ERS_DEBUG(2, "ResourceModel::objectDeleted() - obj: " << obj);
+  ERS_DEBUG ( 2, "ResourceModel::objectDeleted(obj)" );
+  this->rebuild();
+}
+void ResourceModel::objectCreated()
+{
+//  ERS_DEBUG(2, "ResourceModel::objectCreated() - obj: " << obj);
+  ERS_DEBUG ( 2, "ResourceModel::objectCreated()" );
+  this->rebuild();
+}
+void ResourceModel::objectDeleted()
+{
+//  ERS_DEBUG(2, "ResourceModel::objectDeleted() - obj: " << obj);
+  ERS_DEBUG ( 2, "ResourceModel::objectDeleted()" );
+  this->rebuild();
+}
+

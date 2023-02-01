@@ -1,0 +1,11 @@
+${CONSTITUENT}_output = $(bin)
+
+${${CONSTITUENT}_output}ui_${NAME}.h	: ${FULLNAME}
+	@/bin/echo "Generation of header code from ui definitions for ${NAME}"
+	@$(QTDIR)/bin/uic ${FULLNAME} -o $(bin)/ui_${NAME}.h
+
+${CONSTITUENT} :: ${bin}ui_${NAME}.h
+
+${CONSTITUENT}clean ::
+	@/bin/rm ${${CONSTITUENT}_output}ui_${NAME}.h
+	@/bin/echo "Removal of ${${CONSTITUENT}_output}ui_${NAME}.h"

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-schema version 2.0 -->
+
+
+<!DOCTYPE oks-schema [
+  <!ELEMENT oks-schema (info, (include)?, (comments)?, (class)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #REQUIRED
+      type CDATA #REQUIRED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "schema"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      creation-time CDATA #REQUIRED
+      last-modified-by CDATA #REQUIRED
+      last-modified-on CDATA #REQUIRED
+      last-modification-time CDATA #REQUIRED
+  >
+  <!ELEMENT include (file)+>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT comments (comment)+>
+  <!ELEMENT comment EMPTY>
+  <!ATTLIST comment
+      creation-time CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      author CDATA #REQUIRED
+      text CDATA #REQUIRED
+  >
+  <!ELEMENT class (superclass | attribute | relationship | method)*>
+  <!ATTLIST class
+      name CDATA #REQUIRED
+      description CDATA ""
+      is-abstract (yes|no) "no"
+  >
+  <!ELEMENT superclass EMPTY>
+  <!ATTLIST superclass name CDATA #REQUIRED>
+  <!ELEMENT attribute EMPTY>
+  <!ATTLIST attribute
+      name CDATA #REQUIRED
+      description CDATA ""
+      type (bool|s8|u8|s16|u16|s32|u32|s64|u64|float|double|date|time|string|uid|enum|class) #REQUIRED
+      range CDATA ""
+      format (dec|hex|oct) "dec"
+      is-multi-value (yes|no) "no"
+      multi-value-implementation (list|vector) "list"
+      init-value CDATA ""
+      is-not-null (yes|no) "no"
+  >
+  <!ELEMENT relationship EMPTY>
+  <!ATTLIST relationship
+      name CDATA #REQUIRED
+      description CDATA ""
+      class-type CDATA #REQUIRED
+      low-cc (zero|one) #REQUIRED
+      high-cc (one|many) #REQUIRED
+      is-composite (yes|no) #REQUIRED
+      is-exclusive (yes|no) #REQUIRED
+      is-dependent (yes|no) #REQUIRED
+      multi-value-implementation (list|vector) "list"
+  >
+  <!ELEMENT method (method-implementation*)>
+  <!ATTLIST method
+      name CDATA #REQUIRED
+      description CDATA ""
+  >
+  <!ELEMENT method-implementation EMPTY>
+  <!ATTLIST method-implementation
+      language CDATA #REQUIRED
+      prototype CDATA #REQUIRED
+      body CDATA ""
+  >
+]>
+
+<oks-schema>
+
+<info name="" type="" num-of-items="2" oks-format="schema" oks-version="oks-06-07-02 built &quot;Jul 14 2014&quot;" created-by="judecast" created-on="pcatd148.cern.ch" creation-time="20150220T171104" last-modified-by="judecast" last-modified-on="pcatd148.cern.ch" last-modification-time="20150220T193707"/>
+
+ <class name="ClassInfo">
+  <attribute name="ShowAllAttributes" type="bool"/>
+  <attribute name="ShowAllRelationships" type="bool"/>
+  <attribute name="Attributes" type="string" is-multi-value="yes"/>
+  <attribute name="Relationships" type="string" is-multi-value="yes"/>
+ </class>
+
+ <class name="View">
+  <attribute name="Name" type="string" is-not-null="yes"/>
+  <attribute name="ShowAll" type="bool" init-value="true"/>
+  <relationship name="ClassesList" class-type="ClassInfo" low-cc="zero" high-cc="many" is-composite="no" is-exclusive="no" is-dependent="no"/>
+ </class>
+
+</oks-schema>

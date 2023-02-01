@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dbse::SchemaMainWindow</class>
+ <widget class="QMainWindow" name="dbse::SchemaMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>859</width>
+    <height>677</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="CentralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="TabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="Tab1">
+       <attribute name="title">
+        <string>Tab 1</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>859</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="MenuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="OpenFileSchema"/>
+    <addaction name="CreateNewSchema"/>
+    <addaction name="SaveSchema"/>
+    <addaction name="separator"/>
+    <addaction name="Exit"/>
+   </widget>
+   <widget class="QMenu" name="MenuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="SaveView"/>
+    <addaction name="LoadView"/>
+    <addaction name="separator"/>
+    <addaction name="PrintView"/>
+   </widget>
+   <addaction name="MenuFile"/>
+   <addaction name="MenuView"/>
+  </widget>
+  <widget class="QToolBar" name="MainToolBar">
+   <property name="windowTitle">
+    <string>View toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="SetInheritance"/>
+   <addaction name="SetRelationship"/>
+   <addaction name="SaveView"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QStatusBar" name="StatusBar"/>
+  <widget class="QDockWidget" name="ClassWidget">
+   <property name="windowTitle">
+    <string>Classes</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="ClassWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QTableView" name="ClassTableView"/>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ClassTableSearchLine"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="DockWidget">
+   <property name="windowTitle">
+    <string>Info Tabs</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="DockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QTabWidget" name="TabWidget1">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="FileTab">
+        <attribute name="title">
+         <string>File</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QTableView" name="FileView"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="UndoTab">
+        <attribute name="title">
+         <string>Undo</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QUndoView" name="UndoView"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="OpenFileSchema">
+   <property name="text">
+    <string>Open Schema</string>
+   </property>
+  </action>
+  <action name="SaveSchema">
+   <property name="text">
+    <string>Save Schema</string>
+   </property>
+  </action>
+  <action name="Exit">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/fail.xpm</normaloff>:/icons/fail.xpm</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="CreateNewSchema">
+   <property name="text">
+    <string>Create New Schema</string>
+   </property>
+  </action>
+  <action name="AddClass">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/new_class.xpm</normaloff>:/icons/new_class.xpm</iconset>
+   </property>
+   <property name="text">
+    <string>AddClass</string>
+   </property>
+  </action>
+  <action name="SetRelationship">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/link2.xpm</normaloff>:/icons/link2.xpm</iconset>
+   </property>
+   <property name="text">
+    <string>SetRelationship</string>
+   </property>
+  </action>
+  <action name="SetInheritance">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/glink.xpm</normaloff>:/icons/glink.xpm</iconset>
+   </property>
+   <property name="text">
+    <string>SetInheritance</string>
+   </property>
+  </action>
+  <action name="SaveView">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/save.xpm</normaloff>:/icons/save.xpm</iconset>
+   </property>
+   <property name="text">
+    <string>Save View</string>
+   </property>
+  </action>
+  <action name="LoadFileSchema">
+   <property name="text">
+    <string>Load Schema</string>
+   </property>
+  </action>
+  <action name="LoadView">
+   <property name="text">
+    <string>Load View</string>
+   </property>
+  </action>
+  <action name="PrintView">
+   <property name="text">
+    <string>Print View</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QUndoView</class>
+   <extends>QListView</extends>
+   <header>qundoview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

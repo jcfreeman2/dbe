@@ -1,0 +1,35 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/bye.png</file>
+        <file>icons/filetypes.png</file>
+        <file>icons/folder.png</file>
+        <file>icons/help-browser.png</file>
+        <file>icons/help-contents.png</file>
+        <file>icons/ok.png</file>
+        <file>icons/questionmark_48.png</file>
+        <file>icons/redo.png</file>
+        <file>icons/search.png</file>
+        <file>icons/slink.png</file>
+        <file>icons/undo.png</file>
+        <file>theme/stylesheet.qss</file>
+        <file>theme/stylesheet2.qss</file>
+        <file>theme/dbe_DB_editor_default_settings.conf</file>
+        <file>icons/Foldersearch32.png</file>
+        <file>icons/Configuration_icon_by_obsilion.png</file>
+        <file>icons/search-b-icon.png</file>
+        <file>icons/text_x_generic16.png</file>
+        <file>icons/refresh.png</file>
+        <file>doc/RELEASE_CHANGES.html</file>
+        <file>doc/CREDITS.html</file>
+        <file>icons/export_db_down_32.png</file>
+        <file>icons/Database-Add-32.png</file>
+        <file>icons/db_create.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/export_db.png</file>
+        <file>icons/Orbital_arrow_down.png</file>
+        <file>icons/database.png</file>
+        <file>icons/database_save.png</file>
+        <file>icons/bloc_notes_32.png</file>
+        <file>icons/bloc_notes_2_32.png</file>
+    </qresource>
+</RCC>

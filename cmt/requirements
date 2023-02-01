@@ -1,0 +1,524 @@
+package dbe
+
+##########################################################################################
+
+author  "Leonidas Georgopouls leonidas.georgopoulos@cern.ch (current),\
+        --------------------------------------------------------------\
+        julio.de.castro.vargas.fernandes@cern.ch (former),\
+        Riccardo.Maria.Bianchi@cern.ch (former), I.FEDORKO (former)"
+manager leonidas.georgopoulos@cern.ch (current), julio.de.castro.vargas.fernandes@cern.ch (former)
+
+##########################################################################################
+
+use OnlinePolicy
+ 
+##########################################################################################
+
+# the variable DBE_HELP_URL defines path to the DBE Database Editor online help
+# ---> not used yet!!
+
+#set             DBE_HELP_URL                        "file:${TDAQ_INST_PATH}/share/data/dbe/online-help/data-editor/"
+ 
+##########################################################################################
+use ers
+use dal
+use config
+use AccessManager
+use QTUtils
+
+use Boost * TDAQCExternal
+use Python * TDAQCExternal
+
+private
+use Qt4    * TDAQExternal
+
+set TDAQ_INCLUDES   $(includes)
+set BOOST_LIB     "-lboost_python-$(boost_libsuffix)" 
+set BOOST_LIB_PATH  $(BOOST_HOME)/$(LCG_system)
+set TDAQ_LIBS    $(tdaq_installed_libs)
+
+
+#====================================================================================#
+#                      Documentation build actions definition                        #
+#====================================================================================#
+### Action: Build and Install Documentation on purpose - 
+### you can run this action by hand typing at command line: 
+###   'cmt do buildDocs'   or   'gmake buildDocs'
+###
+### (see also: http://www.cmtsite.org/CMTDoc.html#actions)
+###
+###  It will build the Docs and it will install it under 
+###  ../doc/documenation_Sphinx/_build_html/
+###  and under 
+###  share/doc/dbe/html/
+###
+action buildDocs \
+  "echo 'Building Documentation (Sphinx framework)...'; cd ../doc/documentation_Sphinx; source make_html_doc.sh; cd -; gmake inst"
+
+#====================================================================================#
+#                Some Qt definitions: compilation and linking flags                  #
+#====================================================================================#
+
+#### This is to create the file containing images/icons. 
+#### Usage:
+####    [apply_pattern] qt_embedimages proj=MyProj images=../images/* 
+####    Will create a file MyProj_images.cpp in $(bin) that can be compiled
+####    containing the embedded code for images in ../images/
+#### You need to make your application depending on MyProj and add the line:
+#### $(bin)MyProj_images.cpp to the list of sources of your application
+#pattern qt_embedimages \
+# action <proj> "$(QTDIR)/bin/rcc -name <proj> <images> -o $(bin)qrc_<proj>.cpp"
+make_fragment qrc -header=qrc_header -trailer=qrc_trailer 
+pattern qt_embedimages document qrc <name> -s=<dir> <files>
+
+
+
+#### Generation of mocs
+#### This can be used to generate the mocs from .h files.
+#### To be used when you have your own class inherited from QObject
+#### and you need to generate the Meta Object Compiler file(s)
+#### Usage:
+####    [apply_pattern] qt_mocgen name=myMocs dir=../src files="file1.h file2.h"
+####    Will create the moc files file1.moc.cpp file2.moc.cpp that will be located in
+####    $(bin).
+#### You need to make your application depending on myMocs and add the mocs file1.moc.cpp,
+#### file2.moc.cpp to the list of sources of your application
+make_fragment moc -header=moc_header -trailer=moc_trailer 
+pattern qt_mocgen document moc <name> -s=<dir> <files>
+
+make_fragment ui -header=ui_header -trailer=ui_trailer
+pattern qt_uigen document ui <name> -s=<dir> <files>
+
+#====================================================================================#
+#                         Source code definitions                                      #
+#====================================================================================#
+macro  DBE_LIB_SRC "\
+                    ../src/internal/MainWindow.cpp\
+                    ../src/internal/StyleUtility.cpp\
+                    ../src/internal/Validator.cpp\
+                    ../src/object/CustomLineEdit.cpp\
+                    ../src/object/SearchComboBox.cpp\
+                    ../src/object/ValidatorComboBox.cpp\
+                    ../src/widgets/BatchChangeWidget.cpp\
+                    ../src/widgets/BuildingBlockEditors.cpp\
+                    ../src/widgets/CommitDialog.cpp\
+                    ../src/widgets/CreateDatabaseWidget.cpp\
+                    ../src/widgets/IncludeFileWidget.cpp\
+                    ../src/widgets/ObjectCreator.cpp\
+                    ../src/widgets/ObjectEditor.cpp\
+                    ../src/widgets/OracleWidget.cpp\
+                    ../src/graphical/GraphicalClass.cpp\
+                    ../src/graphical/GraphView.cpp\
+                    ../src/MyApplication.cpp\
+                    ../src/TableTab.cpp\
+                    $(bin)moc_TableTab.cpp\
+                    $(bin)moc_MyApplication.cpp\
+                    $(bin)moc_GraphicalClass.cpp\
+                    $(bin)moc_GraphView.cpp\
+                    $(bin)moc_MainWindow.cpp\
+                    $(bin)moc_CustomLineEdit.cpp\
+                    $(bin)moc_SearchComboBox.cpp\
+                    $(bin)moc_ValidatorComboBox.cpp\
+                    $(bin)moc_BatchChangeWidget.cpp\
+                    $(bin)moc_BuildingBlockEditors.cpp\
+                    $(bin)moc_CommitDialog.cpp\
+                    $(bin)moc_CreateDatabaseWidget.cpp\
+                    $(bin)moc_IncludeFileWidget.cpp\
+                    $(bin)moc_ObjectCreator.cpp\
+                    $(bin)moc_ObjectEditor.cpp\
+                    $(bin)moc_OracleWidget.cpp\
+                    $(bin)qrc_resource.cpp"
+
+library    dbecore $(lib_opts) "$(DBE_LIB_SRC)"
+
+macro DBE_LIB_STRUCTURE_SRC "\
+                    ../src/structure/CustomDelegate.cpp\
+                    ../src/structure/CustomFileView.cpp\
+                    ../src/structure/CustomTableView.cpp\
+                    ../src/structure/CustomTreeView.cpp\
+                    ../src/structure/FileModel.cpp\
+                    ../src/structure/treenode.cpp\
+                    ../src/structure/subtreeproxy.cpp\
+                    ../src/structure/table.cpp\
+                    ../src/structure/TableNode.cpp\
+                    ../src/structure/tableselection.cpp\
+                    ../src/structure/tree.cpp\
+                    ../src/structure/treeselection.cpp\
+                    ../src/structure/model_common_interface.cpp\
+                    $(bin)moc_CustomDelegate.cpp\
+                    $(bin)moc_CustomFileView.cpp\
+                    $(bin)moc_CustomTableView.cpp\
+                    $(bin)moc_CustomTreeView.cpp\
+                    $(bin)moc_FileModel.cpp\
+                    $(bin)moc_subtreeproxy.cpp\
+                    $(bin)moc_table.cpp\
+                    $(bin)moc_tableselection.cpp\
+                    $(bin)moc_tree.cpp\
+                    $(bin)moc_treeselection.cpp\
+                    "
+                    
+library    dbe_structure  $(lib_opts)  "$(DBE_LIB_STRUCTURE_SRC)"
+
+macro  DBE_LIB_INTERNAL_SRC "\
+                    ../src/internal/rwdacc.cpp\
+                    ../src/internal/datahandler.cpp\
+                    ../src/internal/dbcontroller.cpp\
+                    ../src/internal/confaccessor.cpp\
+                    ../src/internal/dbaccessor.cpp\
+                    ../src/internal/messenger.cpp\
+                    ../src/internal/messenger_proxy.cpp\
+                    ../src/internal/config_ui_info.cpp \
+                    $(bin)moc_Validator.cpp\
+                    $(bin)moc_messenger_proxy.cpp\
+                    $(bin)moc_datahandler.cpp\                    
+                    $(bin)moc_confaccessor.cpp \
+                    "
+                    
+library    dbe_internal  $(lib_opts)  "$(DBE_LIB_INTERNAL_SRC)"
+
+macro  DBE_LIB_CONFIG_API_SRC "\
+                    ../src/internal/Command.cpp\
+                    ../src/internal/Conversion.cpp\
+                    ../src/internal/config_api.cpp\
+                    ../src/internal/config_api_set.cpp\
+                    ../src/internal/config_api_get.cpp\
+                    ../src/internal/config_api_info.cpp\
+                    ../src/internal/config_api_graph.cpp\
+                    ../src/internal/config_api_commands.cpp"
+
+library    dbe_config_api  $(lib_opts) "$(DBE_LIB_CONFIG_API_SRC)"
+                
+macro  SCHEMA_LIB_SRC "\
+                    ../src/SchemaEditor/SchemaAttributeEditor.cpp\
+                    ../src/SchemaEditor/SchemaCustomMethodImplementationModel.cpp\
+                    ../src/SchemaEditor/SchemaGraphicArrow.cpp\
+                    ../src/SchemaEditor/SchemaMainWindow.cpp\
+                    ../src/SchemaEditor/SchemaClassEditor.cpp\
+                    ../src/SchemaEditor/SchemaCustomMethodModel.cpp\
+                    ../src/SchemaEditor/SchemaGraphicObject.cpp\
+                    ../src/SchemaEditor/SchemaMethodEditor.cpp\
+                    ../src/SchemaEditor/SchemaCommand.cpp\
+                    ../src/SchemaEditor/SchemaCustomModelInterface.cpp\
+                    ../src/SchemaEditor/SchemaGraphicsScene.cpp\
+                    ../src/SchemaEditor/SchemaMethodImplementationEditor.cpp\
+                    ../src/SchemaEditor/SchemaCustomAttributeModel.cpp\
+                    ../src/SchemaEditor/SchemaCustomRelationshipModel.cpp\
+                    ../src/SchemaEditor/SchemaKernelWrapper.cpp\
+                    ../src/SchemaEditor/SchemaRelationshipEditor.cpp\
+                    ../src/SchemaEditor/SchemaCustomFileModel.cpp\
+                    ../src/SchemaEditor/SchemaCustomTableModel.cpp\
+                    ../src/SchemaEditor/SchemaTab.cpp\
+                    $(bin)moc_SchemaAttributeEditor.cpp\
+                    $(bin)moc_SchemaClassEditor.cpp\
+                    $(bin)moc_SchemaCustomFileModel.cpp\
+                    $(bin)moc_SchemaCustomModelInterface.cpp\
+                    $(bin)moc_SchemaCustomTableModel.cpp\
+                    $(bin)moc_SchemaGraphicObject.cpp\
+                    $(bin)moc_SchemaGraphicsScene.cpp\
+                    $(bin)moc_SchemaKernelWrapper.cpp\
+                    $(bin)moc_SchemaMainWindow.cpp\
+                    $(bin)moc_SchemaMethodEditor.cpp\
+                    $(bin)moc_SchemaMethodImplementationEditor.cpp\
+                    $(bin)moc_SchemaRelationshipEditor.cpp\
+                    $(bin)moc_SchemaTab.cpp\
+                    $(bin)qrc_SchemaResource.cpp"
+
+library  schemacore $(lib_opts) "$(SCHEMA_LIB_SRC)"
+
+
+macro UIGEN_DBE_SRC "\
+                    BatchChangeWidget.ui\
+                    CommitDialog.ui\
+                    CreateDatabaseWidget.ui\
+                    DBE.ui\
+                    EditCombo.ui\
+                    GraphView.ui\
+                    IncludeFileWidget.ui\
+                    NumericAttributeWidgetForm.ui\
+                    ObjectCreator.ui\
+                    ObjectEditor.ui\
+                    OracleWidget.ui\
+                    RelationshipWidgetForm.ui\
+                    StringAttributeWidgetForm.ui"
+
+macro UIGEN_SCHEMA_SRC "\
+                    SchemaAttributeEditor.ui\
+                    SchemaClassEditor.ui\
+                    SchemaMainWindow.ui\
+                    SchemaMethodEditor.ui\
+                    SchemaMethodImplementationEditor.ui\
+                    SchemaRelationshipEditor.ui"
+
+macro MOC_SCHEMA_SRC "\
+                    SchemaAttributeEditor.h\
+                    SchemaClassEditor.h\
+                    SchemaCustomFileModel.h\
+                    SchemaCustomModelInterface.h\
+                    SchemaCustomTableModel.h\
+                    SchemaGraphicObject.h\
+                    SchemaGraphicsScene.h\
+                    SchemaKernelWrapper.h\
+                    SchemaMainWindow.h\
+                    SchemaMethodEditor.h\
+                    SchemaMethodImplementationEditor.h\
+                    SchemaRelationshipEditor.h\
+                    SchemaTab.h"
+ 
+macro MOC_DBE_SRC "\
+                    GraphicalClass.h\
+                    GraphView.h\
+                    confaccessor.h\
+                    datahandler.h\
+                    MainWindow.h\
+                    MyApplication.h\
+                    Validator.h\
+                    CustomLineEdit.h\
+                    SearchComboBox.h\
+                    ValidatorComboBox.h\
+                    CustomDelegate.h\
+                    CustomFileView.h\
+                    CustomTableView.h\
+                    CustomTreeView.h\
+                    FileModel.h\
+                    subtreeproxy.h\
+                    table.h\
+                    tableselection.h\
+                    tree.h\
+                    treeselection.h\
+                    BatchChangeWidget.h\
+                    BuildingBlockEditors.h\
+                    CommitDialog.h\
+                    CreateDatabaseWidget.h\
+                    IncludeFileWidget.h\
+                    ObjectCreator.h\
+                    ObjectEditor.h\
+                    OracleWidget.h\
+                    TableTab.h\
+                    messenger_proxy.h"
+
+
+qt_uigen        name=uigendbe \
+                dir=../ui \
+                files=$(UIGEN_DBE_SRC)
+
+qt_uigen        name=uigenschema \
+                dir=../ui \
+                files=$(UIGEN_SCHEMA_SRC)
+
+qt_mocgen       name=dbebase \
+                dir=../dbe\
+                files=$(MOC_DBE_SRC)
+
+qt_mocgen       name=schemabase \
+                dir=../dbe\
+                files=$(MOC_SCHEMA_SRC)
+
+qt_embedimages  name=DBEimg \
+                dir=../icons\
+                files=resource.qrc
+                
+qt_embedimages  name=SchemaResource \
+                dir=../icons/\
+                files=SchemaResource.qrc
+
+macro            qt_linkopts                    " -lQtCore -lQtGui -lqtutils "
+
+macro            common_linkopts                " -L$(bin)  $(qt_linkopts)  -lers  -lrdb"
+macro_append     common_linkopts                " -lipc     -lconfig        -ldaq-core-dal"
+macro_append     common_linkopts                " -l$(Python_version_headers)"
+                                           
+macro_append     cppflags                       " -I../dbe -DQT_NO_DEBUG"
+
+#====================================================================================#
+#                                       DBE VERSION INFO                             #
+#====================================================================================#
+action           dbe_git_extract_tag            "git describe --tags"
+action           dbe_git_extract_sha            "git rev-parse HEAD"
+set              dbe_version_info               "`${dbe_git_extract_tag}`"
+set              dbe_commit_info                "`${dbe_git_extract_sha}`"
+macro_append     cppflags                       "  -DDBE__VERSION_INFO=${dbe_version_info}"
+macro_append     cppflags                       "  -DDBE__COMMIT_INFO=${dbe_commit_info}"
+
+#====================================================================================#
+#                                       LIBDBE_CONFIG_API                            #
+#====================================================================================#
+macro_append     dbe_config_apilinkopts         " $(common_linkopts) "
+
+#====================================================================================#
+#                                       LIBDBE_STRUCTURE                             #
+#====================================================================================#
+macro            dbe_structure_dependencies     " uigendbe dbebase"
+macro_append     dbe_structurelinkopts          " $(common_linkopts) "
+
+#====================================================================================#
+#                                       LIBDBE_INTERNAL                              #
+#====================================================================================#
+macro            dbe_internal_dependencies      " uigendbe dbebase dbe_config_api"
+macro_append     dbe_internallinkopts           " -ldbe_config_api $(common_linkopts) "
+
+#====================================================================================#
+#                                       LIBDBECORE                                   #
+#====================================================================================#
+macro            dbecore_dependencies           " DBEimg dbebase uigendbe "
+macro_append     dbecore_dependencies           " dbe_config_api dbe_internal"
+macro_append     dbecorelinkopts                " -ldbe_config_api  -ldbe_internal"
+macro_append     dbecorelinkopts                " -ldbe_structure   $(common_linkopts)"
+
+#====================================================================================#
+#                                       DBE                                          #
+#====================================================================================#
+application      dbe                            " ../src/Main.cpp"
+macro            dbe_dependencies               " dbecore dbe_structure"
+
+macro            dbe_libs                       " -ldbecore -ldbe_config_api "
+macro_append     dbe_libs                       " -ldbe_structure -ldbe_internal"
+macro            dbe_linkopts                   " -lAccessManager "
+macro_append     dbe_linkopts                   " -lboost_program_options-$(boost_libsuffix)" 
+
+macro            dbelinkopts                    "$(common_linkopts) $(dbe_libs) $(dbe_linkopts)"
+
+#====================================================================================#
+#                                       GRAPHTOOL                                    #
+#====================================================================================#
+application      dbe_gtool                      "  ../src/graphtool.cpp\
+                                                ../src/graphtool/gtool.cpp\
+                                                ../src/graphtool/segregate.cpp\
+                                                ../src/graphtool/stats.cpp"
+                                                
+macro            dbe_gtool_dependencies         " dbe_internal dbe_config_api"
+macro_append     dbe_gtool_dependencies         " dbe_structure dbecore"
+
+macro            dbe_gtool_linkopts             "  -ldbe_internal -ldbe_structure"
+macro_append     dbe_gtool_linkopts             "  -ldbe_config_api -ldbecore"
+                                               
+macro            dbe_gtoollinkopts              " $(dbe_gtool_linkopts) $(common_linkopts) "
+
+#====================================================================================#
+#                                       SCHEMACORE                                   #
+#====================================================================================#
+macro            schemacore_dependencies 		    "schemabase uigenschema SchemaResource"                
+
+#====================================================================================#
+#                                       SCHEMAEDITOR                                 #
+#====================================================================================#
+application      schema_editor                  "../src/SchemaEditor/SchemaMain.cpp"
+macro            schema_editor_dependencies     " schemacore"
+macro_append     schema_editorlinkopts          " $(common_linkopts) -lschemacore -loks"
+
+
+#====================================================================================#
+#                                       TEST                                         #
+#====================================================================================#
+macro            dbe_test_linkopts      	      "  -lboost_unit_test_framework-$(boost_libsuffix)"
+macro_append     dbe_test_linkopts		          "  -lboost_system-$(boost_libsuffix)"
+#====================================================================================#
+
+application      dbe_config_api_test  -group=check    \
+                                                "  ../test/config_api_info_test.cpp"
+
+macro            dbe_config_api_test_dependencies     \
+                                                " dbe_config_api dbe_structure"
+macro_append     dbe_config_api_test_dependencies     \
+                                                " dbecore  dbe_internal"
+
+macro            dbe_config_api_testlinkopts    "  -ldbe_config_api  -ldbe_structure"
+macro_append     dbe_config_api_testlinkopts    "  -ldbecore  -ldbe_internal"
+macro_append     dbe_config_api_testlinkopts    "  $(common_linkopts) $(dbe_test_linkopts)"
+
+action           dbe_config_api_test_act              \
+                                                "LD_LIBRARY_PATH=../${CMTCONFIG}:${LD_LIBRARY_PATH} \
+                                                ../${CMTCONFIG}/dbe_config_api_test"
+macro            dbe_config_api_test_act_dependencies \
+                                                "dbe_config_api_test"
+
+apply_pattern    check_target name=config_api file="${dbe_config_api_test_act}"
+macro            dbe_check_config_api_dependencies    \
+                                                "dbe_config_api_test" 
+
+#====================================================================================#
+
+application      dbe_confaccessor_test  -group=check \
+                                                "  ../test/confaccessor_test.cpp"
+
+macro            dbe_confaccessor_test_dependencies  \
+                                                "  dbe_config_api dbe_structure"
+macro_append     dbe_confaccessor_test_dependencies  \
+                                                "  dbecore  dbe_internal"
+
+macro            dbe_confaccessor_testlinkopts  "  $(common_linkopts)"
+macro_append     dbe_confaccessor_testlinkopts  "  $(dbe_test_linkopts)"
+macro_append     dbe_confaccessor_testlinkopts  "  -ldbe_config_api"
+macro_append     dbe_confaccessor_testlinkopts  "  -ldbe_structure"
+macro_append     dbe_confaccessor_testlinkopts  "  -ldbecore"
+macro_append     dbe_confaccessor_testlinkopts  "  -ldbe_internal"
+
+action           dbe_confaccessor_test_act            \
+                                                "LD_LIBRARY_PATH=../${CMTCONFIG}:${LD_LIBRARY_PATH} \
+                                                ../${CMTCONFIG}/dbe_confaccessor_test"
+macro            dbe_confaccessor_test_act_dependencies \
+                                                "dbe_confaccessor_test"
+                                                
+apply_pattern    check_target name=confaccessor  file="${dbe_confaccessor_test_act}"
+macro            dbe_check_confaccessor_dependencies  dbe_confaccessor_test
+
+#====================================================================================#
+#                                       INSTALL                                      #
+#====================================================================================#
+
+# ignoring two default patterns that we don't use so far
+ignore_pattern inst_scripts_auto
+ignore_pattern inst_headers_bin_auto
+
+
+### Installing libraries
+apply_pattern install_libs files="libdbe_config_api.so"
+apply_pattern install_libs files="libdbe_structure.so"
+apply_pattern install_libs files="libdbe_internal.so"
+apply_pattern install_libs files="libdbecore.so"
+apply_pattern install_libs files="libschemacore.so"
+
+
+### Installing the binary commands
+apply_pattern install_apps files="dbe"
+apply_pattern install_apps files="dbe_gtool"
+apply_pattern install_apps files="schema_editor"
+
+### Installing the Plugins
+#apply_pattern  install_data        name="plugins" \
+#                                   src_dir="../plugins" \
+#                                   target_dir="plugins" \
+#                                   files="*.so"
+
+
+
+
+### Installing the Python scripts
+
+#Adding the installation location to the PYTHONPATH environment variable.
+path_prepend    PYTHONPATH              "${prefix}/share/lib/python"
+
+# installing the directory containing all the python scripts
+# ---> N.B. This gives an error when launching 'gmake inst'
+#      python scripts are correctly installed...
+#      but the error looks to be harmless, and apparently the
+#      See: https://its.cern.ch/jira/browse/ATLASDBE-1
+apply_pattern   install_dir  src_dir="../python"           \
+                             target_dir="share/lib/python"   \
+                             dir="dbe" \   
+                             mask="*.py"
+                    
+#Installing examples.
+apply_pattern install_examples name="dbe_examples" \
+                               src_dir="../examples" \
+                               files=" *.py *.xml"
+
+### Installing the Documentation
+# the pattern "inst_docs_auto" is automatically applied to each package. Here below we use custom ones to install the Sphinx doc.
+#
+# PLEASE NOTICE: these following CMT doc installion steps usually take a lot of time. Comment them out if you are developing.
+#
+#apply_pattern install_docs name=sphinx_1  src_dir="../doc/documentation_Sphinx/_build/html" files="*.html *.inv *.js" target_dir="html"
+#apply_pattern install_docs name=sphinx_2  src_dir="../doc/documentation_Sphinx/_build/html/user_guide" files="*.html" target_dir="html/user_guide"
+#apply_pattern install_docs name=sphinx_3  src_dir="../doc/documentation_Sphinx/_build/html/developers_doc" files="*.html" target_dir="html/developers_doc"
+#apply_pattern install_docs name=sphinx_4  src_dir="../doc/documentation_Sphinx/_build/html/_images" files="*.png *.jpg *.gif" target_dir="html/_images
+#apply_pattern install_docs name=sphinx_5  src_dir="../doc/documentation_Sphinx/_build/html/_static" files="*.css *.js *.png *.gif *.jpg" target_dir="html/_static"

@@ -1,0 +1,7 @@
+#-- start of ui_header ------
+
+${CONSTITUENT} ::
+	@/bin/echo "-------------> ${CONSTITUENT} Build start"
+
+#-- end of ui_header ------
+

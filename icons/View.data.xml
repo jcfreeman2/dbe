@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-data version 2.0 -->
+
+
+<!DOCTYPE oks-data [
+  <!ELEMENT oks-data (info, (include)?, (comments)?, (obj)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #REQUIRED
+      type CDATA #REQUIRED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "extended"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      creation-time CDATA #REQUIRED
+      last-modified-by CDATA #REQUIRED
+      last-modified-on CDATA #REQUIRED
+      last-modification-time CDATA #REQUIRED
+  >
+  <!ELEMENT include (file)+>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT comments (comment)+>
+  <!ELEMENT comment EMPTY>
+  <!ATTLIST comment
+      creation-time CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      author CDATA #REQUIRED
+      text CDATA #REQUIRED
+  >
+  <!ELEMENT obj (attr | rel)*>
+  <!ATTLIST obj
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+  <!ELEMENT attr (#PCDATA)*>
+  <!ATTLIST attr
+      name CDATA #REQUIRED
+      type (bool|s8|u8|s16|u16|s32|u32|s64|u64|float|double|date|time|string|uid|enum|class|-) "-"
+      num CDATA "-1"
+  >
+  <!ELEMENT rel (#PCDATA)*>
+  <!ATTLIST rel
+      name CDATA #REQUIRED
+      num CDATA "-1"
+  >
+]>
+
+<oks-data>
+
+<info name="" type="" num-of-items="2" oks-format="extended" oks-version="oks-06-07-02 built &quot;Jul 14 2014&quot;" created-by="judecast" created-on="pcatd148.cern.ch" creation-time="20150220T194449" last-modified-by="judecast" last-modified-on="pcatd148.cern.ch" last-modification-time="20150220T194655"/>
+
+<include>
+ <file path="daq/SchemaView.schema.xml"/>
+</include>
+
+<comments>
+ <comment creation-time="20150220T194559" created-by="judecast" created-on="pcatd148.cern.ch" author="Unknown" text="dfvbdsfv"/>
+ <comment creation-time="20150220T194655" created-by="judecast" created-on="pcatd148.cern.ch" author="judecast" text="C++ oksconfig plug-in user: &apos;judecast&apos;, host: &apos;pcatd148.cern.ch&apos;, log message: &apos;vsfv&apos;"/>
+</comments>
+
+
+<obj class="ClassInfo" id="Partition">
+ <attr name="ShowAllAttributes" type="bool">0</attr>
+ <attr name="ShowAllRelationships" type="bool">1</attr>
+ <attr name="Attributes" type="string" num="0"></attr>
+ <attr name="Relationships" type="string" num="0"></attr>
+</obj>
+
+<obj class="View" id="PartitionView">
+ <attr name="Name" type="string">"PartitionView"</attr>
+ <attr name="ShowAll" type="bool">1</attr>
+ <rel name="ClassesList" num="0"></rel>
+</obj>
+
+</oks-data>

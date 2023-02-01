@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/theme">
+        <file>DBE_Default_User_Settings.conf</file>
+    </qresource>
+</RCC>

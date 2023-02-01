@@ -1,0 +1,29 @@
+/*QLineEdit [defaultValue=true]{ background-color: yellow; }*/
+
+/* *[loadedDefaults="true"] { background-color: green } */
+/* * { background-color: green }*/
+
+/* Styling our custom class daq::dbe::ValidatorLineEdit, which specializes the standard QLineEdit class */
+/*daq--dbe--ValidatorLineEdit[mandatoryField="true"] { background-color: yellow; }
+daq--dbe--ValidatorLineEdit[loadedDefault="true"] { background-color: pink; }*/
+
+/* removing the ugly frame around QLabels added to the QStatusBar*/
+QStatusBar::item { border: 0px solid black }
+
+QTableView {
+     /*selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,
+                                 stop: 0 #FF92BB, stop: 1 white);*/
+     alternate-background-color: #F8F8F8; /*#FFFFE6; #99CCFF;*/
+     
+ }
+ 
+/* 
+AttributeTableItem {
+	background-color: green
+	}
+	*/
+	
+AttributeTableItem {
+	background-color: #214145
+}
+	

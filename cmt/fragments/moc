@@ -1,0 +1,11 @@
+${CONSTITUENT}_output = $(bin)
+
+${${CONSTITUENT}_output}moc_${NAME}.cpp : ${FULLNAME}
+	@/bin/echo "Generation of moc files from header definitions for ${NAME}"
+	@$(QTDIR)/bin/moc ${FULLNAME} -o $(bin)moc_${NAME}.cpp
+
+${CONSTITUENT}clean ::
+	@/bin/rm -f ${${CONSTITUENT}_output}moc_${NAME}.cpp
+	@/bin/echo "Removal of ${${CONSTITUENT}_output}moc_${NAME}.cpp"
+
+${CONSTITUENT} :: ${bin}moc_${NAME}.cpp

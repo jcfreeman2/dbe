@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>add_class.xpm</file>
+        <file>aggregation.xpm</file>
+        <file>comment.xpm</file>
+        <file>commit.xpm</file>
+        <file>data_editor_about.xpm</file>
+        <file>data_editor_oks_object.xpm</file>
+        <file>default-obj.xpm</file>
+        <file>error.xpm</file>
+        <file>exit.xpm</file>
+        <file>fail.xpm</file>
+        <file>glink.xpm</file>
+        <file>schema_editor_oks_relationship.xpm</file>
+        <file>select-class.xpm</file>
+        <file>select.xpm</file>
+        <file>stop.xpm</file>
+        <file>tree.xpm</file>
+        <file>update.xpm</file>
+        <file>warning.xpm</file>
+        <file>xbae.xpm</file>
+        <file>xmhtml.xpm</file>
+        <file>hand.xpm</file>
+        <file>info.xpm</file>
+        <file>link2.xpm</file>
+        <file>many.xpm</file>
+        <file>move.xpm</file>
+        <file>new_class.xpm</file>
+        <file>ok.xpm</file>
+        <file>one.xpm</file>
+        <file>params.xpm</file>
+        <file>print.xpm</file>
+        <file>release.xpm</file>
+        <file>remove.xpm</file>
+        <file>rename.xpm</file>
+        <file>revert.xpm</file>
+        <file>save_all.xpm</file>
+        <file>save_as.xpm</file>
+        <file>save.xpm</file>
+        <file>schema_editor_about.xpm</file>
+        <file>schema_editor_oks_attribute.xpm</file>
+        <file>schema_editor_oks_class.xpm</file>
+        <file>schema_editor_oks_method.xpm</file>
+    </qresource>
+</RCC>

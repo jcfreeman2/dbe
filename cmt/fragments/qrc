@@ -1,0 +1,11 @@
+${CONSTITUENT}_output = $(bin)
+
+${${CONSTITUENT}_output}qrc_${NAME}.cpp : ${FULLNAME}
+	@/bin/echo "Generation of source files from resource definitions for ${NAME}.cpp"
+	@$(QTDIR)/bin/rcc -name ${CONSTITUENT} ${FULLNAME} -o $(bin)qrc_${NAME}.cpp
+
+${CONSTITUENT}clean ::
+	@/bin/rm -f ${${CONSTITUENT}_output}qrc_${NAME}.cpp
+	@/bin/echo "Removal of ${${CONSTITUENT}_output}qrc_${NAME}.cpp"
+
+${CONSTITUENT} :: ${bin}qrc_${NAME}.cpp

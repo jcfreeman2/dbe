@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file>slink.png</file>
+        <file>folder.png</file>
+        <file>undo.png</file>
+        <file>redo.png</file>
+        <file>ok.png</file>
+        <file>bye.png</file>
+        <file>search.png</file>
+        <file>filetypes.png</file>
+        <file>help-browser.png</file>
+        <file>help-contents.png</file>
+        <file>questionmark_48.png</file>
+        <file>exit.png</file>
+        <file>stylesheet2.qss</file>
+    </qresource>
+</RCC>

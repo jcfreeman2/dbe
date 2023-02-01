@@ -1,0 +1,125 @@
+/// Including DBE
+#include "TableSelectionModel.h"
+
+TableSelectionModel::TableSelectionModel ( QObject * parent ) :
+  QSortFilterProxyModel ( parent ), Type ( ExactFilter )
+{
+}
+
+void TableSelectionModel::SetFilterType ( TableSelectionModel::FilterType Filter )
+{
+  Type = Filter;
+}
+
+TableNode * TableSelectionModel::GetTableNode ( const QModelIndex & index ) const
+{
+  if ( index.isValid() )
+  {
+    QModelIndex sourceParent = mapToSource ( index );
+    TableModel * my = dynamic_cast<TableModel *> ( sourceModel() );
+
+    if ( my != 0 )
+    {
+      return my->GetTableNode ( sourceParent );
+    }
+    else
+    {
+      return nullptr;
+    }
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+bool TableSelectionModel::setData ( const QModelIndex & index, const QVariant & value,
+                                    int role )
+{
+  if ( index.isValid() )
+  {
+    QModelIndex sourceParent;
+
+    int idx_row = index.row();
+    int idx_col = index.column();
+
+    try
+    {
+      QModelIndex idx_index = this->index ( idx_row, idx_col );
+      sourceParent = mapToSource ( idx_index );
+    }
+    catch ( std::exception & err )
+    {
+      return true;
+    }
+
+    bool success = sourceModel()->setData ( sourceParent, value, role );
+    emit dataChanged ( index, index );
+    return success;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+void TableSelectionModel::ResetModel()
+{
+  beginResetModel();
+  endResetModel();
+}
+
+bool TableSelectionModel::filterAcceptsRow ( int sourceRow,
+                                             const QModelIndex & sourceParent ) const
+{
+  QModelIndex index0 = sourceModel()->index ( sourceRow, 0, sourceParent );
+
+  if ( filterRegExp().isEmpty() )
+  {
+    return true;
+  }
+
+  switch ( Type )
+  {
+  case TableSelectionModel::RegExpFilter:
+    if ( filterRegExp().indexIn ( sourceModel()->data ( index0 ).toString() ) != -1 )
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+
+  case TableSelectionModel::ExactFilter:
+    return ( filterRegExp().exactMatch ( sourceModel()->data ( index0 ).toString() ) );
+
+  default:
+    return true;
+  }
+}
+
+bool TableSelectionModel::lessThan ( const QModelIndex & left,
+                                     const QModelIndex & right ) const
+{
+  QVariant LeftData = sourceModel()->data ( left );
+  QVariant RightData = sourceModel()->data ( right );
+
+  switch ( LeftData.type() )
+  {
+  case QVariant::Bool:
+  case QVariant::UInt:
+    return ( LeftData.toUInt() < RightData.toUInt() );
+
+  case QVariant::Int:
+    return ( LeftData.toInt() < RightData.toInt() );
+
+  case QVariant::String:
+    return ( ( LeftData.toString() ).compare ( RightData.toString() ) > 0 );
+
+  default:
+    return false;
+  }
+
+  return true;
+}

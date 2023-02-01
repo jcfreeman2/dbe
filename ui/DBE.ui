@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dbe::MainWindow</class>
+ <widget class="QMainWindow" name="dbe::MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>909</width>
+    <height>848</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <weight>50</weight>
+    <bold>false</bold>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="tablepane">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
+    <item>
+     <layout class="QVBoxLayout" name="VerticalLayout5">
+      <item>
+       <widget class="QGroupBox" name="TableGroupBox">
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="title">
+         <string>TableView</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QTabWidget" name="tableholder">
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="tab">
+            <attribute name="title">
+             <string>View 1</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_3"/>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="VerticalLayout3">
+           <item>
+            <layout class="QHBoxLayout" name="HorizontalLayout8">
+             <item>
+              <widget class="QLineEdit" name="SearchLineTable">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="CaseSensitiveCheckBoxTable">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Case Sensitive</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="ShowDerivedObjects">
+           <property name="text">
+            <string>Show objects from derived class</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>909</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="FileMenu">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="ConnectToRdb">
+     <property name="title">
+      <string>Load from RDB</string>
+     </property>
+    </widget>
+    <addaction name="OpenDB"/>
+    <addaction name="OpenOracleDB"/>
+    <addaction name="ConnectToRdb"/>
+    <addaction name="separator"/>
+    <addaction name="CreateDatabase"/>
+    <addaction name="separator"/>
+    <addaction name="Exit"/>
+   </widget>
+   <widget class="QMenu" name="EditMenu">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="BatchChange"/>
+    <addaction name="BatchChangeTable"/>
+    <addaction name="separator"/>
+    <addaction name="Commit"/>
+    <addaction name="separator"/>
+    <addaction name="RedoAction"/>
+    <addaction name="UndoAction"/>
+    <addaction name="UndoAll"/>
+   </widget>
+   <widget class="QMenu" name="ViewMenu">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="DisplayTableView"/>
+    <addaction name="DisplayClassView"/>
+    <addaction name="DisplayPartitionView"/>
+    <addaction name="DisplaySegmentsView"/>
+    <addaction name="DisplayMessages"/>
+    <addaction name="DisplayToolbar"/>
+    <addaction name="separator"/>
+    <addaction name="LoadDefaultSettings"/>
+    <addaction name="separator"/>
+    <addaction name="LaunchGraphicalView"/>
+   </widget>
+   <widget class="QMenu" name="ToolsMenu">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="HelpMenu">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="UserGuide"/>
+    <addaction name="information_about_dbe"/>
+   </widget>
+   <addaction name="FileMenu"/>
+   <addaction name="EditMenu"/>
+   <addaction name="ViewMenu"/>
+   <addaction name="ToolsMenu"/>
+   <addaction name="HelpMenu"/>
+  </widget>
+  <widget class="QToolBar" name="MainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="OpenDB"/>
+   <addaction name="CreateDatabase"/>
+   <addaction name="Commit"/>
+   <addaction name="separator"/>
+   <addaction name="UndoAction"/>
+   <addaction name="RedoAction"/>
+   <addaction name="separator"/>
+   <addaction name="WhatThisAction"/>
+   <addaction name="UserChanges"/>
+   <addaction name="separator"/>
+   <addaction name="Exit"/>
+  </widget>
+  <widget class="QDockWidget" name="TreeDockWidget">
+   <property name="font">
+    <font>
+     <weight>50</weight>
+     <bold>false</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="windowTitle">
+    <string>Class View</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="TreeDockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <layout class="QVBoxLayout" name="VerticalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="HorizontalLayout4">
+         <item>
+          <widget class="QCheckBox" name="HideCheckBox">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Hide Empty Classes</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="TotalObjectsLabel">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Total Objects : 0</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="CustomTreeView" name="TreeView"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="HorizontalLayout3">
+       <item>
+        <widget class="SearchComboBox" name="SearchBox">
+         <property name="editable">
+          <bool>false</bool>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>Search Only Classes</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../icons/resource.qrc">
+            <normaloff>:/Images/FolderSearch_32.png</normaloff>:/Images/FolderSearch_32.png</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Query Only Objects</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../icons/resource.qrc">
+            <normaloff>:/Images/Search_1.png</normaloff>:/Images/Search_1.png</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Search All Items</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../icons/resource.qrc">
+            <normaloff>:/Images/Search_2.png</normaloff>:/Images/Search_2.png</iconset>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="SearchTreeLine"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="CaseSensitiveCheckBoxTree">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Case Sensitive</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="PartitionDockWidget">
+   <property name="font">
+    <font>
+     <weight>50</weight>
+     <bold>false</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="windowTitle">
+    <string>Partition View</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="PartitionDockWidgetContents">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="CustomTreeView" name="PartitionView"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="ResourceDockWidget">
+   <property name="font">
+    <font>
+     <weight>50</weight>
+     <bold>false</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="windowTitle">
+    <string>Resource View</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="ResourceDockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="CustomTreeView" name="ResourceView">
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This view shows the database resources objects&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="StatusBar"/>
+  <widget class="QDockWidget" name="InfoDockWidget">
+   <property name="windowTitle">
+    <string>Info Tabs</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QTabWidget" name="InfoWidget">
+       <property name="currentIndex">
+        <number>2</number>
+       </property>
+       <property name="movable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="FilesTab">
+        <attribute name="title">
+         <string>Files</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="CustomFileView" name="FileView">
+           <property name="sortingEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="UndoTab">
+        <attribute name="title">
+         <string>Undo</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QUndoView" name="UndoView"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="CommitedTab">
+        <attribute name="title">
+         <string>Committed</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QTableWidget" name="CommittedTable">
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::DoubleClicked|QAbstractItemView::SelectedClicked</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+           <property name="horizontalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+           <property name="rowCount">
+            <number>0</number>
+           </property>
+           <property name="columnCount">
+            <number>3</number>
+           </property>
+           <attribute name="horizontalHeaderCascadingSectionResizes">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="horizontalHeaderDefaultSectionSize">
+            <number>300</number>
+           </attribute>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+           <column/>
+           <column/>
+           <column/>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="OpenDB">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/Database_1.png</normaloff>:/Images/Database_1.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Load from File</string>
+   </property>
+   <property name="iconText">
+    <string>Load from File</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Configuration DataBase from an XML file</string>
+   </property>
+   <property name="statusTip">
+    <string>Open Configuration DataBase from an XML file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="OpenOracleDB">
+   <property name="text">
+    <string>Load from Oracle</string>
+   </property>
+   <property name="toolTip">
+    <string>Load configuration stored in an Oracle database</string>
+   </property>
+   <property name="statusTip">
+    <string>Load configuration stored in an Oracle database</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+O</string>
+   </property>
+  </action>
+  <action name="CreateDatabase">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/CreateDatabase.png</normaloff>:/Images/CreateDatabase.png</iconset>
+   </property>
+   <property name="text">
+    <string>Create &amp;New Database</string>
+   </property>
+   <property name="statusTip">
+    <string>Create New Database</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="DirectStructure">
+   <property name="text">
+    <string>Build Direc&amp;t Class Structure</string>
+   </property>
+   <property name="statusTip">
+    <string>Build New View Only With Objects Of the Same Class Type</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="InheritedStructure">
+   <property name="text">
+    <string>Build &amp;Inherited Class Structure</string>
+   </property>
+   <property name="statusTip">
+    <string>Build New Tree View With All Objects</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="Exit">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/Exit.png</normaloff>:/Images/Exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="PythonScript">
+   <property name="text">
+    <string>&amp;Python Script</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="BatchChange">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Batch Change</string>
+   </property>
+  </action>
+  <action name="DisplayTableView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Table View</string>
+   </property>
+  </action>
+  <action name="DisplayClassView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Class View</string>
+   </property>
+  </action>
+  <action name="DisplayPartitionView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Partition View</string>
+   </property>
+  </action>
+  <action name="DisplaySegmentsView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Segments View</string>
+   </property>
+  </action>
+  <action name="DisplayMessages">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Messages</string>
+   </property>
+  </action>
+  <action name="DisplayToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Toolbar</string>
+   </property>
+  </action>
+  <action name="LoadDefaultSettings">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Load Default Settings</string>
+   </property>
+  </action>
+  <action name="LaunchGraphicalView">
+   <property name="text">
+    <string>Graphical View</string>
+   </property>
+  </action>
+  <action name="Commit">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/SaveDatabase.png</normaloff>:/Images/SaveDatabase.png</iconset>
+   </property>
+   <property name="text">
+    <string>Commit</string>
+   </property>
+  </action>
+  <action name="UndoAction">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/Undo.png</normaloff>:/Images/Undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="RedoAction">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/Redo.png</normaloff>:/Images/Redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="WhatThisAction">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/QuestionMark.png</normaloff>:/Images/QuestionMark.png</iconset>
+   </property>
+   <property name="text">
+    <string>WhatThisAction</string>
+   </property>
+  </action>
+  <action name="UserGuide">
+   <property name="text">
+    <string>User Guide</string>
+   </property>
+  </action>
+  <action name="ShowUsersChanges">
+   <property name="text">
+    <string>Show Users Changes</string>
+   </property>
+  </action>
+  <action name="AboutAction">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="UserChanges">
+   <property name="icon">
+    <iconset resource="../icons/resource.qrc">
+     <normaloff>:/Images/NoteBloc_1.png</normaloff>:/Images/NoteBloc_1.png</iconset>
+   </property>
+   <property name="text">
+    <string>User Changes</string>
+   </property>
+  </action>
+  <action name="UndoAll">
+   <property name="text">
+    <string>&amp;Undo All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="BatchChangeTable">
+   <property name="text">
+    <string>Batch Change Table</string>
+   </property>
+  </action>
+  <action name="information_about_dbe">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomFileView</class>
+   <extends>QTableView</extends>
+   <header>CustomFileView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QUndoView</class>
+   <extends>QListView</extends>
+   <header>qundoview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomTreeView</class>
+   <extends>QTreeView</extends>
+   <header>CustomTreeView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SearchComboBox</class>
+   <extends>QComboBox</extends>
+   <header>SearchComboBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../icons/resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
