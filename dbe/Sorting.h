@@ -21,7 +21,7 @@ public:
     return ( L.UID() ).compare ( ( R.UID() ) ) < 0;
   }
 
-  bool operator () ( const daq::config::attribute_t & L, const daq::config::attribute_t & R )
+  bool operator () ( const dunedaq::config::attribute_t & L, const dunedaq::config::attribute_t & R )
   {
     int LString = L.p_type;
     int RString = R.p_type;

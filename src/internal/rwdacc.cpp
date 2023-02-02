@@ -17,6 +17,7 @@
 #include "config/Errors.hpp"
 #include "config/Schema.hpp"
 #include "ers/LocalContext.hpp"
+#include "logging/Logging.hpp"
 
 #include <QString>
 #include <QStringList>
@@ -54,7 +55,7 @@ ConfigObject rwdacc::create_object(std::string const & fn, std::string const & c
 	{
 		dbaccessor::dbptr()->create(fn, cn, uid,newobj);
 	}
-	catch (daq::config::Exception const & ex)
+	catch (dunedaq::config::Exception const & ex)
 	{
     FAIL ( "Object creation failed", dbe::config::errors::parse ( ex ), "\n\nObject UID:",
            uid );
@@ -93,109 +94,109 @@ tref rwdacc::set_object(tref newobj,
 
 	if (not newobj.is_null())
 	{
-		daq::config::class_t ClassInfo = dbe::config::api::info::onclass::definition(
+		dunedaq::config::class_t ClassInfo = dbe::config::api::info::onclass::definition(
 		        newobj.class_name(),
 				false);
-		std::vector<daq::config::attribute_t> AttList = ClassInfo.p_attributes;
-		std::vector<daq::config::relationship_t> RelList = ClassInfo.p_relationships;
+		std::vector<dunedaq::config::attribute_t> AttList = ClassInfo.p_attributes;
+		std::vector<dunedaq::config::relationship_t> RelList = ClassInfo.p_relationships;
 
-		for (daq::config::attribute_t const & att : AttList)
+		for (dunedaq::config::attribute_t const & att : AttList)
 		{
 			try
 			{
 			    if(att.p_is_multi_value) {
 			        switch(att.p_type) {
-			            case daq::config::bool_type:
+			            case dunedaq::config::bool_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<bool>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::enum_type:
+			            case dunedaq::config::enum_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
 			                set::noactions::anenum(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::date_type:
+			            case dunedaq::config::date_type:
                         {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::adate(newobj, att, data, true);
                         }
                             break;
-			            case daq::config::time_type:
+			            case dunedaq::config::time_type:
                         {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::atime(newobj, att, data, true);
                         }
                             break;
-			            case daq::config::string_type:
+			            case dunedaq::config::string_type:
                         {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-			            case daq::config::class_type:
+			            case dunedaq::config::class_type:
 			            {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::aclass(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::float_type:
+			            case dunedaq::config::float_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<float>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::double_type:
+			            case dunedaq::config::double_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<double>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::s8_type:
+			            case dunedaq::config::s8_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int8_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::s16_type:
+			            case dunedaq::config::s16_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int16_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::s32_type:
+			            case dunedaq::config::s32_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int32_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::s64_type:
+			            case dunedaq::config::s64_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int64_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::u8_type:
+			            case dunedaq::config::u8_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int8_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::u16_type:
+			            case dunedaq::config::u16_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int16_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::u32_type:
+			            case dunedaq::config::u32_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int32_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case daq::config::u64_type:
+			            case dunedaq::config::u64_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int64_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
@@ -206,97 +207,97 @@ tref rwdacc::set_object(tref newobj,
 			        }
 			    } else {
 			        switch(att.p_type) {
-			            case daq::config::bool_type:
+			            case dunedaq::config::bool_type:
 			            {
 			                auto data = dbe::convert::to<bool>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-                        case daq::config::enum_type:
+                        case dunedaq::config::enum_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::anenum(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::date_type:
+                        case dunedaq::config::date_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::adate(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::time_type:
+                        case dunedaq::config::time_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::atime(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::string_type:
+                        case dunedaq::config::string_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::class_type:
+                        case dunedaq::config::class_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::aclass(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::float_type:
+                        case dunedaq::config::float_type:
                         {
                             auto data = dbe::convert::to<float>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::double_type:
+                        case dunedaq::config::double_type:
                         {
                             auto data = dbe::convert::to<double>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::s8_type:
+                        case dunedaq::config::s8_type:
                         {
                             auto data = dbe::convert::to<int8_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::s16_type:
+                        case dunedaq::config::s16_type:
                         {
                             auto data = dbe::convert::to<int16_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::s32_type:
+                        case dunedaq::config::s32_type:
                         {
                             auto data = dbe::convert::to<int32_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::s64_type:
+                        case dunedaq::config::s64_type:
                         {
                             auto data = dbe::convert::to<int64_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::u8_type:
+                        case dunedaq::config::u8_type:
                         {
                             auto data = dbe::convert::to<u_int8_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::u16_type:
+                        case dunedaq::config::u16_type:
                         {
                             auto data = dbe::convert::to<u_int16_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::u32_type:
+                        case dunedaq::config::u32_type:
                         {
                             auto data = dbe::convert::to<u_int32_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case daq::config::u64_type:
+                        case dunedaq::config::u64_type:
                         {
                             auto data = dbe::convert::to<u_int64_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
@@ -313,7 +314,7 @@ tref rwdacc::set_object(tref newobj,
 			}
 		}
 
-		for (daq::config::relationship_t const & rel : RelList)
+		for (dunedaq::config::relationship_t const & rel : RelList)
 		{
 			try
 			{
@@ -338,7 +339,7 @@ void rwdacc::destroy_object(ConfigObject & todelete)
 	{
 		dbaccessor::dbptr()->destroy_obj(todelete);
 	}
-	catch (daq::config::Exception const & ex)
+	catch (dunedaq::config::Exception const & ex)
 	{
 		WARN("Object deletion did not succeed for object" , errors::parse(ex).c_str(),
 				todelete.UID().c_str());
@@ -360,19 +361,19 @@ ConfigObject rwdacc::get_object(std::string const & classname,
 			dbaccessor::dbptr()->get(classname, objectname, object);
 			return object;
 		}
-		catch (daq::config::NotFound const & e)
+		catch (dunedaq::config::NotFound const & e)
 		{
-			ERS_DEBUG(3, "Object not found");
+			TLOG_DEBUG(3) <<  "Object not found" ;
 		}
-		catch (daq::config::Generic const & e)
+		catch (dunedaq::config::Generic const & e)
 		{
 			ERROR("Generic exception caught", dbe::config::errors::parse(e).c_str());
-			ERS_DEBUG(3, "Generic Exception Caught");
+			TLOG_DEBUG(3) <<  "Generic Exception Caught" ;
 		}
 		catch (...)
 		{
 			ERROR("Unknown exception caught", "");
-			ERS_DEBUG(3, "Unknown exception caught!");
+			TLOG_DEBUG(3) <<  "Unknown exception caught!" ;
 		}
 	}
 	return
@@ -391,19 +392,19 @@ std::vector<ConfigObject> rwdacc::query_class(std::string const & classname,
 		{
 			dbaccessor::dbptr()->get(classname, objects, query);
 		}
-		catch (daq::config::NotFound const & e)
+		catch (dunedaq::config::NotFound const & e)
 		{
-			ERS_DEBUG(3, "Object not found");
+			TLOG_DEBUG(3) <<  "Object not found" ;
 		}
-		catch (daq::config::Generic const & e)
+		catch (dunedaq::config::Generic const & e)
 		{
 			ERROR("Generic exception caught", dbe::config::errors::parse(e).c_str());
-			ERS_DEBUG(3, "Generic Exception Caught");
+			TLOG_DEBUG(3) <<  "Generic Exception Caught" ;
 		}
 		catch (...)
 		{
 			ERROR("Unknown exception caught", "");
-			ERS_DEBUG(3, "Unknown exception caught!");
+			TLOG_DEBUG(3) <<  "Unknown exception caught!" ;
 		}
 	}
 	return objects;

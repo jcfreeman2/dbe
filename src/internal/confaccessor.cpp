@@ -244,7 +244,7 @@ bool dbe::confaccessor::check_file_rw ( QString const & fn )
       return dbaccessor::dbptr()->is_writable ( fn.toStdString() );
     }
   }
-  catch ( daq::config::Generic const & ex )
+  catch ( dunedaq::config::Generic const & ex )
   {
     ERROR ( "Not possible to operate on file", dbe::config::errors::parse ( ex ),
             "\n\nCheck filename:", fn.toStdString() );
@@ -310,7 +310,7 @@ bool dbe::confaccessor::load(bool subscribeToChanges)
     dbholder::database_concurrent_ptr = cptr<Configuration> ( dbholder::database );
     return true;
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     FAIL ( "Database loading failed", dbe::config::errors::parse ( e ).c_str() );
     return false;
@@ -333,7 +333,7 @@ std::list<std::string> dbe::confaccessor::save ( const QString & CommitMessage )
 
     return tobecommited;
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     throw daq::dbe::CouldNotCommitChanges ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }

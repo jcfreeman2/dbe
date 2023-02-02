@@ -5,7 +5,7 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "ers/ers.hpp"
+#include "logging/Logging.hpp"
 
 #include "messenger.h"
 #include "messenger_proxy.h"
@@ -88,32 +88,32 @@ qt::post_ret_type qt::direct_post ( t_str const & m, t_str const & l )
 {
   if ( warn == l )
   {
-    ERS_DEBUG ( static_cast<int> ( messages::WARN ), m );
+    TLOG_DEBUG(0) <<  static_cast<int> ( messages::WARN ) <<  m ;
     messenger_proxy::ref().warn ( titles[warn], m );
   }
   else if ( error == l )
   {
-    ERS_DEBUG ( static_cast<int> ( messages::ERROR ), m );
+    TLOG_DEBUG(0) << static_cast<int> ( messages::ERROR ) << m ;
     messenger_proxy::ref().error ( titles[error], m );
   }
   else if ( info == l )
   {
-    ERS_DEBUG ( static_cast<int> ( messages::INFO ), m );
+    TLOG_DEBUG(0) << static_cast<int> ( messages::INFO ) << m ;
     messenger_proxy::ref().info ( titles[info], m );
   }
   else if ( fail == l )
   {
-    ERS_DEBUG ( static_cast<int> ( messages::FAIL ), m );
+    TLOG_DEBUG(0) << static_cast<int> ( messages::FAIL ) << m ;
     messenger_proxy::ref().fail ( titles[fail], m );
   }
   else if ( note == l )
   {
-    ERS_DEBUG ( static_cast<int> ( messages::NOTE ), m );
+    TLOG_DEBUG(0) << static_cast<int> ( messages::NOTE ) << m ;
     messenger_proxy::ref().fail ( titles[note], m );
   }
   else if ( debug == l )
   {
-    ERS_DEBUG ( static_cast<int> ( messages::DEBUG ), m );
+    TLOG_DEBUG(0) << static_cast<int> ( messages::DEBUG ) << m ;
     messenger_proxy::ref().fail ( titles[debug], m );
   }
 }

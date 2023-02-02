@@ -10,6 +10,7 @@
 
 #include "tref.h"
 
+#include "config/Schema.hpp"
 #include "config/ConfigObject.hpp"
 
 #include <vector>
@@ -120,7 +121,7 @@ template<typename T> std::vector<T> attributes ( tref const & item );
  * @param relation is the relation to retrieve the value for
  * @return the value of the relation converted to the specified type
  */
-template<typename T> T relation ( tref item, daq::config::relationship_t const & relation );
+template<typename T> T relation ( tref item, dunedaq::config::relationship_t const & relation );
 
 /**
  * Get object reference/s through a specified attribute
@@ -133,7 +134,7 @@ template<typename T> T relation ( tref item, daq::config::relationship_t const &
  * @param relation is the relation to retrieve the value for
  * @return the value of the relation converted to the specified type
  */
-template<typename T> T attribute ( tref item, daq::config::attribute_t const & attr );
+template<typename T> T attribute ( tref item, dunedaq::config::attribute_t const & attr );
 
 }
 //------------------------------------------------------------------------------------------
@@ -159,7 +160,7 @@ class direct
    * @return the value of the relation converted to the specified type
    */
   template<typename T> static T linked (
-    ConfigObject & item, daq::config::relationship_t const & relation );
+    ConfigObject & item, dunedaq::config::relationship_t const & relation );
 
   /**
    * Get object reference/s through a specified relation, acting directly on a ConfigObject
@@ -173,7 +174,7 @@ class direct
    * @return the value of the relation converted to the specified type
    */
   template<typename T> static T linked (
-    ConfigObject & item, daq::config::attribute_t const & relation );
+    ConfigObject & item, dunedaq::config::attribute_t const & relation );
 };
 //------------------------------------------------------------------------------------------
 

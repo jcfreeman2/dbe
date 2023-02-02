@@ -30,7 +30,7 @@ namespace get
 
 template<typename T>
 inline std::vector<std::string> attribute::read (
-  ConfigObject & input, daq::config::attribute_t const & attr )
+  ConfigObject & input, dunedaq::config::attribute_t const & attr )
 {
   std::vector<T> attrvalues;
 
@@ -61,7 +61,7 @@ inline std::vector<std::string> attribute::read (
 //------------------------------------------------------------------------------------------
 template<typename T>
 inline T direct::attribute ( ConfigObject & input,
-                             daq::config::attribute_t const & attr )
+                             dunedaq::config::attribute_t const & attr )
 {
   T value;
   input.get ( attr.p_name, value );
@@ -73,66 +73,66 @@ inline T direct::attribute ( ConfigObject & input,
 //------------------------------------------------------------------------------------------
 template<>
 QStringList direct::attribute<QStringList> ( ConfigObject & input,
-                                             daq::config::attribute_t const & attr )
+                                             dunedaq::config::attribute_t const & attr )
 {
   std::vector<std::string> data;
 
   switch ( attr.p_type )
   {
 
-  case daq::config::bool_type:
+  case dunedaq::config::bool_type:
     data = get::attribute::read<bool> ( input, attr );
     break;
 
-  case daq::config::enum_type:
+  case dunedaq::config::enum_type:
 
-  case daq::config::date_type:
+  case dunedaq::config::date_type:
 
-  case daq::config::time_type:
+  case dunedaq::config::time_type:
 
-  case daq::config::string_type:
+  case dunedaq::config::string_type:
 
-  case daq::config::class_type:
+  case dunedaq::config::class_type:
     data = get::attribute::read<std::string> ( input, attr );
     break;
 
-  case daq::config::float_type:
+  case dunedaq::config::float_type:
     data = get::attribute::read<float> ( input, attr );
     break;
 
-  case daq::config::double_type:
+  case dunedaq::config::double_type:
     data = get::attribute::read<double> ( input, attr );
     break;
 
-  case daq::config::s8_type:
+  case dunedaq::config::s8_type:
     data = get::attribute::read<int8_t> ( input, attr );
     break;
 
-  case daq::config::u8_type:
+  case dunedaq::config::u8_type:
     data = get::attribute::read<u_int8_t> ( input, attr );
     break;
 
-  case daq::config::s16_type:
+  case dunedaq::config::s16_type:
     data = get::attribute::read<int16_t> ( input, attr );
     break;
 
-  case daq::config::u16_type:
+  case dunedaq::config::u16_type:
     data = get::attribute::read<u_int16_t> ( input, attr );
     break;
 
-  case daq::config::s32_type:
+  case dunedaq::config::s32_type:
     data = get::attribute::read<int32_t> ( input, attr );
     break;
 
-  case daq::config::u32_type:
+  case dunedaq::config::u32_type:
     data = get::attribute::read<u_int32_t> ( input, attr );
     break;
 
-  case daq::config::s64_type:
+  case dunedaq::config::s64_type:
     data = get::attribute::read<int64_t> ( input, attr );
     break;
 
-  case daq::config::u64_type:
+  case dunedaq::config::u64_type:
     data = get::attribute::read<u_int64_t> ( input, attr );
     break;
   }
@@ -151,83 +151,83 @@ QStringList direct::attribute<QStringList> ( ConfigObject & input,
 template
 QStringList direct::attribute<QStringList>
 ( ConfigObject &,
-  daq::config::attribute_t const & );
+  dunedaq::config::attribute_t const & );
 
 template
 ConfigObject direct::attribute<ConfigObject>
 ( ConfigObject &,
-  daq::config::attribute_t const & );
+  dunedaq::config::attribute_t const & );
 
 template
 std::vector<ConfigObject>
 direct::attribute<std::vector<ConfigObject>> (
-                                            ConfigObject &, daq::config::attribute_t const & );
+                                            ConfigObject &, dunedaq::config::attribute_t const & );
 
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
 template<typename T>
 inline T attribute::list ( dbe::inner::configobject::tref obj,
-                           daq::config::attribute_t const & Attribute )
+                           dunedaq::config::attribute_t const & Attribute )
 {
   std::vector<std::string> attrvalues;
 
   switch ( Attribute.p_type )
   {
 
-  case daq::config::bool_type:
+  case dunedaq::config::bool_type:
     attrvalues = get::attribute::read<bool> ( obj, Attribute );
     break;
 
-  case daq::config::enum_type:
+  case dunedaq::config::enum_type:
 
-  case daq::config::date_type:
+  case dunedaq::config::date_type:
 
-  case daq::config::time_type:
+  case dunedaq::config::time_type:
 
-  case daq::config::string_type:
+  case dunedaq::config::string_type:
 
-  case daq::config::class_type:
+  case dunedaq::config::class_type:
     attrvalues = get::attribute::read<std::string> ( obj, Attribute );
     break;
 
-  case daq::config::float_type:
+  case dunedaq::config::float_type:
     attrvalues = get::attribute::read<float> ( obj, Attribute );
     break;
 
-  case daq::config::double_type:
+  case dunedaq::config::double_type:
     attrvalues = get::attribute::read<double> ( obj, Attribute );
     break;
 
-  case daq::config::s8_type:
+  case dunedaq::config::s8_type:
     attrvalues = get::attribute::read<int8_t> ( obj, Attribute );
     break;
 
-  case daq::config::u8_type:
+  case dunedaq::config::u8_type:
     attrvalues = get::attribute::read<u_int8_t> ( obj, Attribute );
     break;
 
-  case daq::config::s16_type:
+  case dunedaq::config::s16_type:
     attrvalues = get::attribute::read<int16_t> ( obj, Attribute );
     break;
 
-  case daq::config::u16_type:
+  case dunedaq::config::u16_type:
     attrvalues = get::attribute::read<u_int16_t> ( obj, Attribute );
     break;
 
-  case daq::config::s32_type:
+  case dunedaq::config::s32_type:
     attrvalues = get::attribute::read<int32_t> ( obj, Attribute );
     break;
 
-  case daq::config::u32_type:
+  case dunedaq::config::u32_type:
     attrvalues = get::attribute::read<u_int32_t> ( obj, Attribute );
     break;
 
-  case daq::config::s64_type:
+  case dunedaq::config::s64_type:
     attrvalues = get::attribute::read<int64_t> ( obj, Attribute );
     break;
 
-  case daq::config::u64_type:
+  case dunedaq::config::u64_type:
     attrvalues = get::attribute::read<u_int64_t> ( obj, Attribute );
     break;
   }
@@ -238,7 +238,7 @@ inline T attribute::list ( dbe::inner::configobject::tref obj,
 // Template method declaration of attribute::list for type QStringList
 template
 QStringList attribute::list<QStringList> ( dbe::inner::configobject::tref obj,
-                              daq::config::attribute_t const & );
+                              dunedaq::config::attribute_t const & );
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ QStringList file::inclusions ( QStringList const & candidates, QStringList files
             files.removeAll ( fname ); // Once used RDB / Oracle sources must be removed
           }
         }
-        catch ( daq::config::Exception const & ex )
+        catch ( dunedaq::config::Exception const & ex )
         {
           ERROR ( "Include did not succeed for ", dbe::config::errors::parse ( ex ).c_str(),
                   "filename:", fname.toStdString().c_str() );
@@ -320,7 +320,7 @@ QStringList file::inclusions_singlefile ( QString const & FileName )
       dbfiles.push_back ( QString ( includeName.c_str() ) );
     }
   }
-  catch ( daq::config::Exception & ex )
+  catch ( dunedaq::config::Exception & ex )
   {
     WARN ( "Include : Could not retrieve included files",
            dbe::config::errors::parse ( ex ).c_str() );
@@ -332,7 +332,7 @@ QStringList file::inclusions_singlefile ( QString const & FileName )
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-QStringList get::defaults::attribute::value ( daq::config::attribute_t const & attr )
+QStringList get::defaults::attribute::value ( dunedaq::config::attribute_t const & attr )
 {
   return QString::fromStdString ( attr.p_default_value ).split ( "," );
 }

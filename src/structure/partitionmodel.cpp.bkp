@@ -38,7 +38,7 @@ void PartitionModel::rebuild()
 
 QVariant PartitionModel::data ( const QModelIndex & index, int role ) const
 {
-  ERS_DEBUG ( 4, "PartitionModel::data()" );
+  TLOG_DEBUG(4) <<  "PartitionModel::data()"  ;
 
   if ( !index.isValid() )
   {
@@ -88,16 +88,16 @@ int PartitionModel::columnCount ( const QModelIndex & parent ) const
  */
 void PartitionModel::rebuildItem ( ConfigObject & obj )
 {
-  ERS_DEBUG ( 2, "PartitionModel::rebuildItem()" );
+  TLOG_DEBUG(2) <<  "PartitionModel::rebuildItem()"  ;
 
-  ERS_DEBUG ( 2, "Updating object: " << obj.UID() );
+  TLOG_DEBUG(2) <<  "Updating object: " << obj.UID()  ;
 
   // get the object from the tree/model
   ObjectTreeItem * objectItem = TreeUtils::findObjectItem ( obj, rootItem );
 
   if ( objectItem )
   {
-    ERS_DEBUG ( 2, "Found item for " << obj.UID() );
+    TLOG_DEBUG(2) <<  "Found item for " << obj.UID()  ;
     // get the parent item
     TreeItem * parent = objectItem->parent();
     // get the indexes
@@ -219,12 +219,12 @@ int PartitionModel::rowCount ( const QModelIndex & parent ) const
 void PartitionModel::buildRelItem ( RelationshipTreeItem * relItem,
                                     const QModelIndex & index )
 {
-  daq::config::relationship_t rel = relItem->getRelationship();
+  dunedaq::config::relationship_t rel = relItem->getRelationship();
   ConfigObject parentObj = static_cast<ObjectTreeItem *> ( relItem->parent() )->getObject();
 
   //distinguish single and multivalue relationship
-  if ( rel.p_cardinality == daq::config::only_one
-       || rel.p_cardinality == daq::config::zero_or_one )
+  if ( rel.p_cardinality == dunedaq::config::only_one
+       || rel.p_cardinality == dunedaq::config::zero_or_one )
   {
     try
     {
@@ -281,7 +281,7 @@ void PartitionModel::buildRelItem ( RelationshipTreeItem * relItem,
  * Builds a relationship item
  * This includes the relationship and its children (object items), but no further
  */
-TreeItem * PartitionModel::buildRelationshipItem ( daq::config::relationship_t rel,
+TreeItem * PartitionModel::buildRelationshipItem ( dunedaq::config::relationship_t rel,
                                                    ConfigObject & parentObj, TreeItem * parentItem )
 {
   std::string relationshipName = rel.p_name;
@@ -293,8 +293,8 @@ TreeItem * PartitionModel::buildRelationshipItem ( daq::config::relationship_t r
 
     switch ( rel.p_cardinality )
     {
-    case daq::config::only_one:
-    case daq::config::zero_or_one:
+    case dunedaq::config::only_one:
+    case dunedaq::config::zero_or_one:
     {
       ConfigObject child;
       parentObj.get ( rel.p_name, child );
@@ -316,7 +316,7 @@ TreeItem * PartitionModel::buildRelationshipItem ( daq::config::relationship_t r
       }
     }
   }
-  catch ( daq::config::NotFound & e )
+  catch ( dunedaq::config::NotFound & e )
   {}
   catch ( ers::Issue & e )
   {}
@@ -338,17 +338,17 @@ ObjectTreeItem * PartitionModel::buildObjectItem ( ConfigObject & obj,
 //  qDebug() << "parent:"
 
   QString cName = obj.class_name().c_str();
-  ERS_DEBUG ( 2, "className:" << obj.class_name() );
+  TLOG_DEBUG(2) <<  "className:" << obj.class_name()  ;
 
   ObjectTreeItem * objItem = NULL;
 
   try
   {
-    daq::config::class_t objClass = ConfigWrapper::instance().GetClassInfo ( cName, false );
+    dunedaq::config::class_t objClass = ConfigWrapper::instance().GetClassInfo ( cName, false );
     objItem = new ObjectTreeItem ( obj, parentItem );
     objItem->setFetched ( true );
     //loop over all relationships
-    const std::vector< daq::config::relationship_t> objRelationships = objClass.p_relationships;
+    const std::vector< dunedaq::config::relationship_t> objRelationships = objClass.p_relationships;
 
     for ( unsigned int j = 0; j < objRelationships.size(); ++j )
     {
@@ -361,7 +361,7 @@ ObjectTreeItem * PartitionModel::buildObjectItem ( ConfigObject & obj,
       objItem->appendChild ( relItem );
     }//end of relationships loop
   }
-  catch ( daq::config::NotFound & e )
+  catch ( dunedaq::config::NotFound & e )
   {
     ers::error ( e );
     return NULL;
@@ -397,7 +397,7 @@ void PartitionModel::setupModelData ( ::Configuration * db )
   std::vector<ConfigObject> objects;
   db->get ( "Partition", objects );
 
-  ERS_DEBUG ( 0, "There are " << objects.size() << " partition objects" );
+  TLOG_DEBUG(0) <<  "There are " << objects.size() << " partition objects"  ;
   QList<QString> parents;
 
   for ( unsigned int i = 0; i < objects.size(); ++i )
@@ -416,7 +416,7 @@ void PartitionModel::setupModelData ( ::Configuration * db )
 
 TreeItem * PartitionModel::getItem ( const QModelIndex & index ) const
 {
-  ERS_DEBUG ( 3, "here" );
+  TLOG_DEBUG(3) <<  "here"  ;
 
   if ( index.isValid() )
   {
@@ -473,7 +473,7 @@ void PartitionModel::fetchMore ( const QModelIndex & index )
 
     if ( RelationshipTreeItem * rel = dynamic_cast<RelationshipTreeItem *> ( treeItem ) )
     {
-      ERS_DEBUG ( 3, "Building for relitem " << rel->getRelationship().p_name );
+      TLOG_DEBUG(3) <<  "Building for relitem " << rel->getRelationship().p_name  ;
 
       buildRelItem ( rel, index );
 
@@ -516,7 +516,7 @@ bool PartitionModel::removeRows ( int position, int rows, const QModelIndex & pa
 
 bool PartitionModel::setData ( const QModelIndex & index, const QVariant & value, int role )
 {
-  ERS_DEBUG ( 3, "PartitionModel::setData() - role:" << role );
+  TLOG_DEBUG(3) <<  "PartitionModel::setData() - role:" << role  ;
   TreeItem * parentItem = getItem ( index );
 
   if ( ( parentItem->parent() )->parent() == rootItem )
@@ -535,7 +535,7 @@ bool PartitionModel::setData ( const QModelIndex & index, const QVariant & value
 
     try
     {
-      daq::config::class_t myc = configurationDB->get_class_info ( ( ( (
+      dunedaq::config::class_t myc = configurationDB->get_class_info ( ( ( (
                                                                          parentItem->parent() )->data ( 0 ) ).toString() ).toStdString(), false );
       std::vector< ConfigObject > objects;
       std::cout << " class " << ( ( ( parentItem->parent() )->data (
@@ -551,7 +551,7 @@ bool PartitionModel::setData ( const QModelIndex & index, const QVariant & value
                                 ( value.toString() ).toStdString(), objNew );
       return true;
     }
-    catch ( daq::config::NotFound & e )
+    catch ( dunedaq::config::NotFound & e )
     {
       ers::error ( e );
       return false;
@@ -585,12 +585,12 @@ ConfigObject PartitionModel::getObjectFromIndex ( const QModelIndex & index ) co
 }
 
 
-daq::config::class_t * PartitionModel::getClassFromIndex ( const QModelIndex & index )
+dunedaq::config::class_t * PartitionModel::getClassFromIndex ( const QModelIndex & index )
 const
 {
   //(void) index; /* avoid warning about unused parameter */
   //return NULL;
-  ERS_DEBUG ( 2, "PartitionModel::getClassFromIndex()" );
+  TLOG_DEBUG(2) <<  "PartitionModel::getClassFromIndex()"  ;
   TreeItem * item = getItem ( index );
 
   if ( item != 0 )
@@ -602,9 +602,9 @@ const
   return NULL;
 }
 
-daq::config::class_t * PartitionModel::getClassInfo ( TreeItem * item ) const
+dunedaq::config::class_t * PartitionModel::getClassInfo ( TreeItem * item ) const
 {
-  ERS_DEBUG ( 2, "PartitionModel::getClassInfo()" );
+  TLOG_DEBUG(2) <<  "PartitionModel::getClassInfo()"  ;
 
   ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
 
@@ -622,7 +622,7 @@ daq::config::class_t * PartitionModel::getClassInfo ( TreeItem * item ) const
     return getClassInfo ( item->parent() );
   }
 
-  ERS_DEBUG ( 2, "returning NULL..." );
+  TLOG_DEBUG(2) <<  "returning NULL..."  ;
   return NULL;
 
 }
@@ -663,12 +663,12 @@ bool PartitionModel::isOfClassFromIndex ( const QModelIndex & index,
 
 void PartitionModel::objectAttributeUpdated ( ConfigObject & obj )
 {
-  ERS_DEBUG ( 2, "PartitionModel::objectAttributeUpdated() - for obj: " << obj );
+  TLOG_DEBUG(2) <<  "PartitionModel::objectAttributeUpdated() - for obj: " << obj  ;
   //do nothing
 }
 void PartitionModel::objectRelationshipUpdated ( ConfigObject & obj )
 {
-  ERS_DEBUG ( 2, "PartitionModel::objectRelationshipUpdated() - for obj: " << obj );
+  TLOG_DEBUG(2) <<  "PartitionModel::objectRelationshipUpdated() - for obj: " << obj  ;
   //rebuild only affected component
   rebuildItem ( obj ); // test
   //this->rebuild(); // works fine, but it's slow
@@ -676,25 +676,25 @@ void PartitionModel::objectRelationshipUpdated ( ConfigObject & obj )
 void PartitionModel::objectCreated ( ConfigObject & obj )
 {
 //  ERS_DEBUG(2, "PartitionModel::objectCreated() - obj: " << obj);
-  ERS_DEBUG ( 2, "PartitionModel::objectCreated(obj)" );
+  TLOG_DEBUG(2) <<  "PartitionModel::objectCreated(obj)"  ;
   this->rebuild();
 }
 void PartitionModel::objectDeleted ( ConfigObject & obj )
 {
 //  ERS_DEBUG(2, "PartitionModel::objectDeleted() - obj: " << obj);
-  ERS_DEBUG ( 2, "PartitionModel::objectDeleted(obj)" );
+  TLOG_DEBUG(2) <<  "PartitionModel::objectDeleted(obj)"  ;
   this->rebuild();
 }
 void PartitionModel::objectCreated()
 {
 //  ERS_DEBUG(2, "PartitionModel::objectCreated() - obj: " << obj);
-  ERS_DEBUG ( 2, "PartitionModel::objectCreated()" );
+  TLOG_DEBUG(2) <<  "PartitionModel::objectCreated()"  ;
   this->rebuild();
 }
 void PartitionModel::objectDeleted()
 {
 //  ERS_DEBUG(2, "PartitionModel::objectDeleted() - obj: " << obj);
-  ERS_DEBUG ( 2, "PartitionModel::objectDeleted()" );
+  TLOG_DEBUG(2) <<  "PartitionModel::objectDeleted()"  ;
   this->rebuild();
 }
 

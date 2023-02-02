@@ -151,7 +151,7 @@ EditTextAttrWidget, EditStringAttrWidget EditNumericAttrWidget instances
 
 In the figure above (Figure :num:`figure #editmultiattr-fig`)  the rendering of the ``EditMultiAttrWidget`` class is shown. Such a widget is composed by several other widgets, choosen programatically according to the type of the object to be edited, by the constructor of the EditMutiAttrWidget class, in the file ``src/object/attrandreleditors.cpp``::
 
-  EditMultiAttrWidget::EditMultiAttrWidget( daq::config::attribute_t attr,QWidget *parent, bool owned)
+  EditMultiAttrWidget::EditMultiAttrWidget( dunedaq::config::attribute_t attr,QWidget *parent, bool owned)
     :QWidget(parent),combo(0),m_numW(0),m_strW(0),m_isValid(true),m_changed(false),m_parent(parent),m_owned(owned)
   {
   m_attribute = attr;
@@ -163,7 +163,7 @@ In the figure above (Figure :num:`figure #editmultiattr-fig`)  the rendering of 
   QHBoxLayout *buttonLayout = new QHBoxLayout(this);
   m_listView = new QListWidget(this);
 
-  if(m_attribute.p_type == daq::config::enum_type)
+  if(m_attribute.p_type == dunedaq::config::enum_type)
     {
       combo = new ValidatorComboBox(this);
       mainLayout->addWidget(combo);
@@ -175,25 +175,25 @@ In the figure above (Figure :num:`figure #editmultiattr-fig`)  the rendering of 
       QObject::connect(m_numW, SIGNAL(valueChanged()), this, SLOT(lineWidgetChanged()));
       mainLayout->addWidget(m_numW);
     }
-  else if(m_attribute.p_type == daq::config::string_type)
+  else if(m_attribute.p_type == dunedaq::config::string_type)
     {
       m_strW =  new EditStringAttrWidget(m_attribute,this);
       QObject::connect(m_strW, SIGNAL(valueChanged()), this, SLOT(lineWidgetChanged()));
       mainLayout->addWidget(m_strW);
     }
-  else if(m_attribute.p_type == daq::config::class_type)
+  else if(m_attribute.p_type == dunedaq::config::class_type)
     {
       m_strW =  new EditStringAttrWidget(m_attribute,this);
       QObject::connect(m_strW, SIGNAL(valueChanged()), this, SLOT(lineWidgetChanged()));
       mainLayout->addWidget(m_strW);
     }
-  else if(m_attribute.p_type == daq::config::date_type)
+  else if(m_attribute.p_type == dunedaq::config::date_type)
     {
       m_strW =  new EditStringAttrWidget(m_attribute,this);
       QObject::connect(m_strW, SIGNAL(valueChanged()), this, SLOT(lineWidgetChanged()));
       mainLayout->addWidget(m_strW);
     }
-  else if(m_attribute.p_type == daq::config::time_type)
+  else if(m_attribute.p_type == dunedaq::config::time_type)
     {
       m_strW =  new EditStringAttrWidget(m_attribute,this);
       QObject::connect(m_strW, SIGNAL(valueChanged()), this, SLOT(lineWidgetChanged()));

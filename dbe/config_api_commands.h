@@ -100,7 +100,7 @@ bool movobj ( inner::configobject::tref obj, std::string const & destination,
  * @param link to set between object that others
  * @param others are the objects to be connected to object
  */
-void modobj ( inner::configobject::tref obj, daq::config::relationship_t const & link,
+void modobj ( inner::configobject::tref obj, dunedaq::config::relationship_t const & link,
               std::vector<std::string> const & others );
 
 /**
@@ -111,7 +111,7 @@ void modobj ( inner::configobject::tref obj, daq::config::relationship_t const &
  * @param value to be assigned to the new object
  */
 template<typename T>
-void modobj ( inner::configobject::tref obj, daq::config::attribute_t const & attr,
+void modobj ( inner::configobject::tref obj, dunedaq::config::attribute_t const & attr,
               T value );
 
 namespace file

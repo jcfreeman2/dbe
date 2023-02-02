@@ -36,18 +36,18 @@ class ChangeAttribute:
   public onobject
 {
 public:
-  ChangeAttribute ( tref Object, daq::config::attribute_t AttributeData, T NewValueData,
+  ChangeAttribute ( tref Object, dunedaq::config::attribute_t AttributeData, T NewValueData,
                     QUndoCommand * parent = nullptr );
   void undo();
   void redo();
 private:
   T OldValue;
   T NewValue;
-  daq::config::attribute_t Attribute;
+  dunedaq::config::attribute_t Attribute;
 };
 
 template<typename T>
-ChangeAttribute<T>::ChangeAttribute ( tref Object, daq::config::attribute_t AttributeData,
+ChangeAttribute<T>::ChangeAttribute ( tref Object, dunedaq::config::attribute_t AttributeData,
                                       T NewValueData, QUndoCommand * parent )
   : onobject ( Object, parent ),
     NewValue ( NewValueData ),
@@ -61,7 +61,7 @@ ChangeAttribute<T>::ChangeAttribute ( tref Object, daq::config::attribute_t Attr
     OldValue = convert::to<T> ( Data, Attribute.p_int_format );
     toggle();
   }
-  catch ( daq::config::Exception const & )
+  catch ( dunedaq::config::Exception const & )
   {
   }
   catch ( daq::dbe::config_object_retrieval_result_is_null const & ex )
@@ -88,7 +88,7 @@ void ChangeAttribute<T>::undo()
       toggle();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     failed();
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );
@@ -120,7 +120,7 @@ void ChangeAttribute<T>::redo()
       toggle();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     failed();
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );

@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <QWidget>
-#include <oks/method.h>
-#include <oks/class.h>
+#include "oks/method.hpp"
+#include "oks/class.hpp"
 
 namespace dbse
 {

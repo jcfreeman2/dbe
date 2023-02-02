@@ -4,6 +4,8 @@
 /// Including TDAq
 #include "config/Configuration.hpp"
 #include "ers/ers.hpp"
+#include "logging/Logging.hpp"
+
 #include "messenger.h"
 #include "version.h"
 
@@ -17,10 +19,10 @@ bool dbe::MyApplication::notify ( QObject * rec, QEvent * ev )
   {
     return QApplication::notify ( rec, ev );
   }
-  catch ( daq::config::Exception const & err )
+  catch ( dunedaq::config::Exception const & err )
   {
-    ERS_LOG ("MyApplication: daq::config::Exception: " << err );
-    ERROR ( "Unexpected error occurred", dbe::config::errors::unwind(err), "daq::config::Exception caught at", HERE );
+    ERS_LOG ("MyApplication: dunedaq::config::Exception: " << err );
+    ERROR ( "Unexpected error occurred", dbe::config::errors::unwind(err), "dunedaq::config::Exception caught at", HERE );
     return false;
   }
   catch ( ers::Issue const & err )
@@ -44,7 +46,7 @@ bool dbe::MyApplication::notify ( QObject * rec, QEvent * ev )
   }
   catch ( ... )
   {
-    ERS_DEBUG ( 0, "MyApplication: Unknown exception!" );
+    TLOG_DEBUG(0) <<  "MyApplication: Unknown exception!"  ;
     ERROR ( "Unknown exception", "\n\nCaught at: ", HERE );
     return false;
   }

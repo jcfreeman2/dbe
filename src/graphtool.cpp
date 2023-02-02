@@ -15,8 +15,6 @@
 #include "gtool.h"
 #include "segregate.h"
 
-#include <ipc/core.h>
-
 #include <boost/program_options.hpp>
 
 #include <numeric>
@@ -28,8 +26,6 @@ int main ( int argc, char * argv[] )
 
   /// Setting language variable to english(otherwise , is interpreted as . in numbers)
   setenv ( "LC_ALL", "C", 1 );
-  /// Initiating IPC
-  IPCCore::init ( argc, argv );
 
   std::string oksfn, rdbrl, roksrl, outfn, sepfnbase, stats, logfile, msglevel ( "ERROR" );
 

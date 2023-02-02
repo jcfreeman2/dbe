@@ -4,7 +4,7 @@
 /// Including QT Headers
 #include <QGraphicsObject>
 /// Including Oks Headers
-#include <oks/class.h>
+#include "oks/class.hpp"
 
 namespace dbse
 {

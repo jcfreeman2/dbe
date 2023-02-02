@@ -53,14 +53,14 @@ BOOST_AUTO_TEST_CASE(unset_multi_relation)
 		using namespace dbe::config::api;
 
 		// Returns an empty object
-		daq::config::class_t definition =
+		dunedaq::config::class_t definition =
 		{ info::onclass::definition(aclass, false) };
 
 		dbe::tref oref = dbe::inner::dbcontroller::get({object_to_modify,aclass});
 
 		std::vector<dbe::cokey> empty {};
 		
-		daq::config::relationship_t relation = info::relation::match(relation_to_modify, aclass);
+		dunedaq::config::relationship_t relation = info::relation::match(relation_to_modify, aclass);
 		BOOST_CHECK_EQUAL(relation_to_modify,relation.p_name );
 		BOOST_CHECK_NO_THROW(set::noactions::relation(oref, relation , empty));
 	}

@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <QMenu>
 /// Including Oks Headers
-#include <oks/class.h>
+#include "oks/class.hpp"
 /// Including Schema
 #include "SchemaCustomMethodModel.h"
 #include "SchemaCustomAttributeModel.h"

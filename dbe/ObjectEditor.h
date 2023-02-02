@@ -52,10 +52,10 @@ private:
   void SetController();
   void BuildWidgets();
 
-  void set_tooltip ( daq::config::attribute_t const &, widgets::editors::base * );
-  void set_tooltip ( daq::config::relationship_t const &, widgets::editors::base * );
+  void set_tooltip ( dunedaq::config::attribute_t const &, widgets::editors::base * );
+  void set_tooltip ( dunedaq::config::relationship_t const &, widgets::editors::base * );
 
-  void set_attribute_widget ( daq::config::attribute_t const &, widgets::editors::base * );
+  void set_attribute_widget ( dunedaq::config::attribute_t const &, widgets::editors::base * );
 
   void register_attribute_widget ( QString const & name, widgets::editors::base * widget );
   void register_relation_widget ( QString const & name, widgets::editors::base * widget );

@@ -81,7 +81,7 @@ class attribute
    * @return a string representation of values
    */
   template<typename T> inline static std::vector<std::string> read (
-    ConfigObject &, daq::config::attribute_t const & );
+    ConfigObject &, dunedaq::config::attribute_t const & );
 
   /**
    * Read values associated with an attribute of a given object
@@ -91,7 +91,7 @@ class attribute
    * @return a string representation of values
    */
   template<typename T>  static std::vector<std::string> read (
-    inner::configobject::tref, daq::config::attribute_t const & );
+    inner::configobject::tref, dunedaq::config::attribute_t const & );
 public:
 
   /**
@@ -102,7 +102,7 @@ public:
    * @return a list of type T with the attribute values
    */
   template<typename T>  static T list ( dbe::inner::configobject::tref obj,
-                                              daq::config::attribute_t const & attr );
+                                              dunedaq::config::attribute_t const & attr );
 
 };
 
@@ -113,7 +113,7 @@ namespace defaults
  */
 struct attribute
 {
-  static QStringList value ( daq::config::attribute_t const & );
+  static QStringList value ( dunedaq::config::attribute_t const & );
 };
 }
 
@@ -125,7 +125,7 @@ class direct
   friend class dbe::ui::config::info;
   friend class dbe::config::api::get::attribute;
 
-  template<typename T> static T attribute ( ConfigObject &, daq::config::attribute_t const & );
+  template<typename T> static T attribute ( ConfigObject &, dunedaq::config::attribute_t const & );
 };
 
 }

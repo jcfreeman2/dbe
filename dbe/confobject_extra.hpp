@@ -35,11 +35,11 @@ public:
    */
   static t_attrmap getattr ( typename C::t_confobject const & obj )
   {
-    daq::config::class_t const & classt = dbe::config::api::info::onclass::definition (
+    dunedaq::config::class_t const & classt = dbe::config::api::info::onclass::definition (
                                             obj.class_name(), false );
     t_attrmap attributes;
 
-    for ( daq::config::attribute_t const & attr : classt.p_attributes )
+    for ( dunedaq::config::attribute_t const & attr : classt.p_attributes )
     {
       typename t_attrmap::mapped_type values
       {
@@ -61,11 +61,11 @@ public:
    */
   static t_relmap getrel ( typename C::t_confobject const & obj )
   {
-    daq::config::class_t const & classt = dbe::config::api::info::onclass::definition (
+    dunedaq::config::class_t const & classt = dbe::config::api::info::onclass::definition (
                                             obj.class_name(), false );
     t_relmap relations;
 
-    for ( daq::config::relationship_t const & link : classt.p_relationships )
+    for ( dunedaq::config::relationship_t const & link : classt.p_relationships )
     {
       if ( C::filter ( link ) )
       {
@@ -106,7 +106,7 @@ struct config_object_aggregates:
   {
   }
 
-  static bool filter ( daq::config::relationship_t const & l )
+  static bool filter ( dunedaq::config::relationship_t const & l )
   {
     return l.p_is_aggregation;
   }

@@ -2,8 +2,8 @@
 #define CUSTOMRELATIONSHIPMODEL_H
 
 /// Include oks
-#include <oks/class.h>
-#include <oks/relationship.h>
+#include "oks/class.hpp"
+#include "oks/relationship.hpp"
 /// Including Schema
 #include "SchemaCustomModelInterface.h"
 

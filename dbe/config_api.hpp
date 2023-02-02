@@ -55,7 +55,7 @@ template<typename T> inline T onclass::allnames()
 namespace get
 {
 template<typename T> inline std::vector<std::string> attribute::read (
-  inner::configobject::tref obj, daq::config::attribute_t const & attr )
+  inner::configobject::tref obj, dunedaq::config::attribute_t const & attr )
 {
 
   if ( attr.p_is_multi_value )
@@ -65,7 +65,7 @@ template<typename T> inline std::vector<std::string> attribute::read (
 
     std::vector<std::string> result;
 
-    if ( attr.p_int_format == daq::config::int_format_t::na_int_format )
+    if ( attr.p_int_format == dunedaq::config::int_format_t::na_int_format )
     {
 	  result.assign(values.size(), "");
       std::transform ( values.begin(), values.end(), result.begin(),
@@ -86,7 +86,7 @@ template<typename T> inline std::vector<std::string> attribute::read (
     T value;
     obj.get ( attr.p_name, value );
 
-    if ( attr.p_int_format == daq::config::int_format_t::na_int_format )
+    if ( attr.p_int_format == dunedaq::config::int_format_t::na_int_format )
     {
       return
       { convert::valtostr ( value ) };
@@ -105,7 +105,7 @@ template<typename T> inline std::vector<std::string> attribute::read (
 namespace commands
 {
 template<class T>
-void modobj ( tref Object, daq::config::attribute_t const & AttributeData, T Value )
+void modobj ( tref Object, dunedaq::config::attribute_t const & AttributeData, T Value )
 {
   try
   {
@@ -128,7 +128,7 @@ void modobj ( tref Object, daq::config::attribute_t const & AttributeData, T Val
   {
     WARN ( "The object attribute could not be changed", dbe::config::errors::parse ( dbe_err ).c_str() );
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     WARN ( "Change Attribute: The attribute could not be changed",
            dbe::config::errors::parse ( e ).c_str() );
@@ -139,7 +139,7 @@ void modobj ( tref Object, daq::config::attribute_t const & AttributeData, T Val
 //------------------------------------------------------------------------------------------
 template<>
 void modobj<std::vector<std::string>> ( tref Object,
-                                        daq::config::attribute_t const & AttributeData,
+                                        dunedaq::config::attribute_t const & AttributeData,
                                         std::vector<std::string> Value );
 }
 //------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ void modobj<std::vector<std::string>> ( tref Object,
 //------------------------------------------------------------------------------------------
 template<class T>
 void set::noactions::attribute ( tref Object,
-                                 daq::config::attribute_t const & AttributeData,
+                                 dunedaq::config::attribute_t const & AttributeData,
                                  T NewValueData,
                                  bool NotEmit )
 {
@@ -165,7 +165,7 @@ void set::noactions::attribute ( tref Object,
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( daq::config::Exception const & error )
+  catch ( dunedaq::config::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -174,7 +174,7 @@ void set::noactions::attribute ( tref Object,
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::anenum ( tref Object, daq::config::attribute_t const & AttributeData,
+void set::noactions::anenum ( tref Object, dunedaq::config::attribute_t const & AttributeData,
                               T NewValueData,
                               bool NotEmit )
 {
@@ -192,7 +192,7 @@ void set::noactions::anenum ( tref Object, daq::config::attribute_t const & Attr
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( daq::config::Exception const & error )
+  catch ( dunedaq::config::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -201,7 +201,7 @@ void set::noactions::anenum ( tref Object, daq::config::attribute_t const & Attr
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::aclass ( tref Object, daq::config::attribute_t const & AttributeData,
+void set::noactions::aclass ( tref Object, dunedaq::config::attribute_t const & AttributeData,
                               T NewValueData,
                               bool NotEmit )
 {
@@ -219,7 +219,7 @@ void set::noactions::aclass ( tref Object, daq::config::attribute_t const & Attr
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( daq::config::Exception const & error )
+  catch ( dunedaq::config::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -228,7 +228,7 @@ void set::noactions::aclass ( tref Object, daq::config::attribute_t const & Attr
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::adate ( tref Object, daq::config::attribute_t const & AttributeData,
+void set::noactions::adate ( tref Object, dunedaq::config::attribute_t const & AttributeData,
                              T NewValueData,
                              bool NotEmit )
 {
@@ -247,7 +247,7 @@ void set::noactions::adate ( tref Object, daq::config::attribute_t const & Attri
     }
 
   }
-  catch ( daq::config::Exception const & error )
+  catch ( dunedaq::config::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -256,7 +256,7 @@ void set::noactions::adate ( tref Object, daq::config::attribute_t const & Attri
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::atime ( tref Object, daq::config::attribute_t const & AttributeData,
+void set::noactions::atime ( tref Object, dunedaq::config::attribute_t const & AttributeData,
                              T NewValueData,
                              bool NotEmit )
 {
@@ -274,7 +274,7 @@ void set::noactions::atime ( tref Object, daq::config::attribute_t const & Attri
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( daq::config::Exception const & error )
+  catch ( dunedaq::config::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }

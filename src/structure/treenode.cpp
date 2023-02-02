@@ -142,7 +142,7 @@ bool dbe::treenode::GetWasFetched() const
   return WasFetched;
 }
 
-dbe::ClassNode::ClassNode ( const daq::config::class_t & Info, treenode * ParentNode )
+dbe::ClassNode::ClassNode ( const dunedaq::config::class_t & Info, treenode * ParentNode )
   :
   treenode ( ParentNode ),
   ClassInfo ( Info ),
@@ -204,7 +204,7 @@ QVariant dbe::ClassNode::GetData ( const int Column, int role ) const
   return QVariant();
 }
 
-daq::config::class_t dbe::ClassNode::GetClassInfo() const
+dunedaq::config::class_t dbe::ClassNode::GetClassInfo() const
 {
   return ClassInfo;
 }
@@ -218,23 +218,23 @@ dbe::ObjectNode::ObjectNode ( dref obj, bool acopy, treenode * ParentNode )
 
   if ( not acopy )
   {
-    daq::config::class_t ClassInfo = dbe::config::api::info::onclass::definition (
+    dunedaq::config::class_t ClassInfo = dbe::config::api::info::onclass::definition (
                                        configdata.class_name(),
                                        false );
-    std::vector<daq::config::attribute_t> Attributes = ClassInfo.p_attributes;
-    std::vector<daq::config::relationship_t> Relationships = ClassInfo.p_relationships;
+    std::vector<dunedaq::config::attribute_t> Attributes = ClassInfo.p_attributes;
+    std::vector<dunedaq::config::relationship_t> Relationships = ClassInfo.p_relationships;
 
     if ( ( Relationships.size() > 0 ) )
     {
       SetHasStructure ( true );
     }
 
-    for ( daq::config::attribute_t & Attribute : Attributes )
+    for ( dunedaq::config::attribute_t & Attribute : Attributes )
     {
       new AttributeNode ( Attribute, static_cast<treenode *> ( this ) );
     }
 
-    for ( daq::config::relationship_t & Relationship : Relationships )
+    for ( dunedaq::config::relationship_t & Relationship : Relationships )
     {
       new RelationshipNode ( Relationship, static_cast<treenode *> ( this ) );
     }
@@ -269,7 +269,7 @@ dbe::tref dbe::ObjectNode::GetObject() const
   return configdata.ref();
 }
 
-dbe::AttributeNode::AttributeNode ( const daq::config::attribute_t & AttributeData,
+dbe::AttributeNode::AttributeNode ( const dunedaq::config::attribute_t & AttributeData,
                                     treenode * ParentNode )
   :
   treenode ( ParentNode ),
@@ -320,12 +320,12 @@ QVariant dbe::AttributeNode::GetData ( const int Column, int role ) const
   return QVariant();
 }
 
-daq::config::attribute_t dbe::AttributeNode::attribute_t() const
+dunedaq::config::attribute_t dbe::AttributeNode::attribute_t() const
 {
   return attribute_t_definition;
 }
 
-dbe::RelationshipNode::RelationshipNode ( const daq::config::relationship_t & relation,
+dbe::RelationshipNode::RelationshipNode ( const dunedaq::config::relationship_t & relation,
                                           treenode * ParentNode )
   :
   treenode ( ParentNode ),
@@ -336,10 +336,10 @@ dbe::RelationshipNode::RelationshipNode ( const daq::config::relationship_t & re
   std::vector<tref> DataList;
   tref ObjectParent = GetParent()->GetObject();
 
-  if ( ( relation_t_definition.p_cardinality == daq::config::only_one )
+  if ( ( relation_t_definition.p_cardinality == dunedaq::config::only_one )
        || ( relation_t_definition
             .p_cardinality
-            == daq::config::zero_or_one ) )
+            == dunedaq::config::zero_or_one ) )
   {
     try
     {
@@ -396,7 +396,7 @@ QVariant dbe::RelationshipNode::GetData ( const int Column, int role ) const
   return QVariant();
 }
 
-daq::config::relationship_t dbe::RelationshipNode::relation_t() const
+dunedaq::config::relationship_t dbe::RelationshipNode::relation_t() const
 {
   return relation_t_definition;
 }

@@ -17,6 +17,8 @@
 #include "config_api.h"
 #include "MyApplication.h"
 
+#include "logging/Logging.hpp"
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProgressDialog>
@@ -34,6 +36,7 @@
 #include <thread>
 
 #include <boost/scope_exit.hpp>
+
 
 namespace {
     // This allows to select data in the cells but to not modify them
@@ -378,7 +381,7 @@ void dbe::MainWindow::edit_object_at ( const QModelIndex Index )
   {
     // Class node
     QString const cname = tree_node->GetData ( 0 ).toString();
-    daq::config::class_t cinfo = dbe::config::api::info::onclass::definition (
+    dunedaq::config::class_t cinfo = dbe::config::api::info::onclass::definition (
                                    cname.toStdString(),
                                    false );
 
@@ -540,7 +543,7 @@ void dbe::MainWindow::slot_commit_database ( bool Exit )
       }
 
     }
-    catch ( daq::config::Exception const & e )
+    catch ( dunedaq::config::Exception const & e )
     {
       WARN ( "The changes could not be committed", dbe::config::errors::parse ( e ).c_str() )
       ers::error ( e );
@@ -565,7 +568,7 @@ void dbe::MainWindow::slot_abort_changes()
       confaccessor::clear_commands();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     ERROR ( "Database changes aborted", dbe::config::errors::parse ( e ).c_str() );
     ers::error ( e );
@@ -581,7 +584,7 @@ void dbe::MainWindow::slot_abort_external_changes()
       confaccessor::abort();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     ERROR ( "External changes aborted", dbe::config::errors::parse ( e ).c_str() );
     ers::error ( e );
@@ -970,7 +973,7 @@ void dbe::MainWindow::init_rdb_menu()
 
   std::list<IPCPartition> pl;
   IPCPartition::getPartitions(pl);
-  ERS_DEBUG ( 1, "Found " << pl.size() << " partitions" );
+  TLOG_DEBUG(1) <<  "Found " << pl.size() << " partitions"  ;
 
   pl.push_front(IPCPartition("initial"));
 
@@ -1015,11 +1018,11 @@ void dbe::MainWindow::slot_rdb_found(const QString& p, const RDBMap& rdbs) {
  */
 void dbe::MainWindow::lookForRDBServers ( const IPCPartition & p )
 {
-  ERS_DEBUG ( 2, "dbe::MainWindow::addRDBServers()" );
+  TLOG_DEBUG(2) <<  "dbe::MainWindow::addRDBServers()"  ;
 
   if ( p.isValid() )
   {
-    ERS_DEBUG ( 2, "Inserting partition = " << p.name() );
+    TLOG_DEBUG(2) <<  "Inserting partition = " << p.name()  ;
 
     RDBMap rdbs;
 
@@ -1032,7 +1035,7 @@ void dbe::MainWindow::lookForRDBServers ( const IPCPartition & p )
 
             while ( rdb_it != objects.end() )
             {
-                ERS_DEBUG ( 2, "Found server : " << rdb_it->first );
+                TLOG_DEBUG(2) <<  "Found server : " << rdb_it->first  ;
 
                 rdbs.insert(QString::fromStdString(rdb_it->first), true);
 
@@ -1047,7 +1050,7 @@ void dbe::MainWindow::lookForRDBServers ( const IPCPartition & p )
 
             while ( rdb_it != objects.end() )
             {
-                ERS_DEBUG ( 2, "Found server : " << rdb_it->first );
+                TLOG_DEBUG(2) <<  "Found server : " << rdb_it->first  ;
 
                 rdbs.insert(QString::fromStdString(rdb_it->first), false);
 
@@ -1355,7 +1358,7 @@ std::vector<dbe::tref> dbe::MainWindow::ProcessQuery ( QString const & Tmp )
 
       return result;
     }
-    catch ( daq::config::Exception const & ex )
+    catch ( dunedaq::config::Exception const & ex )
     {
       ers::error ( ex );
       ERROR ( "Query process error", dbe::config::errors::parse ( ex ).c_str() );
@@ -1667,7 +1670,7 @@ void dbe::MainWindow::slot_process_externalchanges()
           }
 
         }
-        catch ( daq::config::Exception const & e )
+        catch ( dunedaq::config::Exception const & e )
         {
           WARN ( "Object reference could not be changed",
                  dbe::config::errors::parse ( e ).c_str(), "for object with UID:", Change.uid,

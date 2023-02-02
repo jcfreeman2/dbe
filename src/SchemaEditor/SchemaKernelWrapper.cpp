@@ -3,8 +3,8 @@
 /// Including Schema
 #include "SchemaKernelWrapper.h"
 /// Include oks
-#include <oks/kernel.h>
-#include <oks/class.h>
+#include "oks/kernel.hpp"
+#include "oks/class.hpp"
 
 dbse::KernelWrapper & dbse::KernelWrapper::GetInstance()
 {

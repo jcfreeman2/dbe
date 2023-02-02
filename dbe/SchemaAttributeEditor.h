@@ -3,7 +3,7 @@
 
 #include<memory>
 #include <QWidget>
-#include <oks/attribute.h>
+#include "oks/attribute.hpp"
 
 namespace dbse
 {

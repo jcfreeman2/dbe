@@ -211,17 +211,17 @@ void dbe::GraphicalObject::dropEvent ( QGraphicsSceneDragDropEvent * event )
   QStringList PossibleRelationships;
   QString ClassName = NewItems.at ( 0 ).at ( 1 );
 
-  daq::config::class_t ClassInfoReceiverObject =
+  dunedaq::config::class_t ClassInfoReceiverObject =
     dbe::config::api::info::onclass::definition ( DatabaseClassName.toStdString(), false );
-  std::vector<daq::config::relationship_t> RelationshipList = ClassInfoReceiverObject
+  std::vector<dunedaq::config::relationship_t> RelationshipList = ClassInfoReceiverObject
                                                               .p_relationships;
 
-  for ( daq::config::relationship_t & i : RelationshipList )
+  for ( dunedaq::config::relationship_t & i : RelationshipList )
   {
     if ( i.p_type == ClassName.toStdString() ) PossibleRelationships.append (
         QString::fromStdString ( i.p_name ) );
 
-    daq::config::class_t ClassInfoDroppedObject =
+    dunedaq::config::class_t ClassInfoDroppedObject =
       dbe::config::api::info::onclass::definition ( i.p_type,
                                                     false );
     std::vector<std::string> RelationshipListDropped = ClassInfoDroppedObject.p_subclasses;
@@ -275,14 +275,14 @@ void dbe::GraphicalObject::dropEvent ( QGraphicsSceneDragDropEvent * event )
       if ( dynamic_cast<RelationshipNode *> ( Child ) )
       {
         RelationshipNode * NodeRelationship = dynamic_cast<RelationshipNode *> ( Child );
-        daq::config::relationship_t RelationshipData =
+        dunedaq::config::relationship_t RelationshipData =
           NodeRelationship->relation_t();
 
         if ( RelationshipData.p_name == SelectedRelationship.toStdString() )
         {
-          if ( ( RelationshipData.p_cardinality == daq::config::zero_or_many ) || ( RelationshipData
+          if ( ( RelationshipData.p_cardinality == dunedaq::config::zero_or_many ) || ( RelationshipData
                                                                                     .p_cardinality
-                                                                                    == daq::config::one_or_many ) )
+                                                                                    == dunedaq::config::one_or_many ) )
           {
             std::vector<std::string> RelationshipValues;
 
@@ -361,7 +361,7 @@ void dbe::GraphicalObject::AddGraphicChildren()
 
       if ( NodeRelationship && NodeRelationship->GetHasStructure() )
       {
-        daq::config::relationship_t RelationshipData =
+        dunedaq::config::relationship_t RelationshipData =
           NodeRelationship->relation_t();
         GraphicalRelationship * RelationshipChildNode = new GraphicalRelationship (
           DatabaseUidName, DatabaseClassName, RelationshipData );
@@ -714,7 +714,7 @@ void dbe::GraphicalObject::SetExpandedY ( double dy )
 
 //------------------------------------------------------------------------------------------
 dbe::GraphicalRelationship::GraphicalRelationship ( QString ObjectName, QString ClassName,
-                                                    daq::config::relationship_t & Data,
+                                                    dunedaq::config::relationship_t & Data,
                                                     QGraphicsObject * parent )
   : QGraphicsObject ( parent ),
     DatabaseClassName ( ClassName ),

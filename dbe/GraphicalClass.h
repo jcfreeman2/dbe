@@ -95,7 +95,7 @@ class GraphicalRelationship: public QGraphicsObject
   Q_OBJECT
 public:
   explicit GraphicalRelationship ( QString ObjectName, QString ClassName,
-                                   daq::config::relationship_t & Data, QGraphicsObject * parent =
+                                   dunedaq::config::relationship_t & Data, QGraphicsObject * parent =
                                      0 );
   ~GraphicalRelationship();
   QRectF boundingRect() const;
@@ -111,7 +111,7 @@ public:
 private:
   QString DatabaseClassName;
   QString DatabaseUidName;
-  daq::config::relationship_t RelationshipData;
+  dunedaq::config::relationship_t RelationshipData;
   QGraphicsTextItem * TextItem;
 };
 

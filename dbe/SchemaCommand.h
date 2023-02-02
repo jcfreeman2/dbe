@@ -3,10 +3,10 @@
 
 /// Including Qt Headers
 #include <QUndoCommand>
-#include <oks/class.h>
-#include <oks/relationship.h>
-#include <oks/method.h>
-#include <oks/attribute.h>
+#include "oks/class.hpp"
+#include "oks/relationship.hpp"
+#include "oks/method.hpp"
+#include "oks/attribute.hpp"
 
 class OksClass;
 

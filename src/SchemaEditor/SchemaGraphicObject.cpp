@@ -4,7 +4,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 /// Include oks
-#include<oks/method.h>
+#include"oks/method.hpp"
 /// Including SchemaEditor
 #include "SchemaGraphicObject.h"
 #include "SchemaGraphicArrow.h"

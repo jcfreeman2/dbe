@@ -152,7 +152,7 @@ bool movobj ( tref obj, std::string const & destination, QUuid const & src )
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-void modobj ( tref object, const daq::config::relationship_t & linkinfo,
+void modobj ( tref object, const dunedaq::config::relationship_t & linkinfo,
               std::vector<std::string> const & others_names )
 {
   try
@@ -180,7 +180,7 @@ void modobj ( tref object, const daq::config::relationship_t & linkinfo,
 
 //------------------------------------------------------------------------------------------
 template<>
-void modobj<std::string> ( tref Object, const daq::config::attribute_t & AttributeData,
+void modobj<std::string> ( tref Object, const dunedaq::config::attribute_t & AttributeData,
                            std::string Value )
 {
   try
@@ -192,28 +192,28 @@ void modobj<std::string> ( tref Object, const daq::config::attribute_t & Attribu
     Change.description = QString ( "Attribute " ).append ( AttributeData.p_name.c_str() )
                          .toStdString();
 
-    if ( AttributeData.p_type == daq::config::string_type )
+    if ( AttributeData.p_type == dunedaq::config::string_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeAttribute<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::enum_type )
+    else if ( AttributeData.p_type == dunedaq::config::enum_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeEnum<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::class_type )
+    else if ( AttributeData.p_type == dunedaq::config::class_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeClass<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::date_type )
+    else if ( AttributeData.p_type == dunedaq::config::date_type )
     {
 
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeDate<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::time_type )
+    else if ( AttributeData.p_type == dunedaq::config::time_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeTime<std::string> ( Object, AttributeData, Value ) );
@@ -231,7 +231,7 @@ void modobj<std::string> ( tref Object, const daq::config::attribute_t & Attribu
 //------------------------------------------------------------------------------------------
 template<>
 void modobj<std::vector<std::string>> (
-                                     tref Object, const daq::config::attribute_t & AttributeData,
+                                     tref Object, const dunedaq::config::attribute_t & AttributeData,
                                      std::vector<std::string> Value )
 {
   try
@@ -243,31 +243,31 @@ void modobj<std::vector<std::string>> (
     Change.description = QString ( "Attribute " ).append ( AttributeData.p_name.c_str() )
                          .toStdString();
 
-    if ( AttributeData.p_type == daq::config::string_type )
+    if ( AttributeData.p_type == dunedaq::config::string_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeAttribute<std::vector<std::string>> ( Object, AttributeData,
                                                                       Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::enum_type )
+    else if ( AttributeData.p_type == dunedaq::config::enum_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeEnum<std::vector<std::string>> ( Object, AttributeData,
                                                                  Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::class_type )
+    else if ( AttributeData.p_type == dunedaq::config::class_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeClass<std::vector<std::string>> ( Object, AttributeData,
                                                                   Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::date_type )
+    else if ( AttributeData.p_type == dunedaq::config::date_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeDate<std::vector<std::string>> ( Object, AttributeData,
                                                                  Value ) );
     }
-    else if ( AttributeData.p_type == daq::config::time_type )
+    else if ( AttributeData.p_type == dunedaq::config::time_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeTime<std::vector<std::string>> ( Object, AttributeData,

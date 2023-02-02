@@ -33,7 +33,7 @@ class ChangeTime:
   public onobject
 {
 public:
-  ChangeTime ( tref Object, daq::config::attribute_t AttributeData, T NewValueData,
+  ChangeTime ( tref Object, dunedaq::config::attribute_t AttributeData, T NewValueData,
                QUndoCommand * parent = nullptr );
   void undo();
   void redo();
@@ -41,12 +41,12 @@ public:
 private:
   T OldValue;
   T NewValue;
-  daq::config::attribute_t Attribute;
+  dunedaq::config::attribute_t Attribute;
   bool Success;
 };
 
 template<typename T>
-ChangeTime<T>::ChangeTime ( tref Object, daq::config::attribute_t AttributeData,
+ChangeTime<T>::ChangeTime ( tref Object, dunedaq::config::attribute_t AttributeData,
                             T NewValueData, QUndoCommand * parent )
   : onobject ( Object, parent ),
     NewValue ( NewValueData ),
@@ -59,7 +59,7 @@ ChangeTime<T>::ChangeTime ( tref Object, daq::config::attribute_t AttributeData,
     { dbe::config::api::get::attribute::list<QStringList> ( Object, Attribute ) };
     OldValue = convert::to<T> ( Data );
   }
-  catch ( daq::config::Exception const & )
+  catch ( dunedaq::config::Exception const & )
   {
   }
 
@@ -80,7 +80,7 @@ void ChangeTime<T>::undo()
       toggle();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     Success = false;
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );
@@ -112,7 +112,7 @@ void ChangeTime<T>::redo()
       toggle();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     Success = false;
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );

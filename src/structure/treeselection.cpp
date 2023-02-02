@@ -101,7 +101,7 @@ dbe::tref dbe::models::treeselection::getobject ( type_index const & index ) con
   throw daq::dbe::cannot_handle_invalid_qmodelindex ( ERS_HERE );
 }
 
-daq::config::class_t dbe::models::treeselection::getclass ( type_index const & index ) const
+dunedaq::config::class_t dbe::models::treeselection::getclass ( type_index const & index ) const
 {
   QModelIndex sourceParent = mapToSource ( index );
 
@@ -110,7 +110,7 @@ daq::config::class_t dbe::models::treeselection::getclass ( type_index const & i
     return my->getclass ( sourceParent );
   }
 
-  return daq::config::class_t();
+  return dunedaq::config::class_t();
 }
 
 QAbstractItemModel * dbe::models::treeselection::ReturnSourceModel() const

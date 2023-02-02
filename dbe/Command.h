@@ -131,13 +131,13 @@ class changerefs:
   public onobject
 {
 public:
-  changerefs ( tref object, daq::config::relationship_t const & relation,
+  changerefs ( tref object, dunedaq::config::relationship_t const & relation,
                std::vector<std::string> const & object_names_tolink, QUuid const & src = 0,
                QUndoCommand * Parent = nullptr );
   void redo();
   void undo();
 private:
-  daq::config::relationship_t this_relation;
+  dunedaq::config::relationship_t this_relation;
   std::vector<tref> this_current_neighbors;
   std::vector<tref> this_target_neighbors;
 };

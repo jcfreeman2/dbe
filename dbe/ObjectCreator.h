@@ -34,7 +34,7 @@ public:
    * @param classinfo describes the class for which an object is to be created
    * @param parent of this widget
    */
-  ObjectCreator ( daq::config::class_t const & classinfo, QWidget * parent = 0 );
+  ObjectCreator ( dunedaq::config::class_t const & classinfo, QWidget * parent = 0 );
 
   /**
    * Clone an object of a given relation type
@@ -44,7 +44,7 @@ public:
    * @param parent of this widget
    */
   ObjectCreator ( tref const & clonefrom,
-                  daq::config::relationship_t const & relation, QWidget * parent = 0 );
+                  dunedaq::config::relationship_t const & relation, QWidget * parent = 0 );
 
   /**
    * Clone from a given object
@@ -90,11 +90,11 @@ private:
 
   std::unique_ptr<dbe::Ui::ObjectCreator> ui;
 
-  daq::config::class_t this_object_class;
+  dunedaq::config::class_t this_object_class;
 
   std::unique_ptr<tref> this_src_object;
   std::unique_ptr<tref> this_target_object;
-  daq::config::relationship_t this_relation;
+  dunedaq::config::relationship_t this_relation;
 
   QSortFilterProxyModel this_sort;
   FileModel * this_files;

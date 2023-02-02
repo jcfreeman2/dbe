@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <QWidget>
-#include <oks/class.h>
-#include <oks/method.h>
+#include "oks/class.hpp"
+#include "oks/method.hpp"
 #include "SchemaCustomMethodImplementationModel.h"
 
 

@@ -35,7 +35,7 @@ class ChangeEnum:
   public onobject
 {
 public:
-  ChangeEnum ( tref Object, daq::config::attribute_t AttributeData, T NewValueData,
+  ChangeEnum ( tref Object, dunedaq::config::attribute_t AttributeData, T NewValueData,
                QUndoCommand * parent = nullptr );
   void undo();
   void redo();
@@ -43,12 +43,12 @@ public:
 private:
   T OldValue;
   T NewValue;
-  daq::config::attribute_t Attribute;
+  dunedaq::config::attribute_t Attribute;
   bool Success;
 };
 
 template<typename T>
-ChangeEnum<T>::ChangeEnum ( tref Object, daq::config::attribute_t AttributeData,
+ChangeEnum<T>::ChangeEnum ( tref Object, dunedaq::config::attribute_t AttributeData,
                             T NewValueData, QUndoCommand * parent )
   : onobject ( Object, parent ),
     NewValue ( NewValueData ),
@@ -61,7 +61,7 @@ ChangeEnum<T>::ChangeEnum ( tref Object, daq::config::attribute_t AttributeData,
     { dbe::config::api::get::attribute::list<QStringList> ( Object, Attribute ) };
     OldValue = convert::to<T> ( Data );
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     Q_UNUSED ( e )
   }
@@ -83,7 +83,7 @@ void ChangeEnum<T>::undo()
       toggle();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     Success = false;
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );
@@ -116,7 +116,7 @@ void ChangeEnum<T>::redo()
       toggle();
     }
   }
-  catch ( daq::config::Exception const & e )
+  catch ( dunedaq::config::Exception const & e )
   {
     Success = false;
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );

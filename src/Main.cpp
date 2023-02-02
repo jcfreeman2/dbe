@@ -3,8 +3,6 @@
 #include "MyApplication.h"
 /// Including QT Headers
 #include <QApplication>
-/// Including TDAq
-#include <ipc/core.h>
 /// Including BOOST
 #include <boost/program_options.hpp>
 
@@ -25,9 +23,6 @@ int main(int argc, char *argv[])
 	setenv("LC_ALL", "C", 1);
 
 	std::unique_ptr<dbe::MyApplication> myapp(new dbe::MyApplication(argc, argv));
-
-	/// Initiating IPC
-	IPCCore::init(argc, argv);
 
 	dbe::confaccessor::init();
 

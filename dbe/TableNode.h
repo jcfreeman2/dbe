@@ -23,24 +23,24 @@ protected:
 class TableAttributeNode: public TableNode
 {
 public:
-  TableAttributeNode ( daq::config::attribute_t Attribute, const QStringList & NodeData );
+  TableAttributeNode ( dunedaq::config::attribute_t Attribute, const QStringList & NodeData );
   ~TableAttributeNode();
   QStringList GetData() const;
-  daq::config::attribute_t GetAttribute() const;
+  dunedaq::config::attribute_t GetAttribute() const;
 private:
-  daq::config::attribute_t AttributeData;
+  dunedaq::config::attribute_t AttributeData;
 };
 
 class TableRelationshipNode: public TableNode
 {
 public:
-  TableRelationshipNode ( daq::config::relationship_t Relationship,
+  TableRelationshipNode ( dunedaq::config::relationship_t Relationship,
                           const QStringList & NodeData );
   ~TableRelationshipNode();
   QStringList GetData() const;
-  daq::config::relationship_t GetRelationship() const;
+  dunedaq::config::relationship_t GetRelationship() const;
 private:
-  daq::config::relationship_t RelationshipData;
+  dunedaq::config::relationship_t RelationshipData;
 };
 
 }  // namespace dbe

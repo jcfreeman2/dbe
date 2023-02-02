@@ -15,7 +15,7 @@ QStringList dbe::TableNode::GetData() const
   return Data;
 }
 
-dbe::TableAttributeNode::TableAttributeNode ( daq::config::attribute_t Attribute,
+dbe::TableAttributeNode::TableAttributeNode ( dunedaq::config::attribute_t Attribute,
                                               const QStringList & NodeData )
   : TableNode ( NodeData ),
     AttributeData ( Attribute )
@@ -29,12 +29,12 @@ QStringList dbe::TableAttributeNode::GetData() const
   return Data;
 }
 
-daq::config::attribute_t dbe::TableAttributeNode::GetAttribute() const
+dunedaq::config::attribute_t dbe::TableAttributeNode::GetAttribute() const
 {
   return AttributeData;
 }
 
-dbe::TableRelationshipNode::TableRelationshipNode ( daq::config::relationship_t
+dbe::TableRelationshipNode::TableRelationshipNode ( dunedaq::config::relationship_t
                                                     Relationship,
                                                     const QStringList & NodeData )
   : TableNode ( NodeData ),
@@ -49,7 +49,7 @@ QStringList dbe::TableRelationshipNode::GetData() const
   return Data;
 }
 
-daq::config::relationship_t dbe::TableRelationshipNode::GetRelationship() const
+dunedaq::config::relationship_t dbe::TableRelationshipNode::GetRelationship() const
 {
   return RelationshipData;
 }

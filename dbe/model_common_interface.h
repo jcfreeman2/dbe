@@ -26,7 +26,7 @@
     typedef std::vector<type_index> type_indices;\
     typedef dbe::tref type_object_ref;\
     typedef dbe::dref type_object_info;\
-    typedef daq::config::class_t type_class_info;\
+    typedef dunedaq::config::class_t type_class_info;\
     \
 
 

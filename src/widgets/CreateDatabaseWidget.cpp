@@ -128,7 +128,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileLoad()
     emit CanLoadDatabase ( DatabaseFile.absoluteFilePath() );
     close();
   }
-  catch ( daq::config::Exception const & ex )
+  catch ( dunedaq::config::Exception const & ex )
   {
     FAIL ( "Database creation failure", dbe::config::errors::parse ( ex ).c_str() );
   }
@@ -156,7 +156,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileNoLoad()
                                QMessageBox::Ok );
     close();
   }
-  catch ( daq::config::Exception const & ex )
+  catch ( dunedaq::config::Exception const & ex )
   {
     FAIL ( "Database creation failure", dbe::config::errors::parse ( ex ).c_str() );
   }
@@ -185,7 +185,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileInclude()
     emit CanIncludeDatabase ( DatabaseFile.absoluteFilePath() );
     close();
   }
-  catch ( daq::config::Exception const & ex )
+  catch ( dunedaq::config::Exception const & ex )
   {
     FAIL ( "Database creation error", dbe::config::errors::parse ( ex ).c_str() );
   }

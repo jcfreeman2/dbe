@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <QWidget>
-#include <oks/relationship.h>
+#include "oks/relationship.hpp"
 
 namespace dbse
 {

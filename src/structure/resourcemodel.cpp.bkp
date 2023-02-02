@@ -12,14 +12,14 @@ using namespace daq::dbe;
 ResourceModel::ResourceModel ( ::Configuration * db, QObject * parent )
   : QAbstractItemModel ( parent )
 {
-  ERS_DEBUG ( 1, "ResourceModel::ResourceModel()" );
+  TLOG_DEBUG(1) <<  "ResourceModel::ResourceModel()"  ;
   configurationDB = db;
   setupModelData ( configurationDB );
 }
 
 ResourceModel::~ResourceModel()
 {
-  ERS_DEBUG ( 1, "ResourceModel::ResourceModel()" );
+  TLOG_DEBUG(1) <<  "ResourceModel::ResourceModel()"  ;
   delete rootItem;
 }
 
@@ -33,7 +33,7 @@ void ResourceModel::rebuild()
 
 QVariant ResourceModel::data ( const QModelIndex & index, int role ) const
 {
-  ERS_DEBUG ( 4, "ResourceModel::data()" );
+  TLOG_DEBUG(4) <<  "ResourceModel::data()"  ;
 
   if ( !index.isValid() )
   {
@@ -181,7 +181,7 @@ void ResourceModel::buildSegment ( TreeItem * parent, ConfigObject obj )
       buildSegment ( item, objects.at ( i ) );
     }
   }
-  catch ( daq::config::Generic & e )
+  catch ( dunedaq::config::Generic & e )
   {
     ers::info ( e );
   }
@@ -197,7 +197,7 @@ void ResourceModel::buildSegment ( TreeItem * parent, ConfigObject obj )
     }
 
   }
-  catch ( daq::config::Generic & e )
+  catch ( dunedaq::config::Generic & e )
   {
     ers::info ( e );
   }
@@ -224,7 +224,7 @@ void ResourceModel::buildResource ( TreeItem * parent, ConfigObject obj )
     }
 
   }
-  catch ( daq::config::Generic & e )
+  catch ( dunedaq::config::Generic & e )
   {
     //ignore as this will throw very often
   }
@@ -252,7 +252,7 @@ void ResourceModel::buildPartition ( TreeItem * parent, ConfigObject obj )
     }
 
   }
-  catch ( daq::config::Generic & e )
+  catch ( dunedaq::config::Generic & e )
   {
     ers::info ( e );
   }
@@ -268,47 +268,47 @@ void ResourceModel::setupModelData ( ::Configuration * db )
 
   QList<QVariant> rootData;
   rootData << "Class Name"; // only one header/one column
-  ERS_DEBUG ( 3, "obj data" << rootData.size() );
+  TLOG_DEBUG(3) <<  "obj data" << rootData.size()  ;
   rootItem = new TreeItem ( rootData, NULL );
 
   std::vector<ConfigObject> objects;
 
   // TODO: add a cache to store Partition objects if the do not change
-  ERS_DEBUG ( 2, "Getting the Partition objects from the configuration" );
+  TLOG_DEBUG(2) <<  "Getting the Partition objects from the configuration"  ;
   db->get ( "Partition", objects );
-  ERS_DEBUG ( 0, "There are " << objects.size() << " partition objects" );
+  TLOG_DEBUG(0) <<  "There are " << objects.size() << " partition objects"  ;
 
   for ( unsigned int i = 0; i < objects.size(); ++i )
   {
     buildPartition ( rootItem, objects.at ( i ) );
   }//end of loop over objects
 
-  ERS_DEBUG ( 2, "Partition items built" );
+  TLOG_DEBUG(2) <<  "Partition items built"  ;
 
 
   // clear objects to use it for Segment items
   objects.clear();
 
   // TODO: add a cache to store Segment objects if the do not change
-  ERS_DEBUG ( 2, "Getting the Segment objects from the configuration" );
+  TLOG_DEBUG(2) <<  "Getting the Segment objects from the configuration"  ;
   db->get ( "OnlineSegment", objects );
-  ERS_DEBUG ( 0, "There are " << objects.size() << " onlinesegment objects" );
+  TLOG_DEBUG(0) <<  "There are " << objects.size() << " onlinesegment objects"  ;
 
   for ( unsigned int i = 0; i < objects.size(); ++i )
   {
     buildSegment ( rootItem, objects.at ( i ) );
   }//end of loop over objects
 
-  ERS_DEBUG ( 2, "Segment items built" );
+  TLOG_DEBUG(2) <<  "Segment items built"  ;
 
   this->reset();
-  ERS_DEBUG ( 2, "the model has been reset." );
+  TLOG_DEBUG(2) <<  "the model has been reset."  ;
 
 }
 
 TreeItem * ResourceModel::getItem ( const QModelIndex & index ) const
 {
-  ERS_DEBUG ( 3, "here" );
+  TLOG_DEBUG(3) <<  "here"  ;
 
   if ( index.isValid() )
   {
@@ -399,7 +399,7 @@ bool ResourceModel::removeRows ( int position, int rows, const QModelIndex & par
 
 bool ResourceModel::setData ( const QModelIndex & index, const QVariant & value, int role )
 {
-  ERS_DEBUG ( 3, "ResourceModel::setData() - role:" << role );
+  TLOG_DEBUG(3) <<  "ResourceModel::setData() - role:" << role  ;
   //qDebug() << "role:" << role;
   TreeItem * parentItem = getItem ( index );
 
@@ -419,7 +419,7 @@ bool ResourceModel::setData ( const QModelIndex & index, const QVariant & value,
 
     try
     {
-      daq::config::class_t myc = configurationDB->get_class_info ( ( ( (
+      dunedaq::config::class_t myc = configurationDB->get_class_info ( ( ( (
                                                                          parentItem->parent() )->data ( 0 ) ).toString() ).toStdString(), false );
       std::vector< ConfigObject > objects;
       std::cout << " class " << ( ( ( parentItem->parent() )->data (
@@ -435,7 +435,7 @@ bool ResourceModel::setData ( const QModelIndex & index, const QVariant & value,
                                 ( value.toString() ).toStdString(), objNew );
       return true;
     }
-    catch ( daq::config::NotFound & e )
+    catch ( dunedaq::config::NotFound & e )
     {
       ers::error ( e );
       return false;
@@ -467,7 +467,7 @@ ConfigObject ResourceModel::getObjectFromIndex ( const QModelIndex & index ) con
   return ConfigObject();
 }
 
-daq::config::class_t * ResourceModel::getClassFromIndex ( const QModelIndex & index ) const
+dunedaq::config::class_t * ResourceModel::getClassFromIndex ( const QModelIndex & index ) const
 {
   TreeItem * item = getItem ( index );
 
@@ -479,7 +479,7 @@ daq::config::class_t * ResourceModel::getClassFromIndex ( const QModelIndex & in
   return NULL;
 }
 
-daq::config::class_t * ResourceModel::getClassInfo ( TreeItem * item ) const
+dunedaq::config::class_t * ResourceModel::getClassInfo ( TreeItem * item ) const
 {
   ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
 
@@ -533,36 +533,36 @@ bool ResourceModel::isOfClassFromIndex ( const QModelIndex & index,
 
 void ResourceModel::objectAttributeUpdated ( ConfigObject & obj )
 {
-  ERS_DEBUG ( 2, "ResourceModel::objectAttributeUpdated() - for obj: " << obj );
+  TLOG_DEBUG(2) <<  "ResourceModel::objectAttributeUpdated() - for obj: " << obj  ;
   // do nothing // TODO: check it!
 }
 void ResourceModel::objectRelationshipUpdated ( ConfigObject & obj )
 {
-  ERS_DEBUG ( 2, "ResourceModel::objectRelationshipUpdated() - for obj: " << obj );
+  TLOG_DEBUG(2) <<  "ResourceModel::objectRelationshipUpdated() - for obj: " << obj  ;
   this->rebuild();
 }
 void ResourceModel::objectCreated ( ConfigObject & obj )
 {
 //  ERS_DEBUG(2, "ResourceModel::objectCreated() - obj: " << obj);
-  ERS_DEBUG ( 2, "ResourceModel::objectCreated(obj)" );
+  TLOG_DEBUG(2) <<  "ResourceModel::objectCreated(obj)"  ;
   this->rebuild();
 }
 void ResourceModel::objectDeleted ( ConfigObject & obj )
 {
 //  ERS_DEBUG(2, "ResourceModel::objectDeleted() - obj: " << obj);
-  ERS_DEBUG ( 2, "ResourceModel::objectDeleted(obj)" );
+  TLOG_DEBUG(2) <<  "ResourceModel::objectDeleted(obj)"  ;
   this->rebuild();
 }
 void ResourceModel::objectCreated()
 {
 //  ERS_DEBUG(2, "ResourceModel::objectCreated() - obj: " << obj);
-  ERS_DEBUG ( 2, "ResourceModel::objectCreated()" );
+  TLOG_DEBUG(2) <<  "ResourceModel::objectCreated()"  ;
   this->rebuild();
 }
 void ResourceModel::objectDeleted()
 {
 //  ERS_DEBUG(2, "ResourceModel::objectDeleted() - obj: " << obj);
-  ERS_DEBUG ( 2, "ResourceModel::objectDeleted()" );
+  TLOG_DEBUG(2) <<  "ResourceModel::objectDeleted()"  ;
   this->rebuild();
 }
 

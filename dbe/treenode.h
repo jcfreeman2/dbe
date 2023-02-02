@@ -57,10 +57,10 @@ protected:
 class ClassNode: public treenode
 {
 public:
-  ClassNode ( const daq::config::class_t & Info, treenode * ParentNode );
+  ClassNode ( const dunedaq::config::class_t & Info, treenode * ParentNode );
   ~ClassNode();
   virtual QVariant GetData ( const int Column, int role = Qt::DisplayRole ) const;
-  daq::config::class_t GetClassInfo() const;
+  dunedaq::config::class_t GetClassInfo() const;
   void AddChild ( treenode * Child ) override;
   void RemoveChild ( treenode * Child ) override;
 
@@ -68,7 +68,7 @@ protected:
   void updateData(bool addition);
 
 private:
-  daq::config::class_t ClassInfo;
+  dunedaq::config::class_t ClassInfo;
   unsigned int numObjects;
 };
 
@@ -86,24 +86,24 @@ private:
 class AttributeNode: public treenode
 {
 public:
-  AttributeNode ( const daq::config::attribute_t & AttributeData, treenode * ParentNode );
+  AttributeNode ( const dunedaq::config::attribute_t & AttributeData, treenode * ParentNode );
   ~AttributeNode();
   virtual QVariant GetData ( const int Column, int role = Qt::DisplayRole ) const;
-  daq::config::attribute_t attribute_t() const;
+  dunedaq::config::attribute_t attribute_t() const;
 private:
-  daq::config::attribute_t attribute_t_definition;
+  dunedaq::config::attribute_t attribute_t_definition;
 };
 
 class RelationshipNode: public treenode
 {
 public:
-  RelationshipNode ( const daq::config::relationship_t & RelationshipData,
+  RelationshipNode ( const dunedaq::config::relationship_t & RelationshipData,
                      treenode * ParentNode );
   ~RelationshipNode();
   virtual QVariant GetData ( const int Column, int role = Qt::DisplayRole ) const;
-  daq::config::relationship_t relation_t() const;
+  dunedaq::config::relationship_t relation_t() const;
 private:
-  daq::config::relationship_t relation_t_definition;
+  dunedaq::config::relationship_t relation_t_definition;
 };
 
 }  // namespace dbe

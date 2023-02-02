@@ -4,7 +4,7 @@
 /// Including Schema
 #include "SchemaCustomModelInterface.h"
 /// Include oks
-#include <oks/method.h>
+#include "oks/method.hpp"
 
 namespace dbse
 {
