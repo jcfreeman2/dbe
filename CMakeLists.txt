@@ -117,43 +117,43 @@ add_dependencies(dbe_config_api dbe_core_ui_header_gen)
 #   LINK_LIBRARIES ${dbe_common_libs})
 
 
-# #====================================================================================#
-# #                                    LIBDBE_STRUCTURE                                #
-# #====================================================================================#
-# qt5_wrap_cpp(dbe_structure_moc_src
-#                     dbe/CustomDelegate.h
-#                     dbe/CustomFileView.h
-#                     dbe/CustomTableView.h
-#                     dbe/CustomTreeView.h
-#                     dbe/FileModel.h
-#                     dbe/subtreeproxy.h
-#                     dbe/table.h
-#                     dbe/tableselection.h
-#                     dbe/tree.h
-#                     dbe/treeselection.h
-# )
+#====================================================================================#
+#                                    LIBDBE_STRUCTURE                                #
+#====================================================================================#
+qt5_wrap_cpp(dbe_structure_moc_src
+                    dbe/CustomDelegate.h
+                    dbe/CustomFileView.h
+                    dbe/CustomTableView.h
+                    dbe/CustomTreeView.h
+                    dbe/FileModel.h
+                    dbe/subtreeproxy.h
+                    dbe/table.h
+                    dbe/tableselection.h
+                    dbe/tree.h
+                    dbe/treeselection.h
+)
 
-# set(dbe_structure_src
-#                     src/structure/CustomDelegate.cpp
-#                     src/structure/CustomFileView.cpp
-#                     src/structure/CustomTableView.cpp
-#                     src/structure/CustomTreeView.cpp
-#                     src/structure/FileModel.cpp
-#                     src/structure/treenode.cpp
-#                     src/structure/subtreeproxy.cpp
-#                     src/structure/table.cpp
-#                     src/structure/TableNode.cpp
-#                     src/structure/tableselection.cpp
-#                     src/structure/tree.cpp
-#                     src/structure/treeselection.cpp
-#                     src/structure/model_common_interface.cpp
-#   )
+set(dbe_structure_src
+                    src/structure/CustomDelegate.cpp
+                    src/structure/CustomFileView.cpp
+                    src/structure/CustomTableView.cpp
+                    src/structure/CustomTreeView.cpp
+                    src/structure/FileModel.cpp
+                    src/structure/treenode.cpp
+                    src/structure/subtreeproxy.cpp
+                    src/structure/table.cpp
+                    src/structure/TableNode.cpp
+                    src/structure/tableselection.cpp
+                    src/structure/tree.cpp
+                    src/structure/treeselection.cpp
+                    src/structure/model_common_interface.cpp
+  )
 
-# add_library(dbe_structure SHARED ${dbe_structure_src} ${dbe_structure_moc_src})
-# target_link_libraries(dbe_structure PUBLIC ${dbe_common_libs})
-# target_include_directories(dbe_structure PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-# target_include_directories(dbe_structure PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dbe)
-# target_include_directories(dbe_structure PUBLIC ${CMAKE_BINARY_DIR}/dbe)
+add_library(dbe_structure SHARED ${dbe_structure_src} ${dbe_structure_moc_src})
+target_link_libraries(dbe_structure PUBLIC ${dbe_common_libs})
+target_include_directories(dbe_structure PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(dbe_structure PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dbe)
+target_include_directories(dbe_structure PUBLIC ${CMAKE_BINARY_DIR}/dbe)
 
 # tdaq_add_library(dbe_structure 
 #   ${dbe_structure_src}
@@ -161,11 +161,11 @@ add_dependencies(dbe_config_api dbe_core_ui_header_gen)
 #   INCLUDE_DIRECTORIES dbe
 #   LINK_LIBRARIES ${dbe_common_libs})
 
-# # dbe_structure depends on the generated header files of the dbe_core library
-# # Since dbe_core depends on dbe_structure we introduce a custom target
-# # that will trigger only the ui header generation and depend on.
+# dbe_structure depends on the generated header files of the dbe_core library
+# Since dbe_core depends on dbe_structure we introduce a custom target
+# that will trigger only the ui header generation and depend on.
 
-# add_dependencies(dbe_structure dbe_core_ui_header_gen)
+add_dependencies(dbe_structure dbe_core_ui_header_gen)
 
 #====================================================================================#
 #                                    LIBDBE_WRAP                                     #

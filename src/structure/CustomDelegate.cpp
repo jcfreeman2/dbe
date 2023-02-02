@@ -4,7 +4,7 @@
 #include "BuildingBlockEditors.h"
 #include "TableNode.h"
 #include "Validator.h"
-#include "MainWindow.h"
+//#include "MainWindow.h"
 
 #include <QKeyEvent>
 #include <QCompleter>

@@ -10,6 +10,7 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QVariant>
+#include <QHeaderView>
 
 /// Including DBE
 #include "CustomTableView.h"
@@ -17,7 +18,7 @@
 #include "ObjectCreator.h"
 #include "messenger.h"
 
-#include "MainWindow.h"
+//#include "MainWindow.h"
 
 //-----------------------------------------------------------------------------------------------------
 dbe::CustomTableView::CustomTableView ( QWidget * parent )
@@ -374,7 +375,8 @@ void dbe::CustomTableView::referencedBy ( tref obj, bool onlyComposite )
 {
   if ( not obj.is_null() )
   {
-    MainWindow::findthis()->get_view()->referencedBy ( onlyComposite, obj );
+    int i = 89;
+    //MainWindow::findthis()->get_view()->referencedBy ( onlyComposite, obj );
   }
 }
 //-----------------------------------------------------------------------------------------------------
