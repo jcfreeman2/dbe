@@ -9,8 +9,8 @@
 #include "version.h"
 #include "config_api.h"
 
-#include <config/Errors.h>
-#include <ers/Issue.h>
+#include "config/Errors.hpp"
+#include "ers/Issue.hpp"
 #include <algorithm>
 #include <sstream>
 #include <string>

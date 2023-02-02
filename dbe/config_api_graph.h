@@ -10,7 +10,7 @@
 
 #include "tref.h"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <vector>
 

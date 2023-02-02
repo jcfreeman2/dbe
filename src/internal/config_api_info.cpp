@@ -9,7 +9,7 @@
 #include "config_api.hpp"
 #include "treenode.h"
 #include "Sorting.h"
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 #include <QString>
 //------------------------------------------------------------------------------------------
 //                                    DBE::CONFIG::API::INFO NAMESPACE

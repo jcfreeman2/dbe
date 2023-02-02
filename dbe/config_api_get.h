@@ -10,8 +10,8 @@
 
 #include "config_reference.hpp"
 
-#include <config/ConfigObject.h>
-#include <config/Schema.h>
+#include "config/ConfigObject.hpp"
+#include "config/Schema.hpp"
 #include <QString>
 #include <QStringList>
 

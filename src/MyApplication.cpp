@@ -2,8 +2,8 @@
 #include "MyApplication.h"
 #include "Exceptions.h"
 /// Including TDAq
-#include "config/Configuration.h"
-#include "ers/ers.h"
+#include "config/Configuration.hpp"
+#include "ers/ers.hpp"
 #include "messenger.h"
 #include "version.h"
 

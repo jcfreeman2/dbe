@@ -14,9 +14,9 @@
 #include "Exceptions.h"
 #include "messenger.h"
 
-#include <config/ConfigObject.h>
-#include <config/Errors.h>
-#include <config/Schema.h>
+#include "config/ConfigObject.hpp"
+#include "config/Errors.hpp"
+#include "config/Schema.hpp"
 
 #include <QObject>
 #include <QtCore/qstring.h>

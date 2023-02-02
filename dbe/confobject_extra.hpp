@@ -13,7 +13,7 @@
 #include "config_api_graph.h"
 #include "confobject_desc.hpp"
 
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 #include <string>
 
 namespace dbe

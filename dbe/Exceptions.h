@@ -2,9 +2,9 @@
 #define EXCEPTIONS_H
 
 /// Including ers headers
-#include "ers/ers.h"
+#include "ers/ers.hpp"
 
-#include <config/Errors.h>
+#include "config/Errors.hpp"
 
 #include <string>
 

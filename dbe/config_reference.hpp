@@ -11,7 +11,7 @@
 #include "Exceptions.h"
 #include "config_object_key.hpp"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <vector>
 #include <memory>

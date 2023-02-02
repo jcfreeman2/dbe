@@ -9,7 +9,7 @@
 #define DBE_MODEL_COMMON_INTERFACE_H_
 
 #include "confaccessor.h"
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <QString>
 #include <QModelIndex>

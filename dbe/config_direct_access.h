@@ -11,7 +11,7 @@
 #include "dbcontroller.h"
 #include "confobject_desc.hpp"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <string>
 

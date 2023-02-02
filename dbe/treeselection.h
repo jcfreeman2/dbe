@@ -6,7 +6,7 @@
 #include "model_common_interface.h"
 #include "dbcontroller.h"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <QSortFilterProxyModel>
 #include <QUuid>

@@ -5,9 +5,9 @@
 #include "config_reference.hpp"
 #include "dbcontroller.h"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
-#include <ers/ers.h>
+#include "ers/ers.hpp"
 
 #include <QTreeView>
 #include<QUuid>

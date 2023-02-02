@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 // include TDAQ
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 // include Qt
 #include <QMessageBox>
 #include <QProgressDialog>

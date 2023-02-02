@@ -1,7 +1,7 @@
 #ifndef SORTING_H
 #define SORTING_H
 
-#include "config/Schema.h"
+#include "config/Schema.hpp"
 #include "dbcontroller.h"
 #include <string>
 

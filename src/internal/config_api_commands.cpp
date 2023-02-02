@@ -20,8 +20,8 @@
 #include "change_attribute.hpp"
 
 
-#include <config/Schema.h>
-#include <ers/Issue.h>
+#include "config/Schema.hpp"
+#include "ers/Issue.hpp"
 
 #include <QString>
 #include <QUuid>

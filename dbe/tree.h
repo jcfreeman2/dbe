@@ -4,7 +4,7 @@
 /// Including QT Headers
 #include <QAbstractItemModel>
 /// Including TDAq
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 /// Including DBE
 #include "TreeModelInterface.h"
 #include "model_common_interface.h"

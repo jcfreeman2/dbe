@@ -3,7 +3,7 @@
 
 #include "Exceptions.h"
 
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 
 #include <string>
 #include <vector>

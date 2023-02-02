@@ -4,8 +4,8 @@
 #include "FileModel.h"
 #include "ObjectEditor.h"
 
-#include <config/Schema.h>
-#include <config/ConfigObject.h>
+#include "config/Schema.hpp"
+#include "config/ConfigObject.hpp"
 
 #include <QWidget>
 #include <QStatusBar>

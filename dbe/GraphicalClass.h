@@ -4,7 +4,7 @@
 /// Including QT
 #include <QGraphicsObject>
 /// Including config
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 
 namespace dbe
 {

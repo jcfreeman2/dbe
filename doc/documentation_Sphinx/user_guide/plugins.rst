@@ -26,7 +26,7 @@ The generated ``.so`` shared libraries will be saved under the folder ``plugins/
 
    If the plugins do not compile, check the Makefile.
 
-   If you get errors like **"config/Configuration.h" does not exist"**, try to look for wrong include statement inside the automatically generated Makefile. You should remove all ``-I-I`` occurencies, and substitute them with ``-I``.
+   If you get errors like **"config/Configuration.hpp" does not exist"**, try to look for wrong include statement inside the automatically generated Makefile. You should remove all ``-I-I`` occurencies, and substitute them with ``-I``.
 
    If you get errors like this one:
    ``/usr/bin/ld: skipping incompatible /afs/.cern.ch/sw/lcg/external/qt/4.6.3/i686-slc5-gcc43-opt/lib/libQtCore.so when searching for -lQtCore``

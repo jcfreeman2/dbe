@@ -12,11 +12,11 @@
 #include "config_api_set.h"
 #include "Conversion.h"
 
-#include <config/ConfigObject.h>
-#include <config/Configuration.h>
-#include <config/Errors.h>
-#include <config/Schema.h>
-#include <ers/LocalContext.h>
+#include "config/ConfigObject.hpp"
+#include "config/Configuration.hpp"
+#include "config/Errors.hpp"
+#include "config/Schema.hpp"
+#include "ers/LocalContext.hpp"
 
 #include <QString>
 #include <QStringList>

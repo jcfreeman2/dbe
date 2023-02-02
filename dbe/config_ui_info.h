@@ -10,8 +10,8 @@
 
 #include "datahandler.h"
 #include "GraphicalClass.h"
-#include <config/ConfigObject.h>
-#include <config/Configuration.h>
+#include "config/ConfigObject.hpp"
+#include "config/Configuration.hpp"
 #include <memory>
 #include <vector>
 #include <string>

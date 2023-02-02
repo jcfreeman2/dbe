@@ -11,7 +11,7 @@
 #include "config_ui_info.h"
 #include "version.h"
 
-#include <config/Configuration.h>
+#include "config/Configuration.hpp"
 
 #include <QFileInfo>
 #include <QStringList>

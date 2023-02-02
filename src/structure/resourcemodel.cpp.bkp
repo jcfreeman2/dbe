@@ -4,7 +4,7 @@
 //including general
 #include <iostream>
 #include <sstream>
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 #include "internal/sorting.h"
 #include <QMessageBox>
 using namespace daq::dbe;

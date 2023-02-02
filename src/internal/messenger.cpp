@@ -5,7 +5,7 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "ers/ers.h"
+#include "ers/ers.hpp"
 
 #include "messenger.h"
 #include "messenger_proxy.h"

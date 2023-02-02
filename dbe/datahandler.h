@@ -5,7 +5,7 @@
 #include "GraphicalClass.h"
 #include "dbcontroller.h"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <QModelIndex>
 #include <QObject>

@@ -4,9 +4,9 @@
 #include "treenode.h"
 #include "Exceptions.h"
 
-#include <config/Configuration.h>
-#include <config/ConfigObject.h>
-#include <config/Schema.h>
+#include "config/Configuration.hpp"
+#include "config/ConfigObject.hpp"
+#include "config/Schema.hpp"
 
 #include <QModelIndex>
 #include <vector>

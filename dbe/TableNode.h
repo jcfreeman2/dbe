@@ -4,7 +4,7 @@
 /// Including DBE
 #include <QStringList>
 /// Including config headers
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 
 namespace dbe
 {

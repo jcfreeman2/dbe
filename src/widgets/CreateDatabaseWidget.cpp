@@ -5,9 +5,9 @@
 #include"CreateDatabaseWidget.h"
 #include"StyleUtility.h"
 /// Including config headers
-#include <config/ConfigObject.h>
-#include <config/Configuration.h>
-#include <config/Schema.h>
+#include "config/ConfigObject.hpp"
+#include "config/Configuration.hpp"
+#include "config/Schema.hpp"
 #include "Exceptions.h"
 #include "messenger.h"
 

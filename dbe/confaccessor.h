@@ -6,8 +6,8 @@
 #include "cptr.hpp"
 #include "dbinfo.h"
 
-#include <config/Configuration.h>
-#include <config/Change.h>
+#include "config/Configuration.hpp"
+#include "config/Change.hpp"
 
 #include <QUndoCommand>
 #include <QObject>

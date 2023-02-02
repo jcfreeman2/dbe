@@ -10,8 +10,8 @@
 
 #include "dbcontroller.h"
 
-#include <config/ConfigObject.h>
-#include <config/Schema.h>
+#include "config/ConfigObject.hpp"
+#include "config/Schema.hpp"
 
 #include <QUndoCommand>
 #include <QUuid>

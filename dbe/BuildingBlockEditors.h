@@ -1,7 +1,7 @@
 #ifndef BUILDINGBLOCKEDITORS_H
 #define BUILDINGBLOCKEDITORS_H
 
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 
 #include "ui_RelationshipWidgetForm.h"
 #include "ui_StringAttributeWidgetForm.h"

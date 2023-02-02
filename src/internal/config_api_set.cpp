@@ -13,7 +13,7 @@
 #include "Conversion.h"
 #include "dbcontroller.h"
 
-#include <config/Schema.h>
+#include "config/Schema.hpp"
 
 #include <QString>
 

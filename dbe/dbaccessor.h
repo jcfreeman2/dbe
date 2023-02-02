@@ -11,7 +11,7 @@
 #include "cptr.hpp"
 #include "types.h"
 
-#include <config/Configuration.h>
+#include "config/Configuration.hpp"
 #include <string>
 
 namespace dbe

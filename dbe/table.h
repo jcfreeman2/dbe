@@ -5,7 +5,7 @@
 #include "TableNode.h"
 #include "model_common_interface.h"
 
-#include <config/ConfigObject.h>
+#include "config/ConfigObject.hpp"
 
 #include <QAbstractTableModel>
 
