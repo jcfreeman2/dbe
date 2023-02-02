@@ -18,7 +18,7 @@
 /// Including DBE
 #include "FileModel.h"
 #include "CustomDelegate.h"
-#include "OracleWidget.h"
+//#include "OracleWidget.h"
 #include "TableTab.h"
 #include "tree.h"
 #include "table.h"
@@ -26,9 +26,9 @@
 #include "treeselection.h"
 #include "subtreeproxy.h"
 
-/// Including IPC
-#include <ipc/partition.h>
-#include <rdb/rdb.hh>
+// /// Including IPC
+//#include <ipc/partition.h>
+//#include <rdb/rdb.hh>
 
 #include <atomic>
 
@@ -57,7 +57,7 @@ public:
   QString find_db_repository_dir();
 
 private:
-  typedef QMap<QString, bool> RDBMap;
+  //typedef QMap<QString, bool> RDBMap;
 
   QSet<QString> allFiles;
 
@@ -70,7 +70,7 @@ private:
   models::subtree_proxy * this_resources;
   models::treeselection * this_treefilter;
 
-  OracleWidget * this_oraclewidget;
+  //OracleWidget * this_oraclewidget;
 
   std::atomic<bool> isArchivedConf;
 
@@ -104,8 +104,8 @@ private:
 
   void WriteSettings();
   void argsparse ( QMap<QString, QString> const & );
-  void init_rdb_menu();
-  void lookForRDBServers ( const IPCPartition & p );
+  //void init_rdb_menu();
+  //void lookForRDBServers ( const IPCPartition & p );
   void init_tabs();
 
   void edit_object_at ( const QModelIndex Index );
@@ -117,11 +117,11 @@ private slots:
   void slot_open_database_from_file();
   void slot_load_db_from_create_widget ( const QString & );
 
-  void slot_rdb_selected ( QAction * );
-  void slot_rdb_found (const QString& p, const RDBMap& rdbs);
+  //void slot_rdb_selected ( QAction * );
+  //void slot_rdb_found (const QString& p, const RDBMap& rdbs);
 
-  void slot_oracle_prepare();
-  void slot_load_oracle ( const QString & );
+  //void slot_oracle_prepare();
+  //void slot_load_oracle ( const QString & );
 
   void slot_commit_database ( bool Exit = false );
 
@@ -179,7 +179,7 @@ public slots:
   void slot_failure_message ( QString const, QString const );
 
 signals:
-  void signal_rdb_found (const QString& p, const RDBMap& rdbs);
+  //void signal_rdb_found (const QString& p, const RDBMap& rdbs);
   void signal_batch_change_stopped(const QList<QPair<QString, QString>>&);
   void signal_db_loaded();
   void signal_externalchanges_processed();

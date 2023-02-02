@@ -18,7 +18,7 @@
 #include "ObjectCreator.h"
 #include "messenger.h"
 
-//#include "MainWindow.h"
+#include "MainWindow.h"
 
 //-----------------------------------------------------------------------------------------------------
 dbe::CustomTableView::CustomTableView ( QWidget * parent )
@@ -375,8 +375,7 @@ void dbe::CustomTableView::referencedBy ( tref obj, bool onlyComposite )
 {
   if ( not obj.is_null() )
   {
-    int i = 89;
-    //MainWindow::findthis()->get_view()->referencedBy ( onlyComposite, obj );
+    MainWindow::findthis()->get_view()->referencedBy ( onlyComposite, obj );
   }
 }
 //-----------------------------------------------------------------------------------------------------

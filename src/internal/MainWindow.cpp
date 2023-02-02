@@ -55,10 +55,10 @@ dbe::MainWindow::MainWindow ( QMap<QString, QString> const & cmdargs, QWidget * 
     this_partitions ( nullptr ),
     this_resources ( nullptr ),
     this_treefilter ( nullptr ),
-    this_oraclewidget ( nullptr ),
+    //this_oraclewidget ( nullptr ),
     isArchivedConf ( false )
 {
-  qRegisterMetaType<RDBMap>("RDBMap");
+  //qRegisterMetaType<RDBMap>("RDBMap");
 
   /// Setting up ui
   setupUi ( this );
@@ -66,7 +66,7 @@ dbe::MainWindow::MainWindow ( QMap<QString, QString> const & cmdargs, QWidget * 
   /// Initial Settings
   init();
   init_tabs();
-  init_rdb_menu();
+  //init_rdb_menu();
 
   /// Setting up application controller
   attach();
@@ -77,8 +77,8 @@ dbe::MainWindow::MainWindow ( QMap<QString, QString> const & cmdargs, QWidget * 
 
   if (isArchivedConf == true) {
       OpenDB->setEnabled(false);
-      OpenOracleDB->setEnabled(false);
-      ConnectToRdb->setEnabled(false);
+      //OpenOracleDB->setEnabled(false);
+      //ConnectToRdb->setEnabled(false);
       CreateDatabase->setEnabled(false);
       Commit->setEnabled(false);
 
@@ -216,7 +216,7 @@ void dbe::MainWindow::attach()
   connect ( LoadDefaultSettings, SIGNAL ( triggered() ), this,
             SLOT ( LoadDefaultSetting() ) );
   connect ( CreateDatabase, SIGNAL ( triggered() ), this, SLOT ( slot_create_newdb() ) );
-  connect ( OpenOracleDB, SIGNAL ( triggered() ), this, SLOT ( slot_oracle_prepare() ) );
+  //connect ( OpenOracleDB, SIGNAL ( triggered() ), this, SLOT ( slot_oracle_prepare() ) );
 
   connect ( WhatThisAction, SIGNAL ( triggered() ), this, SLOT ( slot_whatisthis() ) );
   connect ( UserGuide, SIGNAL ( triggered() ), this, SLOT ( slot_show_userguide() ) );
@@ -273,8 +273,8 @@ void dbe::MainWindow::attach()
             SLOT ( slot_filter_table_textchange ( const QString & ) ) );
   connect ( CaseSensitiveCheckBoxTree, SIGNAL ( clicked ( bool ) ), this,
             SLOT ( slot_toggle_casesensitive_for_treeview ( bool ) ) );
-  connect ( ConnectToRdb, SIGNAL ( triggered ( QAction * ) ), this,
-            SLOT ( slot_rdb_selected ( QAction * ) ) );
+  //connect ( ConnectToRdb, SIGNAL ( triggered ( QAction * ) ), this,
+  //        SLOT ( slot_rdb_selected ( QAction * ) ) );
 
   connect ( information_about_dbe, SIGNAL ( triggered() ), this,
             SLOT ( slot_show_information_about_dbe() ) );
@@ -305,8 +305,8 @@ void dbe::MainWindow::attach()
             SIGNAL ( signal_fail ( QString const, QString const ) ), this,
             SLOT ( slot_failure_message ( QString , QString ) ), Qt::QueuedConnection );
 
-  connect ( this, SIGNAL ( signal_rdb_found(const QString&, const RDBMap& ) ),
-            this, SLOT ( slot_rdb_found(const QString&, const RDBMap&) ), Qt::AutoConnection );
+  // connect ( this, SIGNAL ( signal_rdb_found(const QString&, const RDBMap& ) ),
+  //           this, SLOT ( slot_rdb_found(const QString&, const RDBMap&) ), Qt::AutoConnection );
 }
 
 void dbe::MainWindow::build_class_tree_model()
@@ -964,175 +964,175 @@ void dbe::MainWindow::argsparse ( QMap<QString, QString> const & opts )
   }
 }
 
-/**
- * Create Rdb menu based on the available Rdb information
- */
-void dbe::MainWindow::init_rdb_menu()
-{
-  ConnectToRdb->clear();
+// /**
+//  * Create Rdb menu based on the available Rdb information
+//  */
+// void dbe::MainWindow::init_rdb_menu()
+// {
+//   ConnectToRdb->clear();
 
-  std::list<IPCPartition> pl;
-  IPCPartition::getPartitions(pl);
-  TLOG_DEBUG(1) <<  "Found " << pl.size() << " partitions"  ;
+//   std::list<IPCPartition> pl;
+//   IPCPartition::getPartitions(pl);
+//   TLOG_DEBUG(1) <<  "Found " << pl.size() << " partitions"  ;
 
-  pl.push_front(IPCPartition("initial"));
+//   pl.push_front(IPCPartition("initial"));
 
-  auto f = [pl, this] () {
-      for ( auto it = pl.begin(); it != pl.end(); ++it )
-      {
-          lookForRDBServers ( *it );
-      }
-  };
+//   auto f = [pl, this] () {
+//       for ( auto it = pl.begin(); it != pl.end(); ++it )
+//       {
+//           lookForRDBServers ( *it );
+//       }
+//   };
 
-  std::thread t(f);
-  t.detach();
-}
+//   std::thread t(f);
+//   t.detach();
+// }
 
-void dbe::MainWindow::slot_rdb_found(const QString& p, const RDBMap& rdbs) {
-    QMenu * part_menu = new QMenu(p);
+// void dbe::MainWindow::slot_rdb_found(const QString& p, const RDBMap& rdbs) {
+//     QMenu * part_menu = new QMenu(p);
 
-    for(auto it = rdbs.begin(); it != rdbs.end(); ++it) {
-        QAction * newAct = new QAction ( it.key(), part_menu );
+//     for(auto it = rdbs.begin(); it != rdbs.end(); ++it) {
+//         QAction * newAct = new QAction ( it.key(), part_menu );
 
-        QFont actFont = newAct->font();
-        if(it.value() == true) {
-            newAct->setToolTip ( QString ( "This is a Read-Only instance of the DB" ) );
-            actFont.setItalic ( true );
-        } else {
-            newAct->setToolTip ( QString ( "This is a Read/Write instance of the DB" ) );
-            actFont.setBold ( true );
-        }
+//         QFont actFont = newAct->font();
+//         if(it.value() == true) {
+//             newAct->setToolTip ( QString ( "This is a Read-Only instance of the DB" ) );
+//             actFont.setItalic ( true );
+//         } else {
+//             newAct->setToolTip ( QString ( "This is a Read/Write instance of the DB" ) );
+//             actFont.setBold ( true );
+//         }
 
-        newAct->setFont ( actFont );
+//         newAct->setFont ( actFont );
 
-        part_menu->addAction ( newAct );
-    }
+//         part_menu->addAction ( newAct );
+//     }
 
-    ConnectToRdb->addMenu ( part_menu );
-}
+//     ConnectToRdb->addMenu ( part_menu );
+// }
 
-/**
- * Add rdb servers for each partition
- *
- * @param p is the partition source for which to populate with server information
- */
-void dbe::MainWindow::lookForRDBServers ( const IPCPartition & p )
-{
-  TLOG_DEBUG(2) <<  "dbe::MainWindow::addRDBServers()"  ;
+// /**
+//  * Add rdb servers for each partition
+//  *
+//  * @param p is the partition source for which to populate with server information
+//  */
+// void dbe::MainWindow::lookForRDBServers ( const IPCPartition & p )
+// {
+//   TLOG_DEBUG(2) <<  "dbe::MainWindow::addRDBServers()"  ;
 
-  if ( p.isValid() )
-  {
-    TLOG_DEBUG(2) <<  "Inserting partition = " << p.name()  ;
+//   if ( p.isValid() )
+//   {
+//     TLOG_DEBUG(2) <<  "Inserting partition = " << p.name()  ;
 
-    RDBMap rdbs;
+//     RDBMap rdbs;
 
-    try
-    {
-        {
-            std::map<std::string, rdb::cursor_var> objects;
-            p.getObjects<rdb::cursor, ::ipc::use_cache, ::ipc::unchecked_narrow> ( objects );
-            std::map<std::string, rdb::cursor_var>::iterator rdb_it = objects.begin();
+//     try
+//     {
+//         {
+//             std::map<std::string, rdb::cursor_var> objects;
+//             p.getObjects<rdb::cursor, ::ipc::use_cache, ::ipc::unchecked_narrow> ( objects );
+//             std::map<std::string, rdb::cursor_var>::iterator rdb_it = objects.begin();
 
-            while ( rdb_it != objects.end() )
-            {
-                TLOG_DEBUG(2) <<  "Found server : " << rdb_it->first  ;
+//             while ( rdb_it != objects.end() )
+//             {
+//                 TLOG_DEBUG(2) <<  "Found server : " << rdb_it->first  ;
 
-                rdbs.insert(QString::fromStdString(rdb_it->first), true);
+//                 rdbs.insert(QString::fromStdString(rdb_it->first), true);
 
-                ++rdb_it;
-            }
-        }
+//                 ++rdb_it;
+//             }
+//         }
 
-        {
-            std::map<std::string, rdb::writer_var> objects;
-            p.getObjects<rdb::writer, ::ipc::use_cache, ::ipc::unchecked_narrow> ( objects );
-            std::map<std::string, rdb::writer_var>::iterator rdb_it = objects.begin();
+//         {
+//             std::map<std::string, rdb::writer_var> objects;
+//             p.getObjects<rdb::writer, ::ipc::use_cache, ::ipc::unchecked_narrow> ( objects );
+//             std::map<std::string, rdb::writer_var>::iterator rdb_it = objects.begin();
 
-            while ( rdb_it != objects.end() )
-            {
-                TLOG_DEBUG(2) <<  "Found server : " << rdb_it->first  ;
+//             while ( rdb_it != objects.end() )
+//             {
+//                 TLOG_DEBUG(2) <<  "Found server : " << rdb_it->first  ;
 
-                rdbs.insert(QString::fromStdString(rdb_it->first), false);
+//                 rdbs.insert(QString::fromStdString(rdb_it->first), false);
 
-                ++rdb_it;
-            }
-        }
-    }
-    catch ( daq::ipc::InvalidPartition& e )
-    {
-      ers::error ( e );
-    }
+//                 ++rdb_it;
+//             }
+//         }
+//     }
+//     catch ( daq::ipc::InvalidPartition& e )
+//     {
+//       ers::error ( e );
+//     }
 
-    if(rdbs.isEmpty() == false) {
-        emit signal_rdb_found (QString::fromStdString(p.name()), rdbs);
-    }
-  }
-}
+//     if(rdbs.isEmpty() == false) {
+//         emit signal_rdb_found (QString::fromStdString(p.name()), rdbs);
+//     }
+//   }
+// }
 
-void dbe::MainWindow::slot_rdb_selected ( QAction * action )
-{
-  QMenu * parentMenu = qobject_cast<QMenu *> ( action->parent() );
+// void dbe::MainWindow::slot_rdb_selected ( QAction * action )
+// {
+//   QMenu * parentMenu = qobject_cast<QMenu *> ( action->parent() );
 
-  if ( parentMenu )
-  {
-    if ( dbreload() )
-    {
-      BOOST_SCOPE_EXIT(void)
-      {
-          QApplication::restoreOverrideCursor();
-       }
-      BOOST_SCOPE_EXIT_END
+//   if ( parentMenu )
+//   {
+//     if ( dbreload() )
+//     {
+//       BOOST_SCOPE_EXIT(void)
+//       {
+//           QApplication::restoreOverrideCursor();
+//        }
+//       BOOST_SCOPE_EXIT_END
 
-      QApplication::setOverrideCursor(Qt::WaitCursor);
+//       QApplication::setOverrideCursor(Qt::WaitCursor);
 
-      confaccessor::setdbinfo ( action->text() + "@" + parentMenu->title(), dbinfo::rdb );
+//       confaccessor::setdbinfo ( action->text() + "@" + parentMenu->title(), dbinfo::rdb );
 
-      if ( dbload() )
-      {
-        setinternals();
-        build_class_tree_model();
-        build_partition_tree_model();
-        build_resource_tree_model();
-        build_file_model();
-      }
-    }
-  }
-}
+//       if ( dbload() )
+//       {
+//         setinternals();
+//         build_class_tree_model();
+//         build_partition_tree_model();
+//         build_resource_tree_model();
+//         build_file_model();
+//       }
+//     }
+//   }
+// }
 
-void dbe::MainWindow::slot_oracle_prepare()
-{
-  if ( this_oraclewidget == nullptr )
-  {
-    this_oraclewidget = new OracleWidget();
-    connect ( this_oraclewidget, SIGNAL ( OpenOracleConfig ( const QString & ) ), this,
-              SLOT ( slot_load_oracle ( const QString & ) ) );
-  }
+// void dbe::MainWindow::slot_oracle_prepare()
+// {
+//   if ( this_oraclewidget == nullptr )
+//   {
+//     this_oraclewidget = new OracleWidget();
+//     connect ( this_oraclewidget, SIGNAL ( OpenOracleConfig ( const QString & ) ), this,
+//               SLOT ( slot_load_oracle ( const QString & ) ) );
+//   }
 
-  this_oraclewidget->raise();
-  this_oraclewidget->show();
-}
+//   this_oraclewidget->raise();
+//   this_oraclewidget->show();
+// }
 
-void dbe::MainWindow::slot_load_oracle ( const QString & OracleDatabase )
-{
-  if ( dbreload() )
-  {
-    confaccessor::setdblocation ( OracleDatabase );
+// void dbe::MainWindow::slot_load_oracle ( const QString & OracleDatabase )
+// {
+//   if ( dbreload() )
+//   {
+//     confaccessor::setdblocation ( OracleDatabase );
 
-    if ( dbload() )
-    {
-      setinternals();
-      build_class_tree_model();
-      build_partition_tree_model();
-      build_resource_tree_model();
-      build_file_model();
-    }
-  }
+//     if ( dbload() )
+//     {
+//       setinternals();
+//       build_class_tree_model();
+//       build_partition_tree_model();
+//       build_resource_tree_model();
+//       build_file_model();
+//     }
+//   }
 
-  if ( this_oraclewidget != nullptr )
-  {
-    this_oraclewidget->close();
-  }
-}
+//   if ( this_oraclewidget != nullptr )
+//   {
+//     this_oraclewidget->close();
+//   }
+// }
 
 void dbe::MainWindow::slot_whatisthis()
 {

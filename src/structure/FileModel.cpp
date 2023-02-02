@@ -7,7 +7,7 @@
 /// Including DBE Headers
 #include "FileModel.h"
 #include "config_api_get.h"
-//#include "MainWindow.h"
+#include "MainWindow.h"
 
 dbe::FileModel::FileModel ( QObject * parent )
   : QAbstractTableModel ( parent ),
@@ -96,7 +96,7 @@ void dbe::FileModel::initpaths()
       QString TDAQ_DB_USER_REPOSITORY = getenv ( "TDAQ_DB_USER_REPOSITORY" );
       FolderPathList = TDAQ_DB_USER_REPOSITORY.split ( ":", QString::SkipEmptyParts );
 
-      //FolderPathList << dbe::MainWindow::findthis()->find_db_repository_dir();
+      FolderPathList << dbe::MainWindow::findthis()->find_db_repository_dir();
   } else {
       QString TDAQ_DB_PATH = getenv ( "TDAQ_DB_PATH" );
       FolderPathList = TDAQ_DB_PATH.split ( ":", QString::SkipEmptyParts );

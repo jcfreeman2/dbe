@@ -240,53 +240,53 @@ add_custom_target(dbe_core_ui_header_gen
   DEPENDS ${dbe_core_ui_header}
 )
 
-# qt5_wrap_cpp(dbe_core_moc_src
-#                     dbe/TableTab.h
-#                     dbe/MyApplication.h
-#                     dbe/GraphicalClass.h
-#                     dbe/GraphView.h
-#                     dbe/MainWindow.h
-#                     dbe/CustomLineEdit.h
-#                     dbe/string_attr_text_edit.h
-#                     dbe/SearchComboBox.h
-#                     dbe/ValidatorComboBox.h
-#                     dbe/BatchChangeWidget.h
-#                     dbe/BuildingBlockEditors.h
-#                     dbe/CommitDialog.h
-#                     dbe/CreateDatabaseWidget.h
-#                     dbe/IncludeFileWidget.h
-#                     dbe/ObjectCreator.h
-#                     dbe/ObjectEditor.h
-#                     dbe/OracleWidget.h
-# )
+qt5_wrap_cpp(dbe_core_moc_src
+                    dbe/TableTab.h
+                    dbe/MyApplication.h
+                    dbe/GraphicalClass.h
+                    dbe/GraphView.h
+                    dbe/MainWindow.h
+                    dbe/CustomLineEdit.h
+                    dbe/string_attr_text_edit.h
+                    dbe/SearchComboBox.h
+                    dbe/ValidatorComboBox.h
+                    dbe/BatchChangeWidget.h
+                    dbe/BuildingBlockEditors.h
+                    dbe/CommitDialog.h
+                    dbe/CreateDatabaseWidget.h
+                    dbe/IncludeFileWidget.h
+                    dbe/ObjectCreator.h
+                    dbe/ObjectEditor.h
+                    dbe/OracleWidget.h
+)
 
-# set(dbe_core_src
-#                     src/internal/MainWindow.cpp
-#                     src/internal/StyleUtility.cpp
-#                     src/internal/Validator.cpp
-#                     src/object/CustomLineEdit.cpp
-#                     src/object/string_attr_text_edit.cpp
-#                     src/object/SearchComboBox.cpp
-#                     src/object/ValidatorComboBox.cpp
-#                     src/widgets/BatchChangeWidget.cpp
-#                     src/widgets/BuildingBlockEditors.cpp
-#                     src/widgets/CommitDialog.cpp
-#                     src/widgets/CreateDatabaseWidget.cpp
-#                     src/widgets/IncludeFileWidget.cpp
-#                     src/widgets/ObjectCreator.cpp
-#                     src/widgets/ObjectEditor.cpp
-#                     src/widgets/OracleWidget.cpp
-#                     src/graphical/GraphicalClass.cpp
-#                     src/graphical/GraphView.cpp
-#                     src/MyApplication.cpp
-#                     src/TableTab.cpp
-#   )
+set(dbe_core_src
+                    src/internal/MainWindow.cpp
+                    src/internal/StyleUtility.cpp
+                    src/internal/Validator.cpp
+                    src/object/CustomLineEdit.cpp
+                    src/object/string_attr_text_edit.cpp
+                    src/object/SearchComboBox.cpp
+                    src/object/ValidatorComboBox.cpp
+                    src/widgets/BatchChangeWidget.cpp
+                    src/widgets/BuildingBlockEditors.cpp
+                    src/widgets/CommitDialog.cpp
+                    src/widgets/CreateDatabaseWidget.cpp
+                    src/widgets/IncludeFileWidget.cpp
+                    src/widgets/ObjectCreator.cpp
+                    src/widgets/ObjectEditor.cpp
+                    src/widgets/OracleWidget.cpp
+                    src/graphical/GraphicalClass.cpp
+                    src/graphical/GraphView.cpp
+                    src/MyApplication.cpp
+                    src/TableTab.cpp
+  )
 
-# qt5_add_resources(qrc_resource icons/resource.qrc OPTIONS -name DBEimg)
+qt5_add_resources(qrc_resource icons/resource.qrc OPTIONS -name DBEimg)
 
-# add_library(dbe_core SHARED ${dbe_core_src} ${dbe_core_moc_src} ${dbe_core_ui_header} ${qrc_resource})
-# target_include_directories(dbe_core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dbe)
-# target_link_libraries(dbe_core PUBLIC dbe_config_api dbe_internal dbe_structure ${dbe_common_libs})
+add_library(dbe_core SHARED ${dbe_core_src} ${dbe_core_moc_src} ${dbe_core_ui_header} ${qrc_resource})
+target_include_directories(dbe_core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dbe)
+target_link_libraries(dbe_core PUBLIC dbe_config_api dbe_internal dbe_structure ${dbe_common_libs})
 
 # tdaq_add_library(dbe_core 
 #   ${dbe_core_src}

@@ -1761,7 +1761,7 @@ void numericattr::ChangeFormat ( int i )
   t_virtue const & Virtue = this_base_data_editor->get();
 
   bool Unsigned = ( Virtue.p_type == dunedaq::config::u8_type
-                    || Virtue.p_type == dunedaq::config::u16_type || Virtue.p_type == daq::config::u32_type
+                    || Virtue.p_type == dunedaq::config::u16_type || Virtue.p_type == dunedaq::config::u32_type
                     || Virtue.p_type == dunedaq::config::u64_type );
   bool OkConversion = false;
 

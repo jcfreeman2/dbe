@@ -21,26 +21,26 @@ bool dbe::MyApplication::notify ( QObject * rec, QEvent * ev )
   }
   catch ( dunedaq::config::Exception const & err )
   {
-    ERS_LOG ("MyApplication: dunedaq::config::Exception: " << err );
+    TLOG() << "MyApplication: dunedaq::config::Exception: " << err ;
     ERROR ( "Unexpected error occurred", dbe::config::errors::unwind(err), "dunedaq::config::Exception caught at", HERE );
     return false;
   }
   catch ( ers::Issue const & err )
   {
-    ERS_LOG ("MyApplication: ers::Issue: " << err );
+    TLOG() << "MyApplication: ers::Issue: " << err ;
     ERROR ( "ers::Issue occurred", dbe::config::errors::unwind(err), "\n\nCaught at:", HERE );
     return false;
   }
   catch ( std::exception const & err )
   {
-    ERS_LOG ( "MyApplication: std::exception: " );
+    TLOG() << "MyApplication: std::exception: " ;
     ERROR ( "Error sending event", err.what(), "for object", typeid ( *ev ).name(), "Receiver",
             typeid ( *rec ).name() );
     return false;
   }
   catch ( char const * str )
   {
-    ERS_LOG ( "MyApplication: EXCEPTION: " << str << std::endl );
+    TLOG() << "MyApplication: EXCEPTION: " << str << std::endl ;
     ERROR ( "Unknown exception", str, "\n\nCaught at: ", HERE );
     return false;
   }
@@ -51,6 +51,6 @@ bool dbe::MyApplication::notify ( QObject * rec, QEvent * ev )
     return false;
   }
 
-  ERS_LOG ( "MyApplication: outside catch..." );
+  TLOG() << "MyApplication: outside catch..." ;
   return false;
 }
