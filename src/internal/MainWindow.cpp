@@ -134,7 +134,7 @@ void dbe::MainWindow::slot_remove_tab ( int i )
 void dbe::MainWindow::init()
 {
   /// Window Settings
-  setWindowTitle ( "ATLAS TDAq Configuration Database Editor (DBE)" );
+  setWindowTitle ( "DUNE DAQ Configuration Database Editor (DBE)" );
   /// Table Settings
   UndoView->setStack ( confaccessor::get_commands().get() );
   SearchLineTable->hide();

@@ -299,9 +299,9 @@ target_link_libraries(schemaeditor PRIVATE schemacore ${dbe_common_boost_libs} )
 # DATABASE EDITOR (DBE)                                                              #
 #====================================================================================#
 
-add_executable(dbe src/Main.cpp)
-target_include_directories(dbe PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dbe)
-target_link_libraries(dbe PRIVATE dbe_core ${dbe_common_boost_libs})
+add_executable(dbe_main src/Main.cpp)
+target_include_directories(dbe_main PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dbe)
+target_link_libraries(dbe_main PRIVATE dbe_core ${dbe_common_boost_libs})
 
 #====================================================================================#
 # DBE GRAPHTOOL (DBE_GTOOL)                                                          #
