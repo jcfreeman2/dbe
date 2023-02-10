@@ -1,5 +1,5 @@
 /// Including DBE
-#include "StyleUtility.h"
+#include "dbe/StyleUtility.hpp"
 
 QColor dbe::StyleUtility::TableColorAttribute;
 QColor dbe::StyleUtility::TableColorRelationship;

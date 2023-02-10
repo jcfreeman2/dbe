@@ -1,4 +1,4 @@
-#include "SchemaCustomSuperClassModel.h"
+#include "dbe/SchemaCustomSuperClassModel.hpp"
 
 dbse::CustomSuperClassModel::CustomSuperClassModel ( OksClass * ClassInfo,
                                                      QStringList Headers, bool Derived )

@@ -5,11 +5,11 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "config_api_get.h"
-#include "Conversion.h"
-#include "dbaccessor.h"
-#include "messenger.h"
-#include "config_api.hpp"
+#include "dbe/config_api_get.hpp"
+#include "dbe/Conversion.hpp"
+#include "dbe/dbaccessor.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/config_api.hpp"
 
 //------------------------------------------------------------------------------------------
 // NAMESPACE DBE::CONFIG::API::GET

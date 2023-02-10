@@ -1,9 +1,9 @@
 /// Including Qt
 #include <QMessageBox>
 /// Including Schema
-#include "SchemaMethodEditor.h"
-#include "SchemaMethodImplementationEditor.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaMethodEditor.hpp"
+#include "dbe/SchemaMethodImplementationEditor.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 /// Including auto-generated ui
 #include "ui_SchemaMethodEditor.h"
 

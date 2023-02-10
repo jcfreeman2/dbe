@@ -1,7 +1,7 @@
 #include <QMessageBox>
 /// Including Schema
-#include "SchemaMethodImplementationEditor.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaMethodImplementationEditor.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 #include "ui_SchemaMethodImplementationEditor.h"
 
 dbse::SchemaMethodImplementationEditor::~SchemaMethodImplementationEditor() = default;

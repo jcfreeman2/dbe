@@ -5,10 +5,10 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "config_api_info.h"
-#include "config_api.hpp"
-#include "treenode.h"
-#include "Sorting.h"
+#include "dbe/config_api_info.hpp"
+#include "dbe/config_api.hpp"
+#include "dbe/treenode.hpp"
+#include "dbe/Sorting.hpp"
 #include "config/Schema.hpp"
 #include <QString>
 //------------------------------------------------------------------------------------------

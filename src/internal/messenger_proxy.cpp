@@ -5,7 +5,7 @@
  *      Author: lgeorgop
  */
 
-#include "messenger_proxy.h"
+#include "dbe/messenger_proxy.hpp"
 
 namespace dbe
 {

@@ -1,10 +1,10 @@
-#include "config_api.hpp"
-#include "confaccessor.h"
-#include "config_reference.hpp"
-#include "tree.h"
-#include "treenode.h"
-#include "ui_constants.h"
-#include "version.h"
+#include "dbe/config_api.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/config_reference.hpp"
+#include "dbe/tree.hpp"
+#include "dbe/treenode.hpp"
+#include "dbe/ui_constants.hpp"
+#include "dbe/version.hpp"
 
 #include <QMimeData>
 

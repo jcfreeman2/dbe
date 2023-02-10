@@ -1,6 +1,6 @@
 /// Including QT Headers
-#include <confaccessor.h>
-#include <ui_constants.h>
+#include "dbe/confaccessor.hpp"
+#include "dbe/ui_constants.hpp"
 
 #include <QAction>
 #include <QMenu>
@@ -10,8 +10,8 @@
 #include <QLabel>
 #include <QShortcut>
 /// Including DBE
-#include "CustomFileView.h"
-#include "IncludeFileWidget.h"
+#include "dbe/CustomFileView.hpp"
+#include "dbe/IncludeFileWidget.hpp"
 
 dbe::CustomFileView::CustomFileView ( QWidget * parent )
   : QTableView ( parent ),

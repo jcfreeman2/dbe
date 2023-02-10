@@ -5,9 +5,9 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "Exceptions.h"
-#include "version.h"
-#include "config_api.h"
+#include "dbe/Exceptions.hpp"
+#include "dbe/version.hpp"
+#include "dbe/config_api_version.hpp"
 
 #include "config/Errors.hpp"
 #include "ers/Issue.hpp"

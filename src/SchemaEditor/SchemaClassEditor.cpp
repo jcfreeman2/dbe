@@ -3,11 +3,11 @@
 #include <QListWidget>
 #include <QInputDialog>
 /// Including Schema
-#include "SchemaClassEditor.h"
-#include "SchemaAttributeEditor.h"
-#include "SchemaRelationshipEditor.h"
-#include "SchemaMethodEditor.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaClassEditor.hpp"
+#include "dbe/SchemaAttributeEditor.hpp"
+#include "dbe/SchemaRelationshipEditor.hpp"
+#include "dbe/SchemaMethodEditor.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 /// Including Ui file
 #include "ui_SchemaClassEditor.h"
 

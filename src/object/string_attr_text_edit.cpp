@@ -4,8 +4,8 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 /// Include DBE
-#include "string_attr_text_edit.h"
-#include "StyleUtility.h"
+#include "dbe/string_attr_text_edit.hpp"
+#include "dbe/StyleUtility.hpp"
 
 dbe::string_attr_text_edit::string_attr_text_edit ( QWidget * parent, bool IsNull, bool IsMulti )
   : QTextEdit ( parent ),

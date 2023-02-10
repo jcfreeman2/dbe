@@ -6,10 +6,10 @@
 /// Include oks
 #include"oks/method.hpp"
 /// Including SchemaEditor
-#include "SchemaGraphicObject.h"
-#include "SchemaGraphicArrow.h"
-#include "SchemaGraphicsScene.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaGraphicObject.hpp"
+#include "dbe/SchemaGraphicArrow.hpp"
+#include "dbe/SchemaGraphicsScene.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 
 dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
                                                  QGraphicsObject * parent )

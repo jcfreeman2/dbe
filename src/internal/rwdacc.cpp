@@ -4,13 +4,13 @@
  *  Created on: Feb 4, 2016
  *      Author: Leonidas Georgopoulos
  ************************************************************/
-#include "dbaccessor.h"
-#include "config_direct_access.h"
-#include "confobject_desc.hpp"
-#include "Exceptions.h"
-#include "messenger.h"
-#include "config_api_set.h"
-#include "Conversion.h"
+#include "dbe/dbaccessor.hpp"
+#include "dbe/config_direct_access.hpp"
+#include "dbe/confobject_desc.hpp"
+#include "dbe/Exceptions.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/config_api_set.hpp"
+#include "dbe/Conversion.hpp"
 
 #include "config/ConfigObject.hpp"
 #include "config/Configuration.hpp"

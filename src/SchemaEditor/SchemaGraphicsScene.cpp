@@ -6,12 +6,12 @@
 #include <QMenu>
 #include <QApplication>
 /// Including Schema Editor
-#include "SchemaGraphicsScene.h"
-#include "SchemaGraphicObject.h"
-#include "SchemaGraphicArrow.h"
-#include "SchemaKernelWrapper.h"
-#include "SchemaClassEditor.h"
-#include "SchemaRelationshipEditor.h"
+#include "dbe/SchemaGraphicsScene.hpp"
+#include "dbe/SchemaGraphicObject.hpp"
+#include "dbe/SchemaGraphicArrow.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
+#include "dbe/SchemaClassEditor.hpp"
+#include "dbe/SchemaRelationshipEditor.hpp"
 
 dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
   : QGraphicsScene ( parent ),

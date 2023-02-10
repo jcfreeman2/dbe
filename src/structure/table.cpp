@@ -1,13 +1,13 @@
 /// Including QT Headers
-#include "table.h"
-#include "treenode.h"
-#include "confaccessor.h"
-#include "StyleUtility.h"
-#include "Conversion.h"
-#include "messenger.h"
-#include "Exceptions.h"
-#include "dbcontroller.h"
-#include "config_api_set.h"
+#include "dbe/table.hpp"
+#include "dbe/treenode.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/StyleUtility.hpp"
+#include "dbe/Conversion.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/Exceptions.hpp"
+#include "dbe/dbcontroller.hpp"
+#include "dbe/config_api_set.hpp"
 
 #include <QFont>
 #include <QBrush>

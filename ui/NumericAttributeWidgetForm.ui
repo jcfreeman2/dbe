@@ -83,7 +83,7 @@
   <customwidget>
    <class>CustomLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>CustomLineEdit.h</header>
+   <header>dbe/CustomLineEdit.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

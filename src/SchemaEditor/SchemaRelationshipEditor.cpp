@@ -1,7 +1,7 @@
 #include <QMessageBox>
 /// Including Schema
-#include "SchemaRelationshipEditor.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaRelationshipEditor.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 #include "ui_SchemaRelationshipEditor.h"
 
 dbse::SchemaRelationshipEditor::~SchemaRelationshipEditor() = default;

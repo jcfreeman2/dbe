@@ -1,13 +1,13 @@
 /// Including QT Headers
-#include <confaccessor.h>
-#include <ui_constants.h>
+#include "dbe/confaccessor.hpp"
+#include "dbe/ui_constants.hpp"
 
 #include <QFileInfo>
 #include <QDir>
 /// Including DBE Headers
-#include "FileModel.h"
-#include "config_api_get.h"
-#include "MainWindow.h"
+#include "dbe/FileModel.hpp"
+#include "dbe/config_api_get.hpp"
+#include "dbe/MainWindow.hpp"
 
 dbe::FileModel::FileModel ( QObject * parent )
   : QAbstractTableModel ( parent ),

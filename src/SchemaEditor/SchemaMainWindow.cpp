@@ -1,10 +1,10 @@
 /// Including Schema Editor
-#include "SchemaMainWindow.h"
-#include "SchemaKernelWrapper.h"
-#include "SchemaTab.h"
-#include "SchemaClassEditor.h"
-#include "SchemaRelationshipEditor.h"
-#include "SchemaMethodImplementationEditor.h"
+#include "dbe/SchemaMainWindow.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
+#include "dbe/SchemaTab.hpp"
+#include "dbe/SchemaClassEditor.hpp"
+#include "dbe/SchemaRelationshipEditor.hpp"
+#include "dbe/SchemaMethodImplementationEditor.hpp"
 /// Including Auto-Generated Files
 #include "ui_SchemaMainWindow.h"
 /// Including QT Headers

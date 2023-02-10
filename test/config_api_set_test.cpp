@@ -8,11 +8,11 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
-#include "dbe_test_defs.hpp"
-#include "config_api_info.h"
-#include "config_api_set.h"
-#include "config_api.hpp"
-#include "confaccessor.h"
+#include "dbe/dbe_test_defs.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/config_api_set.hpp"
+#include "dbe/config_api.hpp"
+#include "dbe/confaccessor.hpp"
 
 #include <boost/test/unit_test.hpp>
 

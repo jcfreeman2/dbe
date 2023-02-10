@@ -1,10 +1,10 @@
-#include "config_api.hpp"
-#include "confaccessor.h"
-#include "BuildingBlockEditors.h"
-#include "Validator.h"
-#include "StyleUtility.h"
-#include "ObjectEditor.h"
-#include "CustomDelegate.h"
+#include "dbe/config_api.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/BuildingBlockEditors.hpp"
+#include "dbe/Validator.hpp"
+#include "dbe/StyleUtility.hpp"
+#include "dbe/ObjectEditor.hpp"
+#include "dbe/CustomDelegate.hpp"
 
 #include <QStringListModel>
 #include <QMessageBox>

@@ -1,13 +1,13 @@
-#include "BatchChangeWidget.h"
+#include "dbe/BatchChangeWidget.hpp"
 
 #include "ui_BatchChangeWidget.h"
 
-#include "MainWindow.h"
-#include "config_api.hpp"
-#include "config_api_set.h"
-#include "config_api_get.h"
-#include "config_api_graph.h"
-#include "messenger.h"
+#include "dbe/MainWindow.hpp"
+#include "dbe/config_api.hpp"
+#include "dbe/config_api_set.hpp"
+#include "dbe/config_api_get.hpp"
+#include "dbe/config_api_graph.hpp"
+#include "dbe/messenger.hpp"
 
 #include <QApplication>
 #include <boost/scope_exit.hpp>

@@ -1,7 +1,7 @@
 /// Including QT Headers
 #include <QVBoxLayout>
 /// Including Schema Editor
-#include "SchemaTab.h"
+#include "dbe/SchemaTab.hpp"
 
 dbse::SchemaTab::SchemaTab ( QWidget * parent )
   : QWidget ( parent )

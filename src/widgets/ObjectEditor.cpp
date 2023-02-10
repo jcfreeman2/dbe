@@ -1,13 +1,13 @@
-#include "ObjectEditor.h"
-#include "StyleUtility.h"
-#include "Sorting.h"
-#include "config_api_set.h"
-#include "config_api_get.h"
-#include "config_api_graph.h"
-#include "config_api_commands.h"
-#include "messenger.h"
+#include "dbe/ObjectEditor.hpp"
+#include "dbe/StyleUtility.hpp"
+#include "dbe/Sorting.hpp"
+#include "dbe/config_api_set.hpp"
+#include "dbe/config_api_get.hpp"
+#include "dbe/config_api_graph.hpp"
+#include "dbe/config_api_commands.hpp"
+#include "dbe/messenger.hpp"
 #include "ui_ObjectEditor.h"
-#include "MainWindow.h"
+#include "dbe/MainWindow.hpp"
 
 #include <QFileInfo>
 #include <QCloseEvent>

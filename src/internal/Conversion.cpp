@@ -1,5 +1,5 @@
-#include "Conversion.h"
-#include "Exceptions.h"
+#include "dbe/Conversion.hpp"
+#include "dbe/Exceptions.hpp"
 
 namespace dbe {
 namespace convert {

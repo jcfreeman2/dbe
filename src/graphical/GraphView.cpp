@@ -1,10 +1,10 @@
-#include "config_ui_info.h"
-#include "ObjectCreator.h"
-#include "GraphView.h"
-#include "MainWindow.h"
-#include "config_api_info.h"
-#include "config_api_commands.h"
-#include "treenode.h"
+#include "dbe/config_ui_info.hpp"
+#include "dbe/ObjectCreator.hpp"
+#include "dbe/GraphView.hpp"
+#include "dbe/MainWindow.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/config_api_commands.hpp"
+#include "dbe/treenode.hpp"
 
 #include <QLabel>
 #include <QDialog>

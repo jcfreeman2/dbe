@@ -5,19 +5,19 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "confaccessor.h"
-#include "config_reference.hpp"
-#include "confobject_desc.hpp"
-#include "Command.h"
-#include "dbcontroller.h"
-#include "Exceptions.h"
-#include "messenger.h"
-#include "config_api.hpp"
-#include "change_class.hpp"
-#include "change_date.hpp"
-#include "change_enum.hpp"
-#include "change_time.hpp"
-#include "change_attribute.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/config_reference.hpp"
+#include "dbe/confobject_desc.hpp"
+#include "dbe/Command.hpp"
+#include "dbe/dbcontroller.hpp"
+#include "dbe/Exceptions.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/config_api.hpp"
+#include "dbe/change_class.hpp"
+#include "dbe/change_date.hpp"
+#include "dbe/change_enum.hpp"
+#include "dbe/change_time.hpp"
+#include "dbe/change_attribute.hpp"
 
 
 #include "config/Schema.hpp"

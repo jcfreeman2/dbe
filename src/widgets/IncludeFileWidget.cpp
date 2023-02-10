@@ -1,12 +1,12 @@
-#include "IncludeFileWidget.h"
-#include "confaccessor.h"
-#include "StyleUtility.h"
-#include "Exceptions.h"
-#include "config_api_get.h"
-#include "config_api_commands.h"
+#include "dbe/IncludeFileWidget.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/StyleUtility.hpp"
+#include "dbe/Exceptions.hpp"
+#include "dbe/config_api_get.hpp"
+#include "dbe/config_api_commands.hpp"
 #include "ui_IncludeFileWidget.h"
-#include "messenger.h"
-#include "MainWindow.h"
+#include "dbe/messenger.hpp"
+#include "dbe/MainWindow.hpp"
 
 #include <QUrl>
 #include <QApplication>

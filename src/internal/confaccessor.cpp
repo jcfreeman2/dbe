@@ -1,15 +1,15 @@
 /// Including QT Headers
-#include "Sorting.h"
-#include "Exceptions.h"
-#include "dbaccessor.h"
-#include "confaccessor.h"
-#include "messenger.h"
+#include "dbe/Sorting.hpp"
+#include "dbe/Exceptions.hpp"
+#include "dbe/dbaccessor.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/messenger.hpp"
 
-#include "change_attribute.hpp"
-#include "change_enum.hpp"
-#include "config_api.hpp"
-#include "config_ui_info.h"
-#include "version.h"
+#include "dbe/change_attribute.hpp"
+#include "dbe/change_enum.hpp"
+#include "dbe/config_api.hpp"
+#include "dbe/config_ui_info.hpp"
+#include "dbe/version.hpp"
 
 #include "config/Configuration.hpp"
 

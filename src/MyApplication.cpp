@@ -1,13 +1,13 @@
 /// Including DBE
-#include "MyApplication.h"
-#include "Exceptions.h"
+#include "dbe/MyApplication.hpp"
+#include "dbe/Exceptions.hpp"
 /// Including TDAq
 #include "config/Configuration.hpp"
 #include "ers/ers.hpp"
 #include "logging/Logging.hpp"
 
-#include "messenger.h"
-#include "version.h"
+#include "dbe/messenger.hpp"
+#include "dbe/version.hpp"
 
 char const * const dbe_lib_core_version = dbe_compiled_version;
 

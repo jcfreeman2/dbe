@@ -1,4 +1,4 @@
-#include "SchemaCustomAttributeModel.h"
+#include "dbe/SchemaCustomAttributeModel.hpp"
 
 dbse::CustomAttributeModel::CustomAttributeModel ( OksClass * ClassInfo,
                                                    QStringList Headers,

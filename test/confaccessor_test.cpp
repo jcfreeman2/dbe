@@ -8,8 +8,8 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
-#include "dbe_test_defs.hpp"
-#include "confaccessor.h"
+#include "dbe/dbe_test_defs.hpp"
+#include "dbe/confaccessor.hpp"
 
 #include <boost/test/unit_test.hpp>
 namespace dbe

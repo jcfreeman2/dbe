@@ -2,8 +2,8 @@
 #include <QPainter>
 #include <QPen>
 /// Including Schema Editor
-#include "SchemaGraphicArrow.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaGraphicArrow.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 /// Including C++ Headers
 #include <cmath>
 

@@ -5,13 +5,13 @@
  *      Author: Leonidas Georgopoulos
  ************************************************************/
 
-#include "graphtool.h"
-#include "confaccessor.h"
-#include "gtool.h"
-#include "messenger.h"
-#include "config_api_info.h"
-#include "config_reference.hpp"
-#include "config_api.hpp"
+#include "dbe/graphtool.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/gtool.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/config_reference.hpp"
+#include "dbe/config_api.hpp"
 
 #include <QFileInfo>
 

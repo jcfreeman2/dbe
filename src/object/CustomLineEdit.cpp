@@ -4,8 +4,8 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 /// Include DBE
-#include "CustomLineEdit.h"
-#include "StyleUtility.h"
+#include "dbe/CustomLineEdit.hpp"
+#include "dbe/StyleUtility.hpp"
 
 dbe::CustomLineEdit::CustomLineEdit ( QWidget * parent, bool IsNull, bool IsMulti )
   : QLineEdit ( parent ),

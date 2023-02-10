@@ -1,5 +1,5 @@
 /// Including DBE
-#include "CommitDialog.h"
+#include "dbe/CommitDialog.hpp"
 
 dbe::CommitDialog::~CommitDialog() = default;
 

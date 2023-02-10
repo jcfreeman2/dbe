@@ -7,8 +7,8 @@
 
 #include "logging/Logging.hpp"
 
-#include "messenger.h"
-#include "messenger_proxy.h"
+#include "dbe/messenger.hpp"
+#include "dbe/messenger_proxy.hpp"
 
 #include <map>
 #include <cassert>

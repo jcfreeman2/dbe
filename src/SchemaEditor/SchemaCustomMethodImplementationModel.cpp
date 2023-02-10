@@ -1,4 +1,4 @@
-#include "SchemaCustomMethodImplementationModel.h"
+#include "dbe/SchemaCustomMethodImplementationModel.hpp"
 
 dbse::CustomMethodImplementationModel::CustomMethodImplementationModel ( OksMethod * Method,
                                                                          QStringList Headers )

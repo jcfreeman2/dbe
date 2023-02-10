@@ -1,8 +1,8 @@
 /// Including Qt
 #include <QMessageBox>
 /// Including Schema Editor
-#include "SchemaCommand.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaCommand.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 
 namespace dbse
 {

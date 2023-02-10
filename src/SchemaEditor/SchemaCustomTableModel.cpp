@@ -1,5 +1,5 @@
-#include "SchemaCustomTableModel.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaCustomTableModel.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 #include <QIODevice>
 #include <QDataStream>
 

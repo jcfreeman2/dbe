@@ -5,7 +5,7 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include <stats.h>
+#include "dbe/stats.hpp"
 
 namespace dbe
 {

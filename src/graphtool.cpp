@@ -9,11 +9,11 @@
  *  Created on: Jun 10, 2016
  *      Author: Leonidas Georgopoulos
  ************************************************************/
-#include "graphtool.h"
-#include "messenger.h"
-#include "confaccessor.h"
-#include "gtool.h"
-#include "segregate.h"
+#include "dbe/graphtool.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/gtool.hpp"
+#include "dbe/segregate.hpp"
 
 #include <boost/program_options.hpp>
 

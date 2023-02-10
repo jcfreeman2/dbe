@@ -1,8 +1,8 @@
 /// Including QT Headers
 #include <QApplication>
 /// Including DBE
-#include "ValidatorComboBox.h"
-#include "StyleUtility.h"
+#include "dbe/ValidatorComboBox.hpp"
+#include "dbe/StyleUtility.hpp"
 
 dbe::ValidatorComboBox::ValidatorComboBox ( QWidget * parent )
   : QComboBox ( parent ),

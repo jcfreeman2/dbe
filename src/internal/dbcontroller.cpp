@@ -5,10 +5,10 @@
  *      Author: lgeorgop
  */
 
-#include "dbcontroller.h"
-#include "config_reference_copy.hpp"
-#include "messenger.h"
-#include "msghandler.hpp"
+#include "dbe/dbcontroller.hpp"
+#include "dbe/config_reference_copy.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/msghandler.hpp"
 
 #include <utility>
 

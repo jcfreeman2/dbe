@@ -5,8 +5,8 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "segregate.h"
-#include "dbcontroller.h"
+#include "dbe/segregate.hpp"
+#include "dbe/dbcontroller.hpp"
 
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/filtered_graph.hpp>

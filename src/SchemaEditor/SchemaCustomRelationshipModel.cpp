@@ -1,4 +1,4 @@
-#include "SchemaCustomRelationshipModel.h"
+#include "dbe/SchemaCustomRelationshipModel.hpp"
 
 dbse::CustomRelationshipModel::CustomRelationshipModel ( OksClass * ClassInfo,
                                                          QStringList Headers, bool Derived )

@@ -1,7 +1,7 @@
 #include <QMessageBox>
-#include "OracleWidget.h"
+#include "dbe/OracleWidget.hpp"
 #include "ui_OracleWidget.h"
-#include "messenger.h"
+#include "dbe/messenger.hpp"
 
 dbe::OracleWidget::~OracleWidget() = default;
 

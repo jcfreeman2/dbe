@@ -1,6 +1,6 @@
 /// Including DBE
-#include "MainWindow.h"
-#include "MyApplication.h"
+#include "dbe/MainWindow.hpp"
+#include "dbe/MyApplication.hpp"
 /// Including QT Headers
 #include <QApplication>
 /// Including BOOST
@@ -8,10 +8,10 @@
 
 #include <memory>
 
-#include "msghandler.hpp"
-#include "messenger.h"
-#include "types.h"
-#include "confaccessor.h"
+#include "dbe/msghandler.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/types.hpp"
+#include "dbe/confaccessor.hpp"
 
 template class ::lutils::program::msghandler<dbe::interface::messenger::qt>;
 

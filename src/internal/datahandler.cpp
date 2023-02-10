@@ -1,7 +1,7 @@
-#include "../../dbe/datahandler.h"
-#include  "treenode.h"
-#include "dbcontroller.h"
-#include "Conversion.h"
+#include "dbe/datahandler.hpp"
+#include  "dbe/treenode.hpp"
+#include "dbe/dbcontroller.hpp"
+#include "dbe/Conversion.hpp"
 
 dbe::datahandler::datahandler()
   : root ( nullptr )

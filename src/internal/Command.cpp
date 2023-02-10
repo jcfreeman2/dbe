@@ -1,11 +1,11 @@
-#include "Command.h"
-#include "config_api_set.h" // checked
-#include "config_api_graph.h" // checked
-#include "confobject_desc.hpp" // checked
-#include "confobject_extra.hpp"
-#include "config_reference_copy.hpp"
-#include "dbcontroller.h"
-#include "messenger.h"
+#include "dbe/Command.hpp"
+#include "dbe/config_api_set.hpp" // checked
+#include "dbe/config_api_graph.hpp" // checked
+#include "dbe/confobject_desc.hpp" // checked
+#include "dbe/confobject_extra.hpp"
+#include "dbe/config_reference_copy.hpp"
+#include "dbe/dbcontroller.hpp"
+#include "dbe/messenger.hpp"
 
 #include "config/Configuration.hpp"
 

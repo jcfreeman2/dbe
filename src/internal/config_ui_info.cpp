@@ -5,14 +5,14 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "config_ui_info.h"
-#include "config_api_info.h"
-#include "GraphicalClass.h"
-#include "messenger.h"
-#include "Conversion.h"
+#include "dbe/config_ui_info.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/GraphicalClass.hpp"
+#include "dbe/messenger.hpp"
+#include "dbe/Conversion.hpp"
 
-#include "config_api_get.h"
-#include "config_api_graph.h"
+#include "dbe/config_api_get.hpp"
+#include "dbe/config_api_graph.hpp"
 
 #include <QStringList>
 

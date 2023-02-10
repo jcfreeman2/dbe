@@ -1,4 +1,4 @@
-#include "SchemaCustomSubClassModel.h"
+#include "dbe/SchemaCustomSubClassModel.hpp"
 
 dbse::CustomSubClassModel::CustomSubClassModel ( OksClass * ClassInfo,
                                                  QStringList Headers )

@@ -5,11 +5,11 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "config_api_graph.h"
-#include "config_api_info.h"
-#include "confobject_desc.hpp"
-#include "dbcontroller.h"
-#include "messenger.h"
+#include "dbe/config_api_graph.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/confobject_desc.hpp"
+#include "dbe/dbcontroller.hpp"
+#include "dbe/messenger.hpp"
 
 #include "config/Schema.hpp"
 

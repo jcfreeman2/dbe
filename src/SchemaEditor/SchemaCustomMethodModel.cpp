@@ -1,4 +1,4 @@
-#include "SchemaCustomMethodModel.h"
+#include "dbe/SchemaCustomMethodModel.hpp"
 
 dbse::CustomMethodModel::CustomMethodModel ( OksClass * ClassInfo, QStringList Headers,
                                              bool Derived )

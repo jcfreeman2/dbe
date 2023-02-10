@@ -1,7 +1,7 @@
 /// Including QT Headers
 #include <QKeyEvent>
 /// Including DBE
-#include "SearchComboBox.h"
+#include "dbe/SearchComboBox.hpp"
 
 dbe::SearchComboBox::SearchComboBox ( QWidget * parent )
   : QComboBox ( parent ),

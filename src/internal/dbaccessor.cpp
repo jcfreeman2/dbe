@@ -5,7 +5,7 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "dbaccessor.h"
+#include "dbe/dbaccessor.hpp"
 
 //------------------------------------------------------------------------------------------
 dbe::dbholder::t_mutex dbe::dbholder::database_lock;

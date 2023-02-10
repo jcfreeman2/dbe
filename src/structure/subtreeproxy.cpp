@@ -1,10 +1,10 @@
 /// Including DBE
-#include <dbe/config_ui_info.h>
-#include <subtreeproxy.h>
-#include <tree.h>
-#include <treenode.h>
-#include "confaccessor.h"
-#include "messenger.h"
+#include "dbe/config_ui_info.hpp"
+#include "dbe/subtreeproxy.hpp"
+#include "dbe/tree.hpp"
+#include "dbe/treenode.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/messenger.hpp"
 
 dbe::models::subtree_proxy::subtree_proxy ( const QString & Name,
                                             const QStringList & Default,

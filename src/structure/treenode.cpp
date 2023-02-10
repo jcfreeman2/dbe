@@ -1,10 +1,10 @@
 /// Including QT Headers
-#include "confaccessor.h"
-#include "treenode.h"
-#include "ui_constants.h"
-#include "config_api_get.h"
-#include "config_api_graph.h"
-#include "dbcontroller.h"
+#include "dbe/confaccessor.hpp"
+#include "dbe/treenode.hpp"
+#include "dbe/ui_constants.hpp"
+#include "dbe/config_api_get.hpp"
+#include "dbe/config_api_graph.hpp"
+#include "dbe/dbcontroller.hpp"
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>

@@ -5,8 +5,8 @@
 #include <qevent.h>
 
 /// Including dbe
-#include "TableTab.h"
-#include "MainWindow.h"
+#include "dbe/TableTab.hpp"
+#include "dbe/MainWindow.hpp"
 
 //------------------------------------------------------------------------------------------------------
 /**

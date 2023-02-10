@@ -1,6 +1,6 @@
 /// Including Schema Editor
-#include "SchemaCustomModelInterface.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaCustomModelInterface.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 
 dbse::CustomModelInterface::CustomModelInterface ( QStringList Headers, QObject * parent )
   : QAbstractTableModel ( parent ),

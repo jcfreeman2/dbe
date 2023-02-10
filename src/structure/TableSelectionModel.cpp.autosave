@@ -1,5 +1,5 @@
 /// Including DBE
-#include "TableSelectionModel.h"
+#include "dbe/TableSelectionModel.hpp"
 
 TableSelectionModel::TableSelectionModel ( QObject * parent ) :
   QSortFilterProxyModel ( parent ), Type ( ExactFilter )

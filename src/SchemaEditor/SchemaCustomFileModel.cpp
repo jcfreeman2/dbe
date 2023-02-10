@@ -1,6 +1,6 @@
 /// Including Schema Editor
-#include "SchemaCustomFileModel.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaCustomFileModel.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 /// Including C++ Headers
 #include <vector>
 

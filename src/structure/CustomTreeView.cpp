@@ -1,20 +1,20 @@
 ﻿/// Including QT Headers
-#include <subtreeproxy.h>
-#include <tree.h>
+#include "dbe/subtreeproxy.hpp"
+#include "dbe/tree.hpp"
 
-#include <treenode.h>
-#include <treeselection.h>
+#include "dbe/treenode.hpp"
+#include "dbe/treeselection.hpp"
 
 #include <QContextMenuEvent>
 #include <QAction>
 #include <QMenu>
 
 /// Including DBE
-#include "CustomTreeView.h"
-#include "TreeModelInterface.h"
-#include "ObjectCreator.h"
-#include "ObjectEditor.h"
-#include "messenger.h"
+#include "dbe/CustomTreeView.hpp"
+#include "dbe/TreeModelInterface.hpp"
+#include "dbe/ObjectCreator.hpp"
+#include "dbe/ObjectEditor.hpp"
+#include "dbe/messenger.hpp"
 
 //------------------------------------------------------------------------------------------
 dbe::CustomTreeView::CustomTreeView ( QWidget * Parent )

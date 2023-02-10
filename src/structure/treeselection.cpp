@@ -1,7 +1,7 @@
 /// Including DBE
-#include "tree.h"
-#include "treeselection.h"
-#include "messenger.h"
+#include "dbe/tree.hpp"
+#include "dbe/treeselection.hpp"
+#include "dbe/messenger.hpp"
 
 dbe::models::treeselection::treeselection ( QObject * parent )
   : QSortFilterProxyModel ( parent ),

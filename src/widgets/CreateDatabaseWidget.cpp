@@ -2,14 +2,14 @@
 #include<QFileDialog>
 #include<QMessageBox>
 /// Including DBE
-#include"CreateDatabaseWidget.h"
-#include"StyleUtility.h"
+#include"dbe/CreateDatabaseWidget.hpp"
+#include"dbe/StyleUtility.hpp"
 /// Including config headers
 #include "config/ConfigObject.hpp"
 #include "config/Configuration.hpp"
 #include "config/Schema.hpp"
-#include "Exceptions.h"
-#include "messenger.h"
+#include "dbe/Exceptions.hpp"
+#include "dbe/messenger.hpp"
 
 dbe::CreateDatabaseWidget::CreateDatabaseWidget ( QWidget * parent, bool Include,
                                                   const QString & CreateDir )

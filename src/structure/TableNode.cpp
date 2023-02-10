@@ -1,5 +1,5 @@
 /// Including DBE
-#include "TableNode.h"
+#include "dbe/TableNode.hpp"
 
 dbe::TableNode::TableNode ( const QStringList & NodeData )
   : Data ( NodeData )

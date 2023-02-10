@@ -1,4 +1,4 @@
-#include "SchemaMainWindow.h"
+#include "dbe/SchemaMainWindow.hpp"
 #include <QApplication>
 #include <boost/program_options.hpp>
 #include <iostream>

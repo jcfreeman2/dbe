@@ -1,8 +1,8 @@
-#include "config_ui_info.h"
-#include "config_api_info.h"
-#include "config_api_commands.h"
-#include "confaccessor.h"
-#include "treenode.h"
+#include "dbe/config_ui_info.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/config_api_commands.hpp"
+#include "dbe/confaccessor.hpp"
+#include "dbe/treenode.hpp"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>

@@ -97,7 +97,7 @@
   <customwidget>
    <class>string_attr_text_edit</class>
    <extends>QTextEdit</extends>
-   <header>string_attr_text_edit.h</header>
+   <header>dbe/string_attr_text_edit.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

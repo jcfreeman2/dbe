@@ -1,10 +1,10 @@
-#include "confaccessor.h"
-#include "tableselection.h"
-#include "CustomDelegate.h"
-#include "BuildingBlockEditors.h"
-#include "TableNode.h"
-#include "Validator.h"
-//#include "MainWindow.h"
+#include "dbe/confaccessor.hpp"
+#include "dbe/tableselection.hpp"
+#include "dbe/CustomDelegate.hpp"
+#include "dbe/BuildingBlockEditors.hpp"
+#include "dbe/TableNode.hpp"
+#include "dbe/Validator.hpp"
+//#include "dbe/MainWindow.hpp"
 
 #include <QKeyEvent>
 #include <QCompleter>

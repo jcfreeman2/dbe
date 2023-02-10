@@ -5,13 +5,13 @@
  *      Author: Leonidas Georgopoulos
  */
 
-#include "config_api_set.h"
-#include "config_api_info.h"
-#include "config_api.hpp"
-#include "config_api_commands.h"
-#include "config_object_key.hpp"
-#include "Conversion.h"
-#include "dbcontroller.h"
+#include "dbe/config_api_set.hpp"
+#include "dbe/config_api_info.hpp"
+#include "dbe/config_api.hpp"
+#include "dbe/config_api_commands.hpp"
+#include "dbe/config_object_key.hpp"
+#include "dbe/Conversion.hpp"
+#include "dbe/dbcontroller.hpp"
 
 #include "config/Schema.hpp"
 

@@ -1,7 +1,7 @@
 /// Including QT#include <QHeaderView>
-#include <tableselection.h>
+#include "dbe/tableselection.hpp"
 
-#include <confaccessor.h>
+#include "dbe/confaccessor.hpp"
 #include <QScrollBar>
 #include <QMenu>
 #include <QLabel>
@@ -13,12 +13,12 @@
 #include <QHeaderView>
 
 /// Including DBE
-#include "CustomTableView.h"
-#include "ObjectEditor.h"
-#include "ObjectCreator.h"
-#include "messenger.h"
+#include "dbe/CustomTableView.hpp"
+#include "dbe/ObjectEditor.hpp"
+#include "dbe/ObjectCreator.hpp"
+#include "dbe/messenger.hpp"
 
-#include "MainWindow.h"
+#include "dbe/MainWindow.hpp"
 
 //-----------------------------------------------------------------------------------------------------
 dbe::CustomTableView::CustomTableView ( QWidget * parent )

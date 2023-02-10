@@ -1,6 +1,6 @@
-#include <tableselection.h>
+#include "dbe/tableselection.hpp"
 
-#include "messenger.h"
+#include "dbe/messenger.hpp"
 
 dbe::models::tableselection::tableselection ( QObject * parent )
   : QSortFilterProxyModel ( parent ),

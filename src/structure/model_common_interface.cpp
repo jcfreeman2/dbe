@@ -5,6 +5,6 @@
  *      Author: lgeorgop
  */
 
-#include "model_common_interface.h"
+#include "dbe/model_common_interface.hpp"
 
 

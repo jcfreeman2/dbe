@@ -8,7 +8,7 @@
 #ifndef DBE_TEST_DEFS_HPP_
 #define DBE_TEST_DEFS_HPP_
 
-#include "dbinfo.h"
+#include "dbe/dbinfo.hpp"
 #include <unistd.h>
 #include <string>
 

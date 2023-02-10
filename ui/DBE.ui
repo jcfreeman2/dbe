@@ -696,7 +696,7 @@
   <customwidget>
    <class>CustomFileView</class>
    <extends>QTableView</extends>
-   <header>CustomFileView.h</header>
+   <header>dbe/CustomFileView.hpp</header>
   </customwidget>
   <customwidget>
    <class>QUndoView</class>
@@ -706,12 +706,12 @@
   <customwidget>
    <class>CustomTreeView</class>
    <extends>QTreeView</extends>
-   <header>CustomTreeView.h</header>
+   <header>dbe/CustomTreeView.hpp</header>
   </customwidget>
   <customwidget>
    <class>SearchComboBox</class>
    <extends>QComboBox</extends>
-   <header>SearchComboBox.h</header>
+   <header>dbe/SearchComboBox.hpp</header>
   </customwidget>
  </customwidgets>
  <resources>

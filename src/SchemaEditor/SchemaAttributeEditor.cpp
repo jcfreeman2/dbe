@@ -1,6 +1,6 @@
 /// Including schema
-#include "SchemaAttributeEditor.h"
-#include "SchemaKernelWrapper.h"
+#include "dbe/SchemaAttributeEditor.hpp"
+#include "dbe/SchemaKernelWrapper.hpp"
 /// Including auto-generated ui
 #include "ui_SchemaAttributeEditor.h"
 

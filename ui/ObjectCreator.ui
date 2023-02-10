@@ -300,17 +300,17 @@
   <customwidget>
    <class>CustomLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>CustomLineEdit.h</header>
+   <header>dbe/CustomLineEdit.hpp</header>
   </customwidget>
   <customwidget>
    <class>CustomFileView</class>
    <extends>QTableView</extends>
-   <header>CustomFileView.h</header>
+   <header>dbe/CustomFileView.hpp</header>
   </customwidget>
   <customwidget>
    <class>ValidatorComboBox</class>
    <extends>QComboBox</extends>
-   <header>ValidatorComboBox.h</header>
+   <header>dbe/ValidatorComboBox.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>
