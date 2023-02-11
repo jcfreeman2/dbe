@@ -51,30 +51,25 @@ set(dbe_common_libs
         ${dbe_common_qt_libs}
         )        
 
+include_directories(${CMAKE_CURRENT_BINARY_DIR})  # Needed for the automatically-generate user interface (UI) headers
+
 #====================================================================================#
-#                                    LIB_DBE_CONFIG_API                              #
+#                        LIB_DBE_CONFIG_API SOURCE FILES                             #
 #====================================================================================#
 set(dbe_config_api_src
-                    src/internal/Command.cpp
-                    src/internal/Conversion.cpp
-                    src/internal/config_api.cpp
-                    src/internal/config_api_set.cpp
-                    src/internal/config_api_get.cpp
-                    src/internal/config_api_info.cpp
-                    src/internal/config_api_graph.cpp
-                    src/internal/config_api_commands.cpp
+                    internal/Command.cpp
+                    internal/Conversion.cpp
+                    internal/config_api.cpp
+                    internal/config_api_set.cpp
+                    internal/config_api_get.cpp
+                    internal/config_api_info.cpp
+                    internal/config_api_graph.cpp
+                    internal/config_api_commands.cpp
    )
 
 
-add_library(dbe_config_api SHARED ${dbe_config_api_src})
-#target_include_directories(dbe_config_api PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dbe)
-target_link_libraries(dbe_config_api PUBLIC ${dbe_common_libs})
-
-# JCF: force creation of UI headers
-add_dependencies(dbe_config_api dbe_core_ui_header_gen)
-
 #====================================================================================#
-#                                    LIBDBE_STRUCTURE                                #
+#                        LIBDBE_STRUCTURE SOURCE FILES                               #
 #====================================================================================#
 
 qt5_wrap_cpp(dbe_structure_moc_src
@@ -91,45 +86,32 @@ qt5_wrap_cpp(dbe_structure_moc_src
 )
 
 set(dbe_structure_src
-                    src/structure/CustomDelegate.cpp
-                    src/structure/CustomFileView.cpp
-                    src/structure/CustomTableView.cpp
-                    src/structure/CustomTreeView.cpp
-                    src/structure/FileModel.cpp
-                    src/structure/treenode.cpp
-                    src/structure/subtreeproxy.cpp
-                    src/structure/table.cpp
-                    src/structure/TableNode.cpp
-                    src/structure/tableselection.cpp
-                    src/structure/tree.cpp
-                    src/structure/treeselection.cpp
-                    src/structure/model_common_interface.cpp
+                    structure/CustomDelegate.cpp
+                    structure/CustomFileView.cpp
+                    structure/CustomTableView.cpp
+                    structure/CustomTreeView.cpp
+                    structure/FileModel.cpp
+                    structure/treenode.cpp
+                    structure/subtreeproxy.cpp
+                    structure/table.cpp
+                    structure/TableNode.cpp
+                    structure/tableselection.cpp
+                    structure/tree.cpp
+                    structure/treeselection.cpp
+                    structure/model_common_interface.cpp
   )
 
-add_library(dbe_structure SHARED ${dbe_structure_src} ${dbe_structure_moc_src})
-target_link_libraries(dbe_structure PUBLIC ${dbe_common_libs})
-target_include_directories(dbe_structure PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-# dbe_structure depends on the generated header files of the dbe_core library
-# Since dbe_core depends on dbe_structure we introduce a custom target
-# that will trigger only the ui header generation and depend on.
-
-add_dependencies(dbe_structure dbe_core_ui_header_gen)
-
 #====================================================================================#
-#                                    LIBDBE_WRAP                                     #
+#                           LIBDBE_WRAP SOURCE FILES                                 #
 #====================================================================================#
 set(dbe_wrap_src
-                    src/internal/rwdacc.cpp
-                    src/internal/dbcontroller.cpp
-                    src/internal/dbaccessor.cpp
+                    internal/rwdacc.cpp
+                    internal/dbcontroller.cpp
+                    internal/dbaccessor.cpp
   )
 
-add_library(dbe_wrap SHARED ${dbe_wrap_src})
-target_link_libraries(dbe_wrap PUBLIC  dbe_config_api ${dbe_common_tdaq_libs})
-
 #====================================================================================#
-#                                    LIBDBE_INTERNAL                                 #
+#                         LIBDBE_INTERNAL SOURCE FILES                               #
 #====================================================================================#
 qt5_wrap_cpp(dbe_internal_moc_src
                     include/dbe/Validator.hpp
@@ -139,18 +121,15 @@ qt5_wrap_cpp(dbe_internal_moc_src
 )
 
 set(dbe_internal_src
-                    src/internal/datahandler.cpp
-                    src/internal/confaccessor.cpp
-                    src/internal/messenger.cpp
-                    src/internal/messenger_proxy.cpp
-                    src/internal/config_ui_info.cpp
+                    internal/datahandler.cpp
+                    internal/confaccessor.cpp
+                    internal/messenger.cpp
+                    internal/messenger_proxy.cpp
+                    internal/config_ui_info.cpp
   )
-  
-add_library(dbe_internal SHARED ${dbe_internal_src} ${dbe_internal_moc_src})
-target_link_libraries(dbe_internal PUBLIC dbe_config_api dbe_wrap ${dbe_common_libs})
 
 #====================================================================================#
-#                                    LIBDBECORE                                      #
+#                           LIBDBECORE SOURCE FILES                                  #
 #====================================================================================#
 set(dbe_core_ui
                     ui/BatchChangeWidget.ui
@@ -169,10 +148,6 @@ set(dbe_core_ui
                     )
                     
 qt5_wrap_ui(dbe_core_ui_header ${dbe_core_ui})
-
-add_custom_target(dbe_core_ui_header_gen 
-  DEPENDS ${dbe_core_ui_header}
-)
 
 qt5_wrap_cpp(dbe_core_moc_src
                     include/dbe/TableTab.hpp
@@ -195,35 +170,67 @@ qt5_wrap_cpp(dbe_core_moc_src
 )
 
 set(dbe_core_src
-                    src/internal/MainWindow.cpp
-                    src/internal/StyleUtility.cpp
-                    src/internal/Validator.cpp
-                    src/object/CustomLineEdit.cpp
-                    src/object/string_attr_text_edit.cpp
-                    src/object/SearchComboBox.cpp
-                    src/object/ValidatorComboBox.cpp
-                    src/widgets/BatchChangeWidget.cpp
-                    src/widgets/BuildingBlockEditors.cpp
-                    src/widgets/CommitDialog.cpp
-                    src/widgets/CreateDatabaseWidget.cpp
-                    src/widgets/IncludeFileWidget.cpp
-                    src/widgets/ObjectCreator.cpp
-                    src/widgets/ObjectEditor.cpp
-                    src/widgets/OracleWidget.cpp
-                    src/graphical/GraphicalClass.cpp
-                    src/graphical/GraphView.cpp
-                    src/MyApplication.cpp
-                    src/TableTab.cpp
+                    internal/MainWindow.cpp
+                    internal/StyleUtility.cpp
+                    internal/Validator.cpp
+                    object/CustomLineEdit.cpp
+                    object/string_attr_text_edit.cpp
+                    object/SearchComboBox.cpp
+                    object/ValidatorComboBox.cpp
+                    widgets/BatchChangeWidget.cpp
+                    widgets/BuildingBlockEditors.cpp
+                    widgets/CommitDialog.cpp
+                    widgets/CreateDatabaseWidget.cpp
+                    widgets/IncludeFileWidget.cpp
+                    widgets/ObjectCreator.cpp
+                    widgets/ObjectEditor.cpp
+                    widgets/OracleWidget.cpp
+                    graphical/GraphicalClass.cpp
+                    graphical/GraphView.cpp
+                    MyApplication.cpp
+                    TableTab.cpp
   )
 
 qt5_add_resources(qrc_resource icons/resource.qrc OPTIONS -name DBEimg)
 
-add_library(dbe_core SHARED ${dbe_core_src} ${dbe_core_moc_src} ${dbe_core_ui_header} ${qrc_resource})
-target_link_libraries(dbe_core PUBLIC dbe_config_api dbe_internal dbe_structure ${dbe_common_libs})
-target_include_directories(dbe_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+daq_add_library(${dbe_core_src} 
+         	${dbe_core_moc_src} 
+		${dbe_core_ui_header} 
+		${qrc_resource} 
+		${dbe_structure_src} 
+		${dbe_structure_moc_src} 
+		${dbe_internal_src} 
+		${dbe_internal_moc_src} 
+		${dbe_wrap_src} 
+		${dbe_config_api_src}
+		LINK_LIBRARIES
+		${dbe_common_libs}
+)
+
 
 #====================================================================================#
-#                                       SCHEMACORE                                   #
+# DATABASE EDITOR (DBE)                                                              #
+#====================================================================================#
+
+add_executable(dbe_main src/Main.cpp)
+target_link_libraries(dbe_main PRIVATE dbe ${dbe_common_boost_libs})
+
+#====================================================================================#
+# DBE GRAPHTOOL (DBE_GTOOL)                                                          #
+#====================================================================================#
+set(dbe_gtool_src
+      src/graphtool.cpp
+      src/graphtool/gtool.cpp
+      src/graphtool/segregate.cpp
+      src/graphtool/stats.cpp
+      )
+
+add_executable(dbe_gtool ${dbe_gtool_src})
+target_link_libraries(dbe_gtool PRIVATE dbe ${dbe_common_boost_libs} )
+
+
+#====================================================================================#
+#                            SCHEMA EDITOR SOURCE FILES, ETC.                        #
 #====================================================================================#
 set(schema_core_ui
                     ui/SchemaAttributeEditor.ui
@@ -278,42 +285,9 @@ qt5_wrap_cpp(schema_core_moc_src
 
 qt5_add_resources(qrc_SchemaResource icons/SchemaResource.qrc OPTIONS -name SchemaResource)
 
-add_library(schemacore SHARED ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource})
-target_link_libraries(schemacore ${dbe_common_libs} oks::oks)
-target_include_directories(schemacore PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+add_executable(schemaeditor src/SchemaEditor/SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource})
+target_link_libraries(schemaeditor PRIVATE ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
 
-
-# JCF: force creation of UI headers
-add_dependencies(schemacore dbe_core_ui_header_gen)
-
-#====================================================================================#
-# SCHEMA EDITOR                                                                      #
-#====================================================================================#
-
-add_executable(schemaeditor src/SchemaEditor/SchemaMain.cpp)
-target_link_libraries(schemaeditor PRIVATE schemacore ${dbe_common_boost_libs} )
-
-#====================================================================================#
-# DATABASE EDITOR (DBE)                                                              #
-#====================================================================================#
-
-add_executable(dbe_main src/Main.cpp)
-#target_include_directories(dbe_main PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dbe)
-target_link_libraries(dbe_main PRIVATE dbe_core ${dbe_common_boost_libs})
-
-#====================================================================================#
-# DBE GRAPHTOOL (DBE_GTOOL)                                                          #
-#====================================================================================#
-set(dbe_gtool_src
-      src/graphtool.cpp
-      src/graphtool/gtool.cpp
-      src/graphtool/segregate.cpp
-      src/graphtool/stats.cpp
-      )
-
-add_executable(dbe_gtool ${dbe_gtool_src})
-target_include_directories(dbe_gtool PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dbe)
-target_link_libraries(dbe_gtool PRIVATE dbe_core ${dbe_common_boost_libs} )
 
 # #====================================================================================#
 # # TEST_CONFIG_API                                                                    #
@@ -321,7 +295,7 @@ target_link_libraries(dbe_gtool PRIVATE dbe_core ${dbe_common_boost_libs} )
 # tdaq_add_executable(dbe_config_api_info_test_exec
 #   test/config_api_info_test.cpp
 #   INCLUDE_DIRECTORIES dbe
-#   LINK_LIBRARIES dbe_core ${dbe_common_test_libs}
+#   LINK_LIBRARIES dbe ${dbe_common_test_libs}
 #   )
 
 # add_test( 
@@ -332,7 +306,7 @@ target_link_libraries(dbe_gtool PRIVATE dbe_core ${dbe_common_boost_libs} )
 # tdaq_add_executable(dbe_config_api_set_test_exec 
 #   test/config_api_set_test.cpp
 #   INCLUDE_DIRECTORIES dbe
-#   LINK_LIBRARIES dbe_core ${dbe_common_test_libs}
+#   LINK_LIBRARIES dbe ${dbe_common_test_libs}
 #   NOINSTALL
 #   )
 
@@ -347,7 +321,7 @@ target_link_libraries(dbe_gtool PRIVATE dbe_core ${dbe_common_boost_libs} )
 # tdaq_add_executable(dbe_confaccessor_test_exec
 #   test/confaccessor_test.cpp
 #   INCLUDE_DIRECTORIES dbe
-#   LINK_LIBRARIES dbe_core ${dbe_common_test_libs}
+#   LINK_LIBRARIES dbe ${dbe_common_test_libs}
 #   NOINSTALL
 #   )
 
