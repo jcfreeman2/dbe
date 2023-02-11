@@ -212,22 +212,19 @@ daq_add_library(${dbe_core_src}
 # DATABASE EDITOR (DBE)                                                              #
 #====================================================================================#
 
-add_executable(dbe_main src/Main.cpp)
-target_link_libraries(dbe_main PRIVATE dbe ${dbe_common_boost_libs})
+daq_add_application(dbe_main Main.cpp LINK_LIBRARIES dbe ${dbe_common_boost_libs})
 
 #====================================================================================#
 # DBE GRAPHTOOL (DBE_GTOOL)                                                          #
 #====================================================================================#
+
 set(dbe_gtool_src
-      src/graphtool.cpp
-      src/graphtool/gtool.cpp
-      src/graphtool/segregate.cpp
-      src/graphtool/stats.cpp
+      graphtool/gtool.cpp
+      graphtool/segregate.cpp
+      graphtool/stats.cpp
       )
 
-add_executable(dbe_gtool ${dbe_gtool_src})
-target_link_libraries(dbe_gtool PRIVATE dbe ${dbe_common_boost_libs} )
-
+daq_add_application(dbe_gtool graphtool.cpp ${dbe_gtool_src} LINK_LIBRARIES dbe ${dbe_common_boost_libs})
 
 #====================================================================================#
 #                            SCHEMA EDITOR SOURCE FILES, ETC.                        #
@@ -244,27 +241,27 @@ set(schema_core_ui
 qt5_wrap_ui(schema_core_ui_header ${schema_core_ui})
 
 set(schema_core_src
-                    src/SchemaEditor/SchemaAttributeEditor.cpp
-                    src/SchemaEditor/SchemaCustomMethodImplementationModel.cpp
-                    src/SchemaEditor/SchemaGraphicArrow.cpp
-                    src/SchemaEditor/SchemaMainWindow.cpp
-                    src/SchemaEditor/SchemaClassEditor.cpp
-                    src/SchemaEditor/SchemaCustomMethodModel.cpp
-                    src/SchemaEditor/SchemaGraphicObject.cpp
-                    src/SchemaEditor/SchemaMethodEditor.cpp
-                    src/SchemaEditor/SchemaCommand.cpp
-                    src/SchemaEditor/SchemaCustomModelInterface.cpp
-                    src/SchemaEditor/SchemaGraphicsScene.cpp
-                    src/SchemaEditor/SchemaMethodImplementationEditor.cpp
-                    src/SchemaEditor/SchemaCustomAttributeModel.cpp
-                    src/SchemaEditor/SchemaCustomRelationshipModel.cpp
-                    src/SchemaEditor/SchemaKernelWrapper.cpp
-                    src/SchemaEditor/SchemaRelationshipEditor.cpp
-                    src/SchemaEditor/SchemaCustomFileModel.cpp
-                    src/SchemaEditor/SchemaCustomTableModel.cpp
-                    src/SchemaEditor/SchemaCustomSuperClassModel.cpp
-                    src/SchemaEditor/SchemaCustomSubClassModel.cpp
-                    src/SchemaEditor/SchemaTab.cpp
+                    SchemaEditor/SchemaAttributeEditor.cpp
+                    SchemaEditor/SchemaCustomMethodImplementationModel.cpp
+                    SchemaEditor/SchemaGraphicArrow.cpp
+                    SchemaEditor/SchemaMainWindow.cpp
+                    SchemaEditor/SchemaClassEditor.cpp
+                    SchemaEditor/SchemaCustomMethodModel.cpp
+                    SchemaEditor/SchemaGraphicObject.cpp
+                    SchemaEditor/SchemaMethodEditor.cpp
+                    SchemaEditor/SchemaCommand.cpp
+                    SchemaEditor/SchemaCustomModelInterface.cpp
+                    SchemaEditor/SchemaGraphicsScene.cpp
+                    SchemaEditor/SchemaMethodImplementationEditor.cpp
+                    SchemaEditor/SchemaCustomAttributeModel.cpp
+                    SchemaEditor/SchemaCustomRelationshipModel.cpp
+                    SchemaEditor/SchemaKernelWrapper.cpp
+                    SchemaEditor/SchemaRelationshipEditor.cpp
+                    SchemaEditor/SchemaCustomFileModel.cpp
+                    SchemaEditor/SchemaCustomTableModel.cpp
+                    SchemaEditor/SchemaCustomSuperClassModel.cpp
+                    SchemaEditor/SchemaCustomSubClassModel.cpp
+                    SchemaEditor/SchemaTab.cpp
   )
 
 qt5_wrap_cpp(schema_core_moc_src
@@ -285,8 +282,7 @@ qt5_wrap_cpp(schema_core_moc_src
 
 qt5_add_resources(qrc_SchemaResource icons/SchemaResource.qrc OPTIONS -name SchemaResource)
 
-add_executable(schemaeditor src/SchemaEditor/SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource})
-target_link_libraries(schemaeditor PRIVATE ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
+daq_add_application(schemaeditor SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource} LINK_LIBRARIES ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
 
 
 # #====================================================================================#
