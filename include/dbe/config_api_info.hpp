@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-namespace daq
+namespace dunedaq
 {
 namespace config
 {

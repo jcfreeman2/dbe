@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-data version 2.2 -->
+
+
+<!DOCTYPE oks-data [
+  <!ELEMENT oks-data (info, (include)?, (comments)?, (obj)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #IMPLIED
+      type CDATA #IMPLIED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "data"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #IMPLIED
+      created-on CDATA #IMPLIED
+      creation-time CDATA #IMPLIED
+      last-modified-by CDATA #IMPLIED
+      last-modified-on CDATA #IMPLIED
+      last-modification-time CDATA #IMPLIED
+  >
+  <!ELEMENT include (file)*>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT comments (comment)*>
+  <!ELEMENT comment EMPTY>
+  <!ATTLIST comment
+      creation-time CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      author CDATA #REQUIRED
+      text CDATA #REQUIRED
+  >
+  <!ELEMENT obj (attr | rel)*>
+  <!ATTLIST obj
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+  <!ELEMENT attr (data)*>
+  <!ATTLIST attr
+      name CDATA #REQUIRED
+      type (bool|s8|u8|s16|u16|s32|u32|s64|u64|float|double|date|time|string|uid|enum|class|-) "-"
+      val CDATA ""
+  >
+  <!ELEMENT data EMPTY>
+  <!ATTLIST data
+      val CDATA #REQUIRED
+  >
+  <!ELEMENT rel (ref)*>
+  <!ATTLIST rel
+      name CDATA #REQUIRED
+      class CDATA ""
+      id CDATA ""
+  >
+  <!ELEMENT ref EMPTY>
+  <!ATTLIST ref
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+]>
+
+<oks-data>
+
+<!-- JCF, Jan-18-2023: the entire point of this file is that it defines objects which can be used for the dal repo's algorithm_tests.py script. The values of the attributes, etc., have no useful meaning. -->
+
+<info name="" type="" num-of-items="2" oks-format="data" oks-version="N/A" created-by="jcfree" created-on="mu2edaq13.fnal.gov" creation-time="20230105T194746" last-modified-by="jcfree" last-modified-on="mu2edaq13.fnal.gov" last-modification-time="20230105T194746"/>
+
+<include>
+ <file path="core.schema.xml"/>
+</include>
+
+<obj class="Partition" id="ToyPartition">
+
+  <rel name="OnlineInfrastructure" class="OnlineSegment" id="ToyOnlineSegment"/>
+  <rel name="DefaultHost" class="Computer" id="toyhost.fnal.gov"/>
+  
+  <rel name="Disabled">
+    <ref class="ResourceBase" id="AProblematicResource">
+  </rel>
+</obj>
+
+<obj class="ResourceBase" id="AProblematicResource">
+</obj>
+
+
+<obj class="RunControlApplication" id="ToyRunControlApplication">
+ <attr name="InterfaceName" type="string" val="rc/commander"/>
+ <attr name="ActionTimeout" type="s32" val="10"/>
+ <attr name="ProbeInterval" type="s32" val="5"/>
+ <attr name="FullStatisticsInterval" type="s32" val="60"/>
+ <attr name="ControlsTTCPartitions" type="bool" val="0"/>
+ <attr name="Logging" type="bool" val="1"/>
+ <attr name="InitTimeout" type="u32" val="60"/>
+ <attr name="ExitTimeout" type="u32" val="5"/>
+ <attr name="RestartableDuringRun" type="bool" val="0"/>
+ <attr name="IfExitsUnexpectedly" type="enum" val="Error"/>
+ <attr name="IfFailsToStart" type="enum" val="Error"/>
+ <rel name="Program" class="Binary" id="rc_controller"/> 
+ <rel name="ExplicitTag" class="Tag" id="ToyTag"/>
+</obj>
+
+<obj class="SW_Repository" id="ToyRepository">
+  <rel name="Tags">
+   <ref class="Tag" id="ToyTag"/>
+  </rel>
+</obj>
+
+<obj class="Binary" id="rc_controller">
+ <attr name="BinaryName" type="string" val="rc_controller"/>
+ <attr name="Description" type="string" val="A Controller implementing all the default actions"/>
+ <attr name="HelpURL" type="string" val=""/>
+ <attr name="DefaultParameters" type="string" val="foo bar"/>
+ <rel name="BelongsTo" class="SW_Repository" id="ToyRepository"/> 
+</obj>
+
+<obj class="Binary" id="coolapp">
+ <attr name="BinaryName" type="string" val="coolapp"/>
+ <attr name="Description" type="string" val="Just a straight-up amazing application"/>
+ <attr name="HelpURL" type="string" val=""/>
+ <attr name="DefaultParameters" type="string" val="arg1 arg2 arg3"/>
+ <rel name="BelongsTo" class="SW_Repository" id="ToyRepository"/> 
+</obj>
+
+
+<obj class="CustomLifetimeApplication" id="SomeApp">
+ <attr name="Lifetime" type="enum" val="UserDefined_Shutdown"/>
+ <attr name="AllowSpontaneousExit" type="bool" val="0"/>
+ <rel name="Program" class="Binary" id="coolapp"/> 
+ <rel name="ExplicitTag" class="Tag" id="ToyTag"/>
+</obj>
+
+
+<obj class="OnlineSegment" id="ToyOnlineSegment">
+ <attr name="T0_ProjectTag" type="string" val="data_test"/> 
+ <rel name="IsControlledBy" class="RunControlApplication" id="ToyRunControlApplication"/>
+ <rel name="InitialPartition" class="Partition" id="ToyPartition">
+ <rel name="Applications">
+   <ref class="CustomLifetimeApplication" id="SomeApp"/>
+ </rel>
+  <rel name="Segments">
+    <ref class="Segment" id="ToyChildSegment"/>
+  </rel>
+</obj>
+
+<obj class="Segment" id="ToyChildSegment"/>
+ <rel name="IsControlledBy" class="RunControlApplication" id="ToyRunControlApplication"/>
+</obj>
+
+<obj class="Tag" id="ToyTag">
+ <attr name="HW_Tag" type="enum" val="x86_64-centos7"/>
+ <attr name="SW_Tag" type="enum" val="gcc49-opt"/>
+</obj>
+
+<obj class="Computer" id="toyhost.fnal.gov">
+ <attr name="HW_Tag" type="enum" val="x86_64-centos7"/>
+ <attr name="SW_Tag" type="enum" val="gcc49-opt"/>
+ <attr name="Type" type="string" val="Intel(R) Xeon(TM) CPU 3.40GHz"/>
+ <attr name="Location" type="string" val=""/>
+ <attr name="Description" type="string" val=""/>
+ <attr name="HelpLink" type="string" val=""/>
+ <attr name="InstallationRef" type="string" val=""/>
+ <attr name="State" type="bool" val="1"/>
+ <attr name="Memory" type="u16" val="514"/>
+ <attr name="CPU" type="u16" val="3400"/>
+ <attr name="NumberOfCores" type="s16" val="2"/>
+ <attr name="RLogin" type="string" val="ssh"/>
+</obj>
+
+<!-- JCF, Jan-17-2023: this snippet is derived from /cvmfs/atlas.cern.ch/repo/sw/tdaq/tdaq/tdaq-09-05-00/TM/data/part_hlt.data.xml as an example of a Variable -->
+<obj class="Variable" id="PYTHONPATH">
+ <attr name="Description" type="string" val=""/>
+ <attr name="Name" type="string" val="PYTHONPATH"/>
+ <attr name="Value" type="string" val="${LCG_INST_PATH}/LCG_95/Python/2.7.15"/>
+ <rel name="TagValues">                                                                  
+  <ref class="TagMapping" id="ToyTagMapping"/>
+ </rel>
+</obj>
+
+<obj class="TagMapping" id="ToyTagMapping">
+ <attr name="HW_Tag" type="enum" val="x86_64-centos7"/>
+ <attr name="SW_Tag" type="enum" val="gcc49-opt"/>
+ <attr name="Value" type="string" val="12345"/>
+</obj>
+
+<obj class="ABinaryDerivedClass" id="InstanceOfABinaryDerivedClass">
+</obj>
+
+</oks-data>

@@ -7,6 +7,7 @@ daq_setup_environment()
 
 add_compile_options(-Wno-deprecated)
 
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(oks REQUIRED)
 find_package(dal REQUIRED)
 find_package(config REQUIRED)
@@ -284,62 +285,8 @@ qt5_add_resources(qrc_SchemaResource icons/SchemaResource.qrc OPTIONS -name Sche
 
 daq_add_application(schemaeditor SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource} LINK_LIBRARIES ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
 
-
-# #====================================================================================#
-# # TEST_CONFIG_API                                                                    #
-# #====================================================================================#
-# tdaq_add_executable(dbe_config_api_info_test_exec
-#   test/config_api_info_test.cpp
-#   INCLUDE_DIRECTORIES dbe
-#   LINK_LIBRARIES dbe ${dbe_common_test_libs}
-#   )
-
-# add_test( 
-#   NAME dbe_config_api_info_test
-#   COMMAND ${TDAQ_RUNNER} ${CMAKE_CURRENT_BINARY_DIR}/dbe_config_api_info_test_exec --log_level=all
-#   )
-  
-# tdaq_add_executable(dbe_config_api_set_test_exec 
-#   test/config_api_set_test.cpp
-#   INCLUDE_DIRECTORIES dbe
-#   LINK_LIBRARIES dbe ${dbe_common_test_libs}
-#   NOINSTALL
-#   )
-
-# add_test( 
-#   NAME dbe_config_api_set_test
-#   COMMAND ${TDAQ_RUNNER} ${CMAKE_CURRENT_BINARY_DIR}/dbe_config_api_set_test_exec --log_level=all
-#   )
-
-# #====================================================================================#
-# # TEST_CONFACCESSOR                                                                  #
-# #====================================================================================#
-# tdaq_add_executable(dbe_confaccessor_test_exec
-#   test/confaccessor_test.cpp
-#   INCLUDE_DIRECTORIES dbe
-#   LINK_LIBRARIES dbe ${dbe_common_test_libs}
-#   NOINSTALL
-#   )
-
-# add_test( 
-#   NAME dbe_confaccessor_test
-#   COMMAND ${TDAQ_RUNNER} ${CMAKE_CURRENT_BINARY_DIR}/dbe_confaccessor_test_exec --log_level=all
-#   )
-  
-# if(DEFINED ENV{CI_JOB_TOKEN})
-#    set_tests_properties(dbe_confaccessor_test dbe_config_api_set_test dbe_config_api_info_test
-#       PROPERTIES
-#          ENVIRONMENT "TDAQ_DB_REPOSITORY=https://gitlab-ci-token:$ENV{CI_JOB_TOKEN}@gitlab.cern.ch/atlas-tdaq-oks/p1/tdaq-09-04-00.git"
-#    )
-# elseif(DBE_ROOT)
-#    set_tests_properties(dbe_confaccessor_test dbe_config_api_set_test dbe_config_api_info_test
-#       PROPERTIES 
-#          ENVIRONMENT "TDAQ_DB_REPOSITORY=${DBE_ROOT}/atlas-tdaq-oks/p1/tdaq-09-04-00.git"
-#    )
-# else()
-#    set_tests_properties(dbe_confaccessor_test dbe_config_api_set_test dbe_config_api_info_test
-#       PROPERTIES DISABLED TRUE
-#    )
-# endif()
+daq_add_unit_test(confaccessor_test LINK_LIBRARIES dbe)
+daq_add_unit_test(config_api_set_test LINK_LIBRARIES dbe)
+daq_add_unit_test(config_api_info_test LINK_LIBRARIES dbe)
 
 daq_install()
