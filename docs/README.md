@@ -68,6 +68,19 @@ In the `Attributes` section of the window, double click on the `Add` button. Ano
 
 ![New Attribute Window](new_attribute_window.png)
 
-where I've defined a `max_buffer_size` Attribute, which you can set anywhere from 10 MB to 50 MB, with a default value of 25 MB. Click `OK` to save your changes. Then click `OK` to exit out of the class editor window. Finally, click on the `File` drop down list in the upper left hand corner of the main window and select `Save Schema`. Then exit out, by selecting `Exit` from the same drop-down menu. On exiting out, you may be again prompted to save the schema, in which case save it again; this suggests there may be an issue with the regular `Save Schema` option. 
+where I've defined a `max_buffer_size` Attribute, which you can set anywhere from 10 MB to 50 MB, with a default value of 25 MB. Please note the dropdown menu selections of data type (4-byte integer) and the setting of `Is Multivariable` to `false`; when set to `true` OKS would expect a list, not a single value. Click `OK` to save your changes. Then click `OK` to exit out of the class editor window. Finally, click on the `File` drop down list in the upper left hand corner of the main window and select `Save Schema`. Then exit out, by selecting `Exit` from the same drop-down menu. On exiting out, you may be again prompted to save the schema, in which case save it again; this suggests there may be an issue with the regular `Save Schema` option. 
 
 You can now see the changes you've made, whether by opening up `tutorial.schema.xml` or by re-running `dbe_main -f tutorial.data.xml` and looking at `ReadoutApplication` instances. 
+
+## Creating A Diagram of Your Configuration
+
+A discussion of DBE wouldn't be complete without mention of its diagram-creation tool, `dbe_gtool`. E.g., to create a diagram of the configuration we've edited in this tutorial, you can do the following:
+```
+tmpfile=$( mktemp )
+dbe_gtool --file ./tutorial.data.xml --result $tmpfile
+dot -Tsvg $tmpfile > tutorial_diagram.svg
+```
+...where you can then display `tutorial_diagram.svg` using, e.g., `gimp` or your web browser. Please note that depending on the display tool you choose you may need to display the diagram from a different terminal than the one in which you have your work area set up due to compatibility issues with the `cairo` package which Qt depends on. The diagram will look something like the following:
+
+![Configuration Diagram](configuration_diagram.png)
+
