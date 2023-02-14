@@ -14,9 +14,7 @@ tutorial.py   # Generates a data file which we can use for the purposes of a DBE
 dbe_main -f ./tutorial.data.xml
 ```
 `tutorial.data.xml` describes a very simple DAQ system which consists of one run control, one TPC readout application and one photon readout application; it's covered more thoroughly [here](https://github.com/DUNE-DAQ/dal#readme). When DBE launches, you'll see a subwindow on the left side of the DBE window titled "Class View". As you can see, this lists the classes available to the data file you provided DBE, as well as the number of objects of each class type. Click on `ReadoutApplication`, and you'll see the following:
-```
-Main window here
-```
+![Main Window](main_dbe_window.png)
 ...i.e., we have a toy readout application for photon detection and a toy TPC readout application. 
 
 Let's open a second terminal and edit the `tutorial.data.xml` file. Take the `TPCReadout` object at the bottom of the file, i.e.
