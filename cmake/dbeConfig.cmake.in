@@ -5,7 +5,6 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(dal)
 find_dependency(config)
-find_dependency(qtutils)
 find_dependency(logging)
 
 find_dependency( Qt5 COMPONENTS Widgets Gui Core PrintSupport)

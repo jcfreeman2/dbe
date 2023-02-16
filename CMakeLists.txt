@@ -11,7 +11,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(oks REQUIRED)
 find_package(dal REQUIRED)
 find_package(config REQUIRED)
-find_package(qtutils REQUIRED)
+#find_package(qtutils REQUIRED)
 find_package(logging REQUIRED)
 
 find_package( Qt5 REQUIRED COMPONENTS Widgets Gui Core PrintSupport)
@@ -28,7 +28,7 @@ set(dbe_common_qt_libs
         Qt5::Widgets
         Qt5::Gui 
         Qt5::Core
-	qtutils::qtutils
+#	qtutils::qtutils
 )
 
 set(dbe_common_boost_libs
@@ -41,7 +41,7 @@ set(dbe_common_test_libs
         )
 
 set(dbe_common_tdaq_libs
-        qtutils::qtutils
+#        qtutils::qtutils
         config::config
         dal::dal 
         ers::ers
@@ -110,6 +110,22 @@ set(dbe_wrap_src
                     internal/dbcontroller.cpp
                     internal/dbaccessor.cpp
   )
+
+#====================================================================================#
+#                 SOURCE FILES FROM THE ATLAS TDAQ qtutils PACKAGE                   #
+#====================================================================================#
+
+qt5_wrap_cpp(dbe_qtutils_moc_src
+    include/dbe/highlighter.hpp
+    include/dbe/FilterTextEdit.hpp 
+    include/dbe/qdebugstream.hpp
+)
+
+set(dbe_qtutils_src
+	qtutils/highlighter.cpp
+	qtutils/qdebugstream.cpp
+)
+	
 
 #====================================================================================#
 #                         LIBDBE_INTERNAL SOURCE FILES                               #
@@ -204,6 +220,7 @@ daq_add_library(${dbe_core_src}
 		${dbe_internal_moc_src} 
 		${dbe_wrap_src} 
 		${dbe_config_api_src}
+		${qtutils_src}
 		LINK_LIBRARIES
 		${dbe_common_libs}
 )
