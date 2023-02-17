@@ -278,7 +278,7 @@ configobject::tref dbcontroller::create_object_request(
   {
     return dbe::config::api::rwdacc::set_object(el,image.attributes, image.relations);
   }
-  catch (dunedaq::config::Exception const & e)
+  catch (dunedaq::oksdbinterfaces::Exception const & e)
   {
     // just need to remove the object from the underlying database
     dbcontroller::ref().remove<config_object_aggregator>(el);
@@ -357,7 +357,7 @@ configobject::tref dbcontroller::rename(configobject::tref objref,
       dbe::config::api::rwdacc::rename_object(static_cast<ConfigObject &>(*current_ptr),
                                               aname);
     }
-    catch (dunedaq::config::Generic const & e)
+    catch (dunedaq::oksdbinterfaces::Generic const & e)
     {
       // Logging the error but this may not affect program execution per-se
       FAIL("Object rename failure", dbe::config::errors::parse(e).c_str());

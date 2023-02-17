@@ -11,7 +11,7 @@
 #include "dbe/cptr.hpp"
 #include "dbe/types.hpp"
 
-#include "config/Configuration.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
 #include <string>
 
 namespace dbe

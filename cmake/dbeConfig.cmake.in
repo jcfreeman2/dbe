@@ -4,7 +4,7 @@
 include(CMakeFindDependencyMacro)
 
 find_dependency(dal)
-find_dependency(config)
+find_dependency(oksdbinterfaces)
 find_dependency(qtutils)
 find_dependency(logging)
 

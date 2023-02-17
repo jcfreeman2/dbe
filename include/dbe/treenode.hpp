@@ -3,9 +3,9 @@
 
 #include "dbe/config_reference.hpp"
 
-#include"config/ConfigObject.hpp"
-#include"config/Configuration.hpp"
-#include"config/Schema.hpp"
+#include"oksdbinterfaces/ConfigObject.hpp"
+#include"oksdbinterfaces/Configuration.hpp"
+#include"oksdbinterfaces/Schema.hpp"
 #include "dbe/datahandler.hpp"
 
 namespace dbe
@@ -57,10 +57,10 @@ protected:
 class ClassNode: public treenode
 {
 public:
-  ClassNode ( const dunedaq::config::class_t & Info, treenode * ParentNode );
+  ClassNode ( const dunedaq::oksdbinterfaces::class_t & Info, treenode * ParentNode );
   ~ClassNode();
   virtual QVariant GetData ( const int Column, int role = Qt::DisplayRole ) const;
-  dunedaq::config::class_t GetClassInfo() const;
+  dunedaq::oksdbinterfaces::class_t GetClassInfo() const;
   void AddChild ( treenode * Child ) override;
   void RemoveChild ( treenode * Child ) override;
 
@@ -68,7 +68,7 @@ protected:
   void updateData(bool addition);
 
 private:
-  dunedaq::config::class_t ClassInfo;
+  dunedaq::oksdbinterfaces::class_t ClassInfo;
   unsigned int numObjects;
 };
 
@@ -86,24 +86,24 @@ private:
 class AttributeNode: public treenode
 {
 public:
-  AttributeNode ( const dunedaq::config::attribute_t & AttributeData, treenode * ParentNode );
+  AttributeNode ( const dunedaq::oksdbinterfaces::attribute_t & AttributeData, treenode * ParentNode );
   ~AttributeNode();
   virtual QVariant GetData ( const int Column, int role = Qt::DisplayRole ) const;
-  dunedaq::config::attribute_t attribute_t() const;
+  dunedaq::oksdbinterfaces::attribute_t attribute_t() const;
 private:
-  dunedaq::config::attribute_t attribute_t_definition;
+  dunedaq::oksdbinterfaces::attribute_t attribute_t_definition;
 };
 
 class RelationshipNode: public treenode
 {
 public:
-  RelationshipNode ( const dunedaq::config::relationship_t & RelationshipData,
+  RelationshipNode ( const dunedaq::oksdbinterfaces::relationship_t & RelationshipData,
                      treenode * ParentNode );
   ~RelationshipNode();
   virtual QVariant GetData ( const int Column, int role = Qt::DisplayRole ) const;
-  dunedaq::config::relationship_t relation_t() const;
+  dunedaq::oksdbinterfaces::relationship_t relation_t() const;
 private:
-  dunedaq::config::relationship_t relation_t_definition;
+  dunedaq::oksdbinterfaces::relationship_t relation_t_definition;
 };
 
 }  // namespace dbe

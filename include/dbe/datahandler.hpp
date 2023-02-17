@@ -5,7 +5,7 @@
 #include "dbe/GraphicalClass.hpp"
 #include "dbe/dbcontroller.hpp"
 
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <QModelIndex>
 #include <QObject>

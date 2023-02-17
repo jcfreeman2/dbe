@@ -381,7 +381,7 @@ void dbe::MainWindow::edit_object_at ( const QModelIndex Index )
   {
     // Class node
     QString const cname = tree_node->GetData ( 0 ).toString();
-    dunedaq::config::class_t cinfo = dbe::config::api::info::onclass::definition (
+    dunedaq::oksdbinterfaces::class_t cinfo = dbe::config::api::info::onclass::definition (
                                    cname.toStdString(),
                                    false );
 
@@ -543,7 +543,7 @@ void dbe::MainWindow::slot_commit_database ( bool Exit )
       }
 
     }
-    catch ( dunedaq::config::Exception const & e )
+    catch ( dunedaq::oksdbinterfaces::Exception const & e )
     {
       WARN ( "The changes could not be committed", dbe::config::errors::parse ( e ).c_str() )
       ers::error ( e );
@@ -568,7 +568,7 @@ void dbe::MainWindow::slot_abort_changes()
       confaccessor::clear_commands();
     }
   }
-  catch ( dunedaq::config::Exception const & e )
+  catch ( dunedaq::oksdbinterfaces::Exception const & e )
   {
     ERROR ( "Database changes aborted", dbe::config::errors::parse ( e ).c_str() );
     ers::error ( e );
@@ -584,7 +584,7 @@ void dbe::MainWindow::slot_abort_external_changes()
       confaccessor::abort();
     }
   }
-  catch ( dunedaq::config::Exception const & e )
+  catch ( dunedaq::oksdbinterfaces::Exception const & e )
   {
     ERROR ( "External changes aborted", dbe::config::errors::parse ( e ).c_str() );
     ers::error ( e );
@@ -863,7 +863,7 @@ void dbe::MainWindow::load_settings ( bool LoadSettings )
 {
   /// Load Settings means default settings
   QSettings * Settings;
-  QString userPath = QDir::homePath() + "/.config/ATLAS_TDAQ_DBE";
+  QString userPath = QDir::homePath() + "/.oksdbinterfaces/ATLAS_TDAQ_DBE";
   QString userFile = "DBE_User_Settings.conf";
 
   if ( !LoadSettings )
@@ -1358,7 +1358,7 @@ std::vector<dbe::tref> dbe::MainWindow::ProcessQuery ( QString const & Tmp )
 
       return result;
     }
-    catch ( dunedaq::config::Exception const & ex )
+    catch ( dunedaq::oksdbinterfaces::Exception const & ex )
     {
       ers::error ( ex );
       ERROR ( "Query process error", dbe::config::errors::parse ( ex ).c_str() );
@@ -1670,7 +1670,7 @@ void dbe::MainWindow::slot_process_externalchanges()
           }
 
         }
-        catch ( dunedaq::config::Exception const & e )
+        catch ( dunedaq::oksdbinterfaces::Exception const & e )
         {
           WARN ( "Object reference could not be changed",
                  dbe::config::errors::parse ( e ).c_str(), "for object with UID:", Change.uid,

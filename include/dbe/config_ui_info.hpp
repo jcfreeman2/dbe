@@ -10,8 +10,8 @@
 
 #include "dbe/datahandler.hpp"
 #include "dbe/GraphicalClass.hpp"
-#include "config/ConfigObject.hpp"
-#include "config/Configuration.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
 #include <memory>
 #include <vector>
 #include <string>

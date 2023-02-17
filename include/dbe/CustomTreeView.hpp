@@ -5,7 +5,7 @@
 #include "dbe/config_reference.hpp"
 #include "dbe/dbcontroller.hpp"
 
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include "ers/ers.hpp"
 

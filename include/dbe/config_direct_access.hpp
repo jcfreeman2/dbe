@@ -11,7 +11,7 @@
 #include "dbe/dbcontroller.hpp"
 #include "dbe/confobject_desc.hpp"
 
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <string>
 

@@ -5,9 +5,9 @@
 #include"dbe/CreateDatabaseWidget.hpp"
 #include"dbe/StyleUtility.hpp"
 /// Including config headers
-#include "config/ConfigObject.hpp"
-#include "config/Configuration.hpp"
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 #include "dbe/Exceptions.hpp"
 #include "dbe/messenger.hpp"
 
@@ -128,7 +128,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileLoad()
     emit CanLoadDatabase ( DatabaseFile.absoluteFilePath() );
     close();
   }
-  catch ( dunedaq::config::Exception const & ex )
+  catch ( dunedaq::oksdbinterfaces::Exception const & ex )
   {
     FAIL ( "Database creation failure", dbe::config::errors::parse ( ex ).c_str() );
   }
@@ -156,7 +156,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileNoLoad()
                                QMessageBox::Ok );
     close();
   }
-  catch ( dunedaq::config::Exception const & ex )
+  catch ( dunedaq::oksdbinterfaces::Exception const & ex )
   {
     FAIL ( "Database creation failure", dbe::config::errors::parse ( ex ).c_str() );
   }
@@ -185,7 +185,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileInclude()
     emit CanIncludeDatabase ( DatabaseFile.absoluteFilePath() );
     close();
   }
-  catch ( dunedaq::config::Exception const & ex )
+  catch ( dunedaq::oksdbinterfaces::Exception const & ex )
   {
     FAIL ( "Database creation error", dbe::config::errors::parse ( ex ).c_str() );
   }

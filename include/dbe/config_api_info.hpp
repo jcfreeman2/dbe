@@ -9,7 +9,7 @@
 #define DBE_CONFIG_API_INFO_H_
 
 #include "dbe/config_reference.hpp"
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 
 #include <QString>
 #include <string>
@@ -45,7 +45,7 @@ bool has_obj ( std::string const & classname, std::string const & object_uid );
  * @param Class name
  * @return the attribute information
  */
- dunedaq::config::attribute_t attributematch ( QString const &, QString const & );
+ dunedaq::oksdbinterfaces::attribute_t attributematch ( QString const &, QString const & );
 
 namespace relation
 {
@@ -56,20 +56,20 @@ namespace relation
  * @param Class name
  * @return  the relation information
  */
-template<typename T> dunedaq::config::relationship_t match ( T const & , T const &);
+template<typename T> dunedaq::oksdbinterfaces::relationship_t match ( T const & , T const &);
 
 template<>
-dunedaq::config::relationship_t match<QString>( QString const &, QString const & );
+dunedaq::oksdbinterfaces::relationship_t match<QString>( QString const &, QString const & );
 template<>
-dunedaq::config::relationship_t match<std::string>( std::string const &, std::string const & );
+dunedaq::oksdbinterfaces::relationship_t match<std::string>( std::string const &, std::string const & );
 
 /**
  * Returns true if the underlying relation takes values only possible for a simple edge
  *
- * @param a dunedaq::config::relationship_t to evaluate
+ * @param a dunedaq::oksdbinterfaces::relationship_t to evaluate
  * @return true in case it is a simple edge
  */
-bool is_simple ( dunedaq::config::relationship_t const & );
+bool is_simple ( dunedaq::oksdbinterfaces::relationship_t const & );
 }
 
 class onclass
@@ -88,7 +88,7 @@ public:
    *        attribute , sub-class and superclass information
    * @return a class information object
    */
-  static dunedaq::config::class_t definition ( std::string const & cn, bool direct_only );
+  static dunedaq::oksdbinterfaces::class_t definition ( std::string const & cn, bool direct_only );
 
   /**
    * Retrieve references to config objects of a given class

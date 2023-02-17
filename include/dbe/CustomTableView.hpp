@@ -3,7 +3,7 @@
 
 #include "dbe/table.hpp"
 #include "dbe/view_common_interface.hpp"
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <QTableView>
 #include <QPushButton>

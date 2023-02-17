@@ -2,7 +2,7 @@
 #include "dbe/MyApplication.hpp"
 #include "dbe/Exceptions.hpp"
 /// Including TDAq
-#include "config/Configuration.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
 #include "ers/ers.hpp"
 #include "logging/Logging.hpp"
 
@@ -19,10 +19,10 @@ bool dbe::MyApplication::notify ( QObject * rec, QEvent * ev )
   {
     return QApplication::notify ( rec, ev );
   }
-  catch ( dunedaq::config::Exception const & err )
+  catch ( dunedaq::oksdbinterfaces::Exception const & err )
   {
-    TLOG() << "MyApplication: dunedaq::config::Exception: " << err ;
-    ERROR ( "Unexpected error occurred", dbe::config::errors::unwind(err), "dunedaq::config::Exception caught at", HERE );
+    TLOG() << "MyApplication: dunedaq::oksdbinterfaces::Exception: " << err ;
+    ERROR ( "Unexpected error occurred", dbe::config::errors::unwind(err), "dunedaq::oksdbinterfaces::Exception caught at", HERE );
     return false;
   }
   catch ( ers::Issue const & err )
