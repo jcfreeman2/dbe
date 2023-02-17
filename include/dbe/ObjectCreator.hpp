@@ -4,8 +4,8 @@
 #include "dbe/FileModel.hpp"
 #include "dbe/ObjectEditor.hpp"
 
-#include "config/Schema.hpp"
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/Schema.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <QWidget>
 #include <QStatusBar>
@@ -34,7 +34,7 @@ public:
    * @param classinfo describes the class for which an object is to be created
    * @param parent of this widget
    */
-  ObjectCreator ( dunedaq::config::class_t const & classinfo, QWidget * parent = 0 );
+  ObjectCreator ( dunedaq::oksdbinterfaces::class_t const & classinfo, QWidget * parent = 0 );
 
   /**
    * Clone an object of a given relation type
@@ -44,7 +44,7 @@ public:
    * @param parent of this widget
    */
   ObjectCreator ( tref const & clonefrom,
-                  dunedaq::config::relationship_t const & relation, QWidget * parent = 0 );
+                  dunedaq::oksdbinterfaces::relationship_t const & relation, QWidget * parent = 0 );
 
   /**
    * Clone from a given object
@@ -90,11 +90,11 @@ private:
 
   std::unique_ptr<dbe::Ui::ObjectCreator> ui;
 
-  dunedaq::config::class_t this_object_class;
+  dunedaq::oksdbinterfaces::class_t this_object_class;
 
   std::unique_ptr<tref> this_src_object;
   std::unique_ptr<tref> this_target_object;
-  dunedaq::config::relationship_t this_relation;
+  dunedaq::oksdbinterfaces::relationship_t this_relation;
 
   QSortFilterProxyModel this_sort;
   FileModel * this_files;

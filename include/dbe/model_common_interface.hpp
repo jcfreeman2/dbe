@@ -9,7 +9,7 @@
 #define DBE_MODEL_COMMON_INTERFACE_H_
 
 #include "dbe/confaccessor.hpp"
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <QString>
 #include <QModelIndex>
@@ -26,7 +26,7 @@
     typedef std::vector<type_index> type_indices;\
     typedef dbe::tref type_object_ref;\
     typedef dbe::dref type_object_info;\
-    typedef dunedaq::config::class_t type_class_info;\
+    typedef dunedaq::oksdbinterfaces::class_t type_class_info;\
     \
 
 

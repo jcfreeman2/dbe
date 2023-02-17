@@ -12,10 +12,10 @@
 #include "dbe/config_api_set.hpp"
 #include "dbe/Conversion.hpp"
 
-#include "config/ConfigObject.hpp"
-#include "config/Configuration.hpp"
-#include "config/Errors.hpp"
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
+#include "oksdbinterfaces/Errors.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 #include "ers/LocalContext.hpp"
 #include "logging/Logging.hpp"
 
@@ -55,7 +55,7 @@ ConfigObject rwdacc::create_object(std::string const & fn, std::string const & c
 	{
 		dbaccessor::dbptr()->create(fn, cn, uid,newobj);
 	}
-	catch (dunedaq::config::Exception const & ex)
+	catch (dunedaq::oksdbinterfaces::Exception const & ex)
 	{
     FAIL ( "Object creation failed", dbe::config::errors::parse ( ex ), "\n\nObject UID:",
            uid );
@@ -94,109 +94,109 @@ tref rwdacc::set_object(tref newobj,
 
 	if (not newobj.is_null())
 	{
-		dunedaq::config::class_t ClassInfo = dbe::config::api::info::onclass::definition(
+		dunedaq::oksdbinterfaces::class_t ClassInfo = dbe::config::api::info::onclass::definition(
 		        newobj.class_name(),
 				false);
-		std::vector<dunedaq::config::attribute_t> AttList = ClassInfo.p_attributes;
-		std::vector<dunedaq::config::relationship_t> RelList = ClassInfo.p_relationships;
+		std::vector<dunedaq::oksdbinterfaces::attribute_t> AttList = ClassInfo.p_attributes;
+		std::vector<dunedaq::oksdbinterfaces::relationship_t> RelList = ClassInfo.p_relationships;
 
-		for (dunedaq::config::attribute_t const & att : AttList)
+		for (dunedaq::oksdbinterfaces::attribute_t const & att : AttList)
 		{
 			try
 			{
 			    if(att.p_is_multi_value) {
 			        switch(att.p_type) {
-			            case dunedaq::config::bool_type:
+			            case dunedaq::oksdbinterfaces::bool_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<bool>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::enum_type:
+			            case dunedaq::oksdbinterfaces::enum_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
 			                set::noactions::anenum(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::date_type:
+			            case dunedaq::oksdbinterfaces::date_type:
                         {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::adate(newobj, att, data, true);
                         }
                             break;
-			            case dunedaq::config::time_type:
+			            case dunedaq::oksdbinterfaces::time_type:
                         {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::atime(newobj, att, data, true);
                         }
                             break;
-			            case dunedaq::config::string_type:
+			            case dunedaq::oksdbinterfaces::string_type:
                         {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-			            case dunedaq::config::class_type:
+			            case dunedaq::oksdbinterfaces::class_type:
 			            {
                             auto data = dbe::convert::to<std::vector<std::string>>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::aclass(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::float_type:
+			            case dunedaq::oksdbinterfaces::float_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<float>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::double_type:
+			            case dunedaq::oksdbinterfaces::double_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<double>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::s8_type:
+			            case dunedaq::oksdbinterfaces::s8_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int8_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::s16_type:
+			            case dunedaq::oksdbinterfaces::s16_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int16_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::s32_type:
+			            case dunedaq::oksdbinterfaces::s32_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int32_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::s64_type:
+			            case dunedaq::oksdbinterfaces::s64_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<int64_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::u8_type:
+			            case dunedaq::oksdbinterfaces::u8_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int8_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::u16_type:
+			            case dunedaq::oksdbinterfaces::u16_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int16_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::u32_type:
+			            case dunedaq::oksdbinterfaces::u32_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int32_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-			            case dunedaq::config::u64_type:
+			            case dunedaq::oksdbinterfaces::u64_type:
 			            {
 			                auto data = dbe::convert::to<std::vector<u_int64_t>>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
@@ -207,97 +207,97 @@ tref rwdacc::set_object(tref newobj,
 			        }
 			    } else {
 			        switch(att.p_type) {
-			            case dunedaq::config::bool_type:
+			            case dunedaq::oksdbinterfaces::bool_type:
 			            {
 			                auto data = dbe::convert::to<bool>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
 			                set::noactions::attribute(newobj, att, data, true);
 			            }
 			                break;
-                        case dunedaq::config::enum_type:
+                        case dunedaq::oksdbinterfaces::enum_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::anenum(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::date_type:
+                        case dunedaq::oksdbinterfaces::date_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::adate(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::time_type:
+                        case dunedaq::oksdbinterfaces::time_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::atime(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::string_type:
+                        case dunedaq::oksdbinterfaces::string_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::class_type:
+                        case dunedaq::oksdbinterfaces::class_type:
                         {
                             auto data = dbe::convert::to<std::string>(dbe::convert::to<QStringList>(attreader(att.p_name)));
                             set::noactions::aclass(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::float_type:
+                        case dunedaq::oksdbinterfaces::float_type:
                         {
                             auto data = dbe::convert::to<float>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::double_type:
+                        case dunedaq::oksdbinterfaces::double_type:
                         {
                             auto data = dbe::convert::to<double>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::s8_type:
+                        case dunedaq::oksdbinterfaces::s8_type:
                         {
                             auto data = dbe::convert::to<int8_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::s16_type:
+                        case dunedaq::oksdbinterfaces::s16_type:
                         {
                             auto data = dbe::convert::to<int16_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::s32_type:
+                        case dunedaq::oksdbinterfaces::s32_type:
                         {
                             auto data = dbe::convert::to<int32_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::s64_type:
+                        case dunedaq::oksdbinterfaces::s64_type:
                         {
                             auto data = dbe::convert::to<int64_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::u8_type:
+                        case dunedaq::oksdbinterfaces::u8_type:
                         {
                             auto data = dbe::convert::to<u_int8_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::u16_type:
+                        case dunedaq::oksdbinterfaces::u16_type:
                         {
                             auto data = dbe::convert::to<u_int16_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::u32_type:
+                        case dunedaq::oksdbinterfaces::u32_type:
                         {
                             auto data = dbe::convert::to<u_int32_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
                         }
                             break;
-                        case dunedaq::config::u64_type:
+                        case dunedaq::oksdbinterfaces::u64_type:
                         {
                             auto data = dbe::convert::to<u_int64_t>(dbe::convert::to<QStringList>(attreader(att.p_name)), att.p_int_format);
                             set::noactions::attribute(newobj, att, data, true);
@@ -314,7 +314,7 @@ tref rwdacc::set_object(tref newobj,
 			}
 		}
 
-		for (dunedaq::config::relationship_t const & rel : RelList)
+		for (dunedaq::oksdbinterfaces::relationship_t const & rel : RelList)
 		{
 			try
 			{
@@ -339,7 +339,7 @@ void rwdacc::destroy_object(ConfigObject & todelete)
 	{
 		dbaccessor::dbptr()->destroy_obj(todelete);
 	}
-	catch (dunedaq::config::Exception const & ex)
+	catch (dunedaq::oksdbinterfaces::Exception const & ex)
 	{
 		WARN("Object deletion did not succeed for object" , errors::parse(ex).c_str(),
 				todelete.UID().c_str());
@@ -361,11 +361,11 @@ ConfigObject rwdacc::get_object(std::string const & classname,
 			dbaccessor::dbptr()->get(classname, objectname, object);
 			return object;
 		}
-		catch (dunedaq::config::NotFound const & e)
+		catch (dunedaq::oksdbinterfaces::NotFound const & e)
 		{
 			TLOG_DEBUG(3) <<  "Object not found" ;
 		}
-		catch (dunedaq::config::Generic const & e)
+		catch (dunedaq::oksdbinterfaces::Generic const & e)
 		{
 			ERROR("Generic exception caught", dbe::config::errors::parse(e).c_str());
 			TLOG_DEBUG(3) <<  "Generic Exception Caught" ;
@@ -392,11 +392,11 @@ std::vector<ConfigObject> rwdacc::query_class(std::string const & classname,
 		{
 			dbaccessor::dbptr()->get(classname, objects, query);
 		}
-		catch (dunedaq::config::NotFound const & e)
+		catch (dunedaq::oksdbinterfaces::NotFound const & e)
 		{
 			TLOG_DEBUG(3) <<  "Object not found" ;
 		}
-		catch (dunedaq::config::Generic const & e)
+		catch (dunedaq::oksdbinterfaces::Generic const & e)
 		{
 			ERROR("Generic exception caught", dbe::config::errors::parse(e).c_str());
 			TLOG_DEBUG(3) <<  "Generic Exception Caught" ;

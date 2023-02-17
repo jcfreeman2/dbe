@@ -7,7 +7,7 @@
 
 #include "dbe/config_object_key.hpp"
 #include "dbe/config_reference.hpp"
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 
 #include <QStringList>
 
@@ -52,7 +52,7 @@ namespace set
  * @param attribute_values is a list (can have only one) of values
  */
 void attribute ( dbe::inner::configobject::tref objectref,
-                 dunedaq::config::attribute_t const & attribute_info,
+                 dunedaq::oksdbinterfaces::attribute_t const & attribute_info,
                  QStringList const & attribute_values );
 
 /**
@@ -68,7 +68,7 @@ void attribute ( dbe::inner::configobject::tref objectref,
  * @param object_names the name of the objects to be linked
  */
 void relation ( dbe::inner::configobject::tref src,
-                dunedaq::config::relationship_t const & edge,
+                dunedaq::oksdbinterfaces::relationship_t const & edge,
                 QStringList const & targets );
 
 
@@ -88,29 +88,29 @@ namespace noactions
  */
 template<typename T>
 void attribute ( inner::configobject::tref Object,
-                 dunedaq::config::attribute_t const & AttributeData, T NewValueData,
+                 dunedaq::oksdbinterfaces::attribute_t const & AttributeData, T NewValueData,
                  bool NotEmit = false );
 
 template<typename T>
 void aclass ( inner::configobject::tref Object,
-              dunedaq::config::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
+              dunedaq::oksdbinterfaces::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
                 false );
 
 template<typename T>
 void anenum ( inner::configobject::tref Object,
-              dunedaq::config::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
+              dunedaq::oksdbinterfaces::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
                 false );
 
 
 template<typename T>
 void adate ( inner::configobject::tref Object,
-             dunedaq::config::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
+             dunedaq::oksdbinterfaces::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
                false );
 
 
 template<typename T>
 void atime ( inner::configobject::tref Object,
-             dunedaq::config::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
+             dunedaq::oksdbinterfaces::attribute_t const & AttributeData, T NewValueData, bool NotEmit =
                false );
 
 /**
@@ -125,7 +125,7 @@ void atime ( inner::configobject::tref Object,
  * @param a list of objects to link to
  */
 void relation ( dbe::inner::configobject::tref src,
-                dunedaq::config::relationship_t const & edge,
+                dunedaq::oksdbinterfaces::relationship_t const & edge,
                 std::vector<dbe::inner::configobject::tref> const & targets );
 
 /**
@@ -140,7 +140,7 @@ void relation ( dbe::inner::configobject::tref src,
  * @param object_names the name of the objects to be linked
  */
 void relation ( dbe::inner::configobject::tref object,
-                dunedaq::config::relationship_t const & arelation,
+                dunedaq::oksdbinterfaces::relationship_t const & arelation,
                 std::vector<dbe::cokey> const & keys );
 
 //------------------------------------------------------------------------------------------

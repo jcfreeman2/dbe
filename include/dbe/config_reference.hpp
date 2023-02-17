@@ -11,7 +11,7 @@
 #include "dbe/Exceptions.hpp"
 #include "dbe/config_object_key.hpp"
 
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <vector>
 #include <memory>
@@ -172,7 +172,7 @@ template<typename T> class ref_interface
 			{
 				static_cast<ConfigObject &>(*const_cast<ref_interface<T>*>(this)).get(key, value);
 			}
-			catch (dunedaq::config::Exception const & e)
+			catch (dunedaq::oksdbinterfaces::Exception const & e)
 			{
 				// TODO handle retrieval errors here
 			}

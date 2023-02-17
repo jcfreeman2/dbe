@@ -172,7 +172,7 @@ dbe::tref dbe::models::tableselection::getobject ( QModelIndex const & index ) c
   throw daq::dbe::cannot_handle_invalid_qmodelindex ( ERS_HERE );
 }
 
-dunedaq::config::class_t dbe::models::tableselection::getclass ( QModelIndex const & index )
+dunedaq::oksdbinterfaces::class_t dbe::models::tableselection::getclass ( QModelIndex const & index )
 const
 {
   if ( index.isValid() )
@@ -189,7 +189,7 @@ const
     }
   }
 
-  return dunedaq::config::class_t();
+  return dunedaq::oksdbinterfaces::class_t();
 }
 
 QAbstractItemModel * dbe::models::tableselection::ReturnSourceModel() const

@@ -9,7 +9,7 @@
 #include "dbe/config_api.hpp"
 #include "dbe/treenode.hpp"
 #include "dbe/Sorting.hpp"
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 #include <QString>
 //------------------------------------------------------------------------------------------
 //                                    DBE::CONFIG::API::INFO NAMESPACE
@@ -75,7 +75,7 @@ template std::vector<dbe::tref> onclass::objects<false> ( std::string const &, b
 //------------------------------------------------------------------------------------------
 bool onclass::derived ( std::string const & fromclass, std::string const & aclass )
 {
-  dunedaq::config::class_t aclassdef
+  dunedaq::oksdbinterfaces::class_t aclassdef
   { dbe::config::api::info::onclass::definition ( aclass, false ) };
 
   for ( std::string const & x : aclassdef.p_superclasses )
@@ -108,26 +108,26 @@ bool has_obj ( std::string const & classname, std::string const & object_uid )
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-dunedaq::config::class_t onclass::definition ( const std::string & cn, bool direct_only )
+dunedaq::oksdbinterfaces::class_t onclass::definition ( const std::string & cn, bool direct_only )
 {
   try
   {
     return dbaccessor::dbptr()->get_class_info ( cn, direct_only );
   }
-  catch ( dunedaq::config::NotFound const & Ex )
+  catch ( dunedaq::oksdbinterfaces::NotFound const & Ex )
   {
-    return dunedaq::config::class_t();
+    return dunedaq::oksdbinterfaces::class_t();
   }
 }
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-dunedaq::config::attribute_t attributematch ( QString const & AttributeName,
+dunedaq::oksdbinterfaces::attribute_t attributematch ( QString const & AttributeName,
                                           QString const & ClassName )
 {
-  const dunedaq::config::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
+  const dunedaq::oksdbinterfaces::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
                                              ClassName.toStdString(), false );
-  const std::vector<dunedaq::config::attribute_t> AttributeList = ClassInfo.p_attributes;
+  const std::vector<dunedaq::oksdbinterfaces::attribute_t> AttributeList = ClassInfo.p_attributes;
 
   for ( auto & Attribute : AttributeList )
   {
@@ -137,26 +137,26 @@ dunedaq::config::attribute_t attributematch ( QString const & AttributeName,
     }
   }
 
-  return dunedaq::config::attribute_t();
+  return dunedaq::oksdbinterfaces::attribute_t();
 }
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-bool relation::is_simple ( dunedaq::config::relationship_t const & relation )
+bool relation::is_simple ( dunedaq::oksdbinterfaces::relationship_t const & relation )
 {
-  return ( relation.p_cardinality == dunedaq::config::only_one )
-         or ( relation.p_cardinality == dunedaq::config::zero_or_one );
+  return ( relation.p_cardinality == dunedaq::oksdbinterfaces::only_one )
+         or ( relation.p_cardinality == dunedaq::oksdbinterfaces::zero_or_one );
 }
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-template<> dunedaq::config::relationship_t info::relation::match<std::string> (
+template<> dunedaq::oksdbinterfaces::relationship_t info::relation::match<std::string> (
 	std::string const & arelation,
 	std::string const & aclass )
 {
-  dunedaq::config::class_t const & aninfo_for_class =
+  dunedaq::oksdbinterfaces::class_t const & aninfo_for_class =
   		dbe::config::api::info::onclass::definition ( aclass, false );
-  std::vector<dunedaq::config::relationship_t> const relations =
+  std::vector<dunedaq::oksdbinterfaces::relationship_t> const relations =
   		aninfo_for_class.p_relationships;
 
   for ( auto & r : relations )
@@ -166,21 +166,21 @@ template<> dunedaq::config::relationship_t info::relation::match<std::string> (
       return r;
     }
   }
-  return dunedaq::config::relationship_t();
+  return dunedaq::oksdbinterfaces::relationship_t();
 }
-template dunedaq::config::relationship_t info::relation::match<std::string> (
+template dunedaq::oksdbinterfaces::relationship_t info::relation::match<std::string> (
 	std::string const & ,
 	std::string const & );
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-template<> dunedaq::config::relationship_t info::relation::match<QString>(
+template<> dunedaq::oksdbinterfaces::relationship_t info::relation::match<QString>(
 	QString const & arelation,
 	QString const & aclass )
 {
 	return match(aclass.toStdString(), arelation.toStdString());
 }
-template dunedaq::config::relationship_t info::relation::match<QString>(
+template dunedaq::oksdbinterfaces::relationship_t info::relation::match<QString>(
 	QString const & ,
 	QString const & );
 //------------------------------------------------------------------------------------------

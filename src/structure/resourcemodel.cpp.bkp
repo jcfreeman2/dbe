@@ -4,7 +4,7 @@
 //including general
 #include <iostream>
 #include <sstream>
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 #include "internal/sorting.h"
 #include <QMessageBox>
 using namespace daq::dbe;
@@ -181,7 +181,7 @@ void ResourceModel::buildSegment ( TreeItem * parent, ConfigObject obj )
       buildSegment ( item, objects.at ( i ) );
     }
   }
-  catch ( dunedaq::config::Generic & e )
+  catch ( dunedaq::oksdbinterfaces::Generic & e )
   {
     ers::info ( e );
   }
@@ -197,7 +197,7 @@ void ResourceModel::buildSegment ( TreeItem * parent, ConfigObject obj )
     }
 
   }
-  catch ( dunedaq::config::Generic & e )
+  catch ( dunedaq::oksdbinterfaces::Generic & e )
   {
     ers::info ( e );
   }
@@ -224,7 +224,7 @@ void ResourceModel::buildResource ( TreeItem * parent, ConfigObject obj )
     }
 
   }
-  catch ( dunedaq::config::Generic & e )
+  catch ( dunedaq::oksdbinterfaces::Generic & e )
   {
     //ignore as this will throw very often
   }
@@ -252,7 +252,7 @@ void ResourceModel::buildPartition ( TreeItem * parent, ConfigObject obj )
     }
 
   }
-  catch ( dunedaq::config::Generic & e )
+  catch ( dunedaq::oksdbinterfaces::Generic & e )
   {
     ers::info ( e );
   }
@@ -419,7 +419,7 @@ bool ResourceModel::setData ( const QModelIndex & index, const QVariant & value,
 
     try
     {
-      dunedaq::config::class_t myc = configurationDB->get_class_info ( ( ( (
+      dunedaq::oksdbinterfaces::class_t myc = configurationDB->get_class_info ( ( ( (
                                                                          parentItem->parent() )->data ( 0 ) ).toString() ).toStdString(), false );
       std::vector< ConfigObject > objects;
       std::cout << " class " << ( ( ( parentItem->parent() )->data (
@@ -435,7 +435,7 @@ bool ResourceModel::setData ( const QModelIndex & index, const QVariant & value,
                                 ( value.toString() ).toStdString(), objNew );
       return true;
     }
-    catch ( dunedaq::config::NotFound & e )
+    catch ( dunedaq::oksdbinterfaces::NotFound & e )
     {
       ers::error ( e );
       return false;
@@ -467,7 +467,7 @@ ConfigObject ResourceModel::getObjectFromIndex ( const QModelIndex & index ) con
   return ConfigObject();
 }
 
-dunedaq::config::class_t * ResourceModel::getClassFromIndex ( const QModelIndex & index ) const
+dunedaq::oksdbinterfaces::class_t * ResourceModel::getClassFromIndex ( const QModelIndex & index ) const
 {
   TreeItem * item = getItem ( index );
 
@@ -479,7 +479,7 @@ dunedaq::config::class_t * ResourceModel::getClassFromIndex ( const QModelIndex 
   return NULL;
 }
 
-dunedaq::config::class_t * ResourceModel::getClassInfo ( TreeItem * item ) const
+dunedaq::oksdbinterfaces::class_t * ResourceModel::getClassInfo ( TreeItem * item ) const
 {
   ClassTreeItem * ci = dynamic_cast<ClassTreeItem *> ( item );
 

@@ -6,8 +6,8 @@
 #include "dbe/cptr.hpp"
 #include "dbe/dbinfo.hpp"
 
-#include "config/Configuration.hpp"
-#include "config/Change.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
+#include "oksdbinterfaces/Change.hpp"
 
 #include <QUndoCommand>
 #include <QObject>

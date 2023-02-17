@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 // include TDAQ
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 // include Qt
 #include <QMessageBox>
 #include <QProgressDialog>
@@ -219,12 +219,12 @@ int PartitionModel::rowCount ( const QModelIndex & parent ) const
 void PartitionModel::buildRelItem ( RelationshipTreeItem * relItem,
                                     const QModelIndex & index )
 {
-  dunedaq::config::relationship_t rel = relItem->getRelationship();
+  dunedaq::oksdbinterfaces::relationship_t rel = relItem->getRelationship();
   ConfigObject parentObj = static_cast<ObjectTreeItem *> ( relItem->parent() )->getObject();
 
   //distinguish single and multivalue relationship
-  if ( rel.p_cardinality == dunedaq::config::only_one
-       || rel.p_cardinality == dunedaq::config::zero_or_one )
+  if ( rel.p_cardinality == dunedaq::oksdbinterfaces::only_one
+       || rel.p_cardinality == dunedaq::oksdbinterfaces::zero_or_one )
   {
     try
     {
@@ -281,7 +281,7 @@ void PartitionModel::buildRelItem ( RelationshipTreeItem * relItem,
  * Builds a relationship item
  * This includes the relationship and its children (object items), but no further
  */
-TreeItem * PartitionModel::buildRelationshipItem ( dunedaq::config::relationship_t rel,
+TreeItem * PartitionModel::buildRelationshipItem ( dunedaq::oksdbinterfaces::relationship_t rel,
                                                    ConfigObject & parentObj, TreeItem * parentItem )
 {
   std::string relationshipName = rel.p_name;
@@ -293,8 +293,8 @@ TreeItem * PartitionModel::buildRelationshipItem ( dunedaq::config::relationship
 
     switch ( rel.p_cardinality )
     {
-    case dunedaq::config::only_one:
-    case dunedaq::config::zero_or_one:
+    case dunedaq::oksdbinterfaces::only_one:
+    case dunedaq::oksdbinterfaces::zero_or_one:
     {
       ConfigObject child;
       parentObj.get ( rel.p_name, child );
@@ -316,7 +316,7 @@ TreeItem * PartitionModel::buildRelationshipItem ( dunedaq::config::relationship
       }
     }
   }
-  catch ( dunedaq::config::NotFound & e )
+  catch ( dunedaq::oksdbinterfaces::NotFound & e )
   {}
   catch ( ers::Issue & e )
   {}
@@ -344,11 +344,11 @@ ObjectTreeItem * PartitionModel::buildObjectItem ( ConfigObject & obj,
 
   try
   {
-    dunedaq::config::class_t objClass = ConfigWrapper::instance().GetClassInfo ( cName, false );
+    dunedaq::oksdbinterfaces::class_t objClass = ConfigWrapper::instance().GetClassInfo ( cName, false );
     objItem = new ObjectTreeItem ( obj, parentItem );
     objItem->setFetched ( true );
     //loop over all relationships
-    const std::vector< dunedaq::config::relationship_t> objRelationships = objClass.p_relationships;
+    const std::vector< dunedaq::oksdbinterfaces::relationship_t> objRelationships = objClass.p_relationships;
 
     for ( unsigned int j = 0; j < objRelationships.size(); ++j )
     {
@@ -361,7 +361,7 @@ ObjectTreeItem * PartitionModel::buildObjectItem ( ConfigObject & obj,
       objItem->appendChild ( relItem );
     }//end of relationships loop
   }
-  catch ( dunedaq::config::NotFound & e )
+  catch ( dunedaq::oksdbinterfaces::NotFound & e )
   {
     ers::error ( e );
     return NULL;
@@ -535,7 +535,7 @@ bool PartitionModel::setData ( const QModelIndex & index, const QVariant & value
 
     try
     {
-      dunedaq::config::class_t myc = configurationDB->get_class_info ( ( ( (
+      dunedaq::oksdbinterfaces::class_t myc = configurationDB->get_class_info ( ( ( (
                                                                          parentItem->parent() )->data ( 0 ) ).toString() ).toStdString(), false );
       std::vector< ConfigObject > objects;
       std::cout << " class " << ( ( ( parentItem->parent() )->data (
@@ -551,7 +551,7 @@ bool PartitionModel::setData ( const QModelIndex & index, const QVariant & value
                                 ( value.toString() ).toStdString(), objNew );
       return true;
     }
-    catch ( dunedaq::config::NotFound & e )
+    catch ( dunedaq::oksdbinterfaces::NotFound & e )
     {
       ers::error ( e );
       return false;
@@ -585,7 +585,7 @@ ConfigObject PartitionModel::getObjectFromIndex ( const QModelIndex & index ) co
 }
 
 
-dunedaq::config::class_t * PartitionModel::getClassFromIndex ( const QModelIndex & index )
+dunedaq::oksdbinterfaces::class_t * PartitionModel::getClassFromIndex ( const QModelIndex & index )
 const
 {
   //(void) index; /* avoid warning about unused parameter */
@@ -602,7 +602,7 @@ const
   return NULL;
 }
 
-dunedaq::config::class_t * PartitionModel::getClassInfo ( TreeItem * item ) const
+dunedaq::oksdbinterfaces::class_t * PartitionModel::getClassInfo ( TreeItem * item ) const
 {
   TLOG_DEBUG(2) <<  "PartitionModel::getClassInfo()"  ;
 

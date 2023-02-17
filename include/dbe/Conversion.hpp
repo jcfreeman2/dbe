@@ -3,7 +3,7 @@
 
 #include "dbe/Exceptions.hpp"
 
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 #include "logging/Logging.hpp"
 
 #include <string>
@@ -47,14 +47,14 @@ template<> inline std::string valtostr<bool> ( bool const & s )
 /**
  * Convert a value from a number type to string for different the output formats
  * @param value to conert
- * @param format is the format type , e.g. dunedaq::config::int_format_t::dec_int_format for decimal
+ * @param format is the format type , e.g. dunedaq::oksdbinterfaces::int_format_t::dec_int_format for decimal
  * @return a string representation of the numeric input
  */
 template<typename T, typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
 inline std::string valtostr ( T const & value,
-                              dunedaq::config::int_format_t const format )
+                              dunedaq::oksdbinterfaces::int_format_t const format )
 {
-  if ( format == dunedaq::config::dec_int_format )
+  if ( format == dunedaq::oksdbinterfaces::dec_int_format )
   {
     return std::to_string ( value );
   }
@@ -62,15 +62,15 @@ inline std::string valtostr ( T const & value,
   {
     std::ostringstream ss;
 
-    if ( format == dunedaq::config::hex_int_format )
+    if ( format == dunedaq::oksdbinterfaces::hex_int_format )
     {
       ss << std::hex << std::showbase << +((typename std::make_unsigned<T>::type) value);
     }
-    else if ( format == dunedaq::config::oct_int_format )
+    else if ( format == dunedaq::oksdbinterfaces::oct_int_format )
     {
       ss << std::oct << std::showbase << +((typename std::make_unsigned<T>::type) value);
     }
-    else if ( format == dunedaq::config::na_int_format )
+    else if ( format == dunedaq::oksdbinterfaces::na_int_format )
     {
       ss << value;
       TLOG_DEBUG(1) <<  " This conversion should not happen for value " << ss.str()  ;
@@ -82,7 +82,7 @@ inline std::string valtostr ( T const & value,
 
 // Specialization for boolean (the std::make_unsigned is not defined for booleans)
 template<> inline std::string valtostr<bool> ( bool const & value,
-                                               dunedaq::config::int_format_t const format )
+                                               dunedaq::oksdbinterfaces::int_format_t const format )
 {
   Q_UNUSED ( format );
   return valtostr<bool>(value);
@@ -91,7 +91,7 @@ template<> inline std::string valtostr<bool> ( bool const & value,
 // This is for floating point types
 template<typename T, typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
 inline std::string valtostr ( T const & value,
-                              dunedaq::config::int_format_t const format )
+                              dunedaq::oksdbinterfaces::int_format_t const format )
 {
     Q_UNUSED ( format );
     return std::to_string(value);
@@ -99,7 +99,7 @@ inline std::string valtostr ( T const & value,
 
 // This is for simple strings
 inline std::string valtostr ( std::string const & value,
-                              dunedaq::config::int_format_t const format )
+                              dunedaq::oksdbinterfaces::int_format_t const format )
 {
   Q_UNUSED ( format );
   return value;
@@ -117,7 +117,7 @@ T to ( QStringList const & DataList )
 }
 
 template<typename T>
-T to ( QStringList const & DataList, dunedaq::config::int_format_t Format )
+T to ( QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format )
 {
   Q_UNUSED ( Format )
   Q_UNUSED ( DataList )
@@ -138,56 +138,56 @@ T to ( std::vector<std::string> const & x )
 
 template<> QStringList to ( std::vector<std::string> const & DataList );
 
-template<> bool to<bool> ( QStringList const & DataList, dunedaq::config::int_format_t Format );
+template<> bool to<bool> ( QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<bool> to<std::vector<bool>> ( QStringList const & DataList,
-                                                     dunedaq::config::int_format_t Format );
+                                                     dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::string to<std::string> ( QStringList const & DataList );
 template<> std::vector<std::string> to<std::vector<std::string>> (
                                                                 QStringList const & DataList );
 template<> std::string to<std::string> ( QStringList const & DataList,
-                                         dunedaq::config::int_format_t Format );
+                                         dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<std::string> to<std::vector<std::string>> (
-                                                                QStringList const & DataList, dunedaq::config::int_format_t Format );
+                                                                QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format );
 template<> u_int8_t to<u_int8_t> ( QStringList const & DataList,
-                                   dunedaq::config::int_format_t Format );
+                                   dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<u_int8_t> to<std::vector<u_int8_t>> (
-                                                          QStringList const & DataList, dunedaq::config::int_format_t Format );
+                                                          QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format );
 template<> int8_t to<int8_t> ( QStringList const & DataList,
-                               dunedaq::config::int_format_t Format );
+                               dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<int8_t> to<std::vector<int8_t>> ( QStringList const & DataList,
-                                                         dunedaq::config::int_format_t Format );
+                                                         dunedaq::oksdbinterfaces::int_format_t Format );
 template<> u_int16_t to<u_int16_t> ( QStringList const & DataList,
-                                     dunedaq::config::int_format_t Format );
+                                     dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<u_int16_t> to<std::vector<u_int16_t>> (
-                                                            QStringList const & DataList, dunedaq::config::int_format_t Format );
+                                                            QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format );
 template<> int16_t to<int16_t> ( QStringList const & DataList,
-                                 dunedaq::config::int_format_t Format );
+                                 dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<int16_t> to<std::vector<int16_t>> ( QStringList const & DataList,
-                                                           dunedaq::config::int_format_t Format );
+                                                           dunedaq::oksdbinterfaces::int_format_t Format );
 template<> u_int32_t to<u_int32_t> ( QStringList const & DataList,
-                                     dunedaq::config::int_format_t Format );
+                                     dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<u_int32_t> to<std::vector<u_int32_t>> (
-                                                            QStringList const & DataList, dunedaq::config::int_format_t Format );
+                                                            QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format );
 template<> int32_t to<int32_t> ( QStringList const & DataList,
-                                 dunedaq::config::int_format_t Format );
+                                 dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<int32_t> to<std::vector<int32_t>> ( QStringList const & DataList,
-                                                           dunedaq::config::int_format_t Format );
+                                                           dunedaq::oksdbinterfaces::int_format_t Format );
 template<> u_int64_t to<u_int64_t> ( QStringList const & DataList,
-                                     dunedaq::config::int_format_t Format );
+                                     dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<u_int64_t> to<std::vector<u_int64_t>> (
-                                                            QStringList const & DataList, dunedaq::config::int_format_t Format );
+                                                            QStringList const & DataList, dunedaq::oksdbinterfaces::int_format_t Format );
 template<> int64_t to<int64_t> ( QStringList const & DataList,
-                                 dunedaq::config::int_format_t Format );
+                                 dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<int64_t> to<std::vector<int64_t>> ( QStringList const & DataList,
-                                                           dunedaq::config::int_format_t Format );
+                                                           dunedaq::oksdbinterfaces::int_format_t Format );
 template<> float to<float> ( QStringList const & DataList,
-                             dunedaq::config::int_format_t Format );
+                             dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<float> to<std::vector<float>> ( QStringList const & DataList,
-                                                       dunedaq::config::int_format_t Format );
+                                                       dunedaq::oksdbinterfaces::int_format_t Format );
 template<> double to<double> ( QStringList const & DataList,
-                               dunedaq::config::int_format_t Format );
+                               dunedaq::oksdbinterfaces::int_format_t Format );
 template<> std::vector<double> to<std::vector<double>> ( QStringList const & DataList,
-                                                         dunedaq::config::int_format_t Format );
+                                                         dunedaq::oksdbinterfaces::int_format_t Format );
 //------------------------------------------------------------------------------------------
 
 }

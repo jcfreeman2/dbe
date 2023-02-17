@@ -4,7 +4,7 @@
 /// Including ers headers
 #include "ers/ers.hpp"
 
-#include "config/Errors.hpp"
+#include "oksdbinterfaces/Errors.hpp"
 
 #include <string>
 

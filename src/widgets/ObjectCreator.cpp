@@ -37,13 +37,13 @@ dbe::ObjectCreator::~ObjectCreator() = default;
 /*
  * Create an object in a class
  */
-dbe::ObjectCreator::ObjectCreator ( dunedaq::config::class_t const & cinfo, QWidget * parent )
+dbe::ObjectCreator::ObjectCreator ( dunedaq::oksdbinterfaces::class_t const & cinfo, QWidget * parent )
   :
   QWidget ( parent ),
   ui ( new Ui::ObjectCreator ),
   this_object_class ( cinfo ),
   this_target_object ( nullptr ),
-  this_relation ( dunedaq::config::relationship_t() ),
+  this_relation ( dunedaq::oksdbinterfaces::relationship_t() ),
   this_files ( nullptr ),
   this_status_bar ( nullptr ),
   this_state ( 0 ),
@@ -98,7 +98,7 @@ dbe::ObjectCreator::ObjectCreator ( dunedaq::config::class_t const & cinfo, QWid
  * Clone an object in a class , uid will be required to be set explicitly
  */
 dbe::ObjectCreator::ObjectCreator ( tref const & clonefrom,
-                                    dunedaq::config::relationship_t const & the_relation,
+                                    dunedaq::oksdbinterfaces::relationship_t const & the_relation,
                                     QWidget * parent )
   :
   ObjectCreator (

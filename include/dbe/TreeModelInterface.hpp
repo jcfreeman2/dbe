@@ -4,9 +4,9 @@
 #include "dbe/treenode.hpp"
 #include "dbe/Exceptions.hpp"
 
-#include "config/Configuration.hpp"
-#include "config/ConfigObject.hpp"
-#include "config/Schema.hpp"
+#include "oksdbinterfaces/Configuration.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
+#include "oksdbinterfaces/Schema.hpp"
 
 #include <QModelIndex>
 #include <vector>

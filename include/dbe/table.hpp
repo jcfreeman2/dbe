@@ -5,7 +5,7 @@
 #include "dbe/TableNode.hpp"
 #include "dbe/model_common_interface.hpp"
 
-#include "config/ConfigObject.hpp"
+#include "oksdbinterfaces/ConfigObject.hpp"
 
 #include <QAbstractTableModel>
 
@@ -69,7 +69,7 @@ public :
 private:
   bool enabled;
   QString this_class_name;
-  dunedaq::config::class_t class_type_info;
+  dunedaq::oksdbinterfaces::class_t class_type_info;
 
   QStringList this_headers;
   QList<dref> this_objects;
@@ -84,9 +84,9 @@ private:
   /**
    * Set headers as designate by the given class
    *
-   * @param the dunedaq::config::class_t information for the class
+   * @param the dunedaq::oksdbinterfaces::class_t information for the class
    */
-  void setheader ( dunedaq::config::class_t const & );
+  void setheader ( dunedaq::oksdbinterfaces::class_t const & );
 
   QList<type_datum *> createrow ( treenode const * );
 
