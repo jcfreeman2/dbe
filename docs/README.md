@@ -4,11 +4,11 @@
 
 The DBE package provides a GUI interface to the OKS suite, allowing you to edit both schema files and data files. Note that these instructions will assume you have a basic familiarity with OKS as [described here](https://github.com/DUNE-DAQ/dal#readme). They also assume that you [know how to download and build repositories](https://dune-daq-sw.readthedocs.io/en/latest/packages/daq-buildtools/) and are able to display windows from your command line (e.g. `xclock &` or `emacs &` pop up windows for you). 
 
-While DBE was [originally written as part of the ATLAS TDAQ effort](https://gitlab.cern.ch/atlas-tdaq-software/dbe.git), it has been modified to build within the DUNE DAQ framework. To get started working with DBE, you'll want to set up a work area based on release `NT23-01-30`, which among other things provides the core packages of the OKS suite and the Qt GUI package DBE depends on. However, you'll also need to download and build the `dbe` repository. It is recommended that you build with the `--unittest` option and check that the `dbe` unit tests all pass. 
+While DBE was [originally written as part of the ATLAS TDAQ effort](https://gitlab.cern.ch/atlas-tdaq-software/dbe.git), it has been modified to build within the DUNE DAQ framework. To get started working with DBE, you'll want to set up a work area based on release `NT23-02-18`, which among other things provides the core packages of the OKS suite, DBE, and the Qt GUI package DBE depends on. 
 
 ## Walkthrough, Part 1: Editing Objects in a Configuration
 
-Once you've built these two repos, let's get started seeing what functionality DBE provides. Assuming that you've run `source env.sh` since you downloaded the repos, you can do the following:
+Let's get started seeing what functionality DBE provides. You can do the following:
 ```
 tutorial.py   # Generates a data file, tutorial.data.xml, which we can use for educational purposes 
 dbe_main -f ./tutorial.data.xml
@@ -46,7 +46,7 @@ At this point, let's save our work. Back in the main window of the database edit
 
 First things first: since the schema file off of which `tutorial.data.xml` is based in `cvmfs`, we can't edit it directly. So instead we'll copy it over:
 ```
-cp /cvmfs/dunedaq-development.opensciencegrid.org/nightly/NT23-01-30/spack-0.18.1-gcc-12.1.0/spack-0.18.1/opt/spack/gcc-12.1.0/dal-NT23-01-30-wxzoxoptfol5e7dhsf6kjshviblacdvd/share/schema/dal/tutorial.schema.xml .
+cp $DAL_SHARE/schema/dal/tutorial.schema.xml .
 ```
 and modify `tutorial.data.xml` so it points at the copied schema file, not the original:
 ```
