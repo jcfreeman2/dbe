@@ -1,5 +1,7 @@
 #include "dbe/SchemaCustomRelationshipModel.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::CustomRelationshipModel::CustomRelationshipModel ( OksClass * ClassInfo,
                                                          QStringList Headers, bool Derived )
   : CustomModelInterface ( Headers ),

@@ -19,10 +19,10 @@ class SchemaAttributeEditor: public QWidget
 public:
   ~SchemaAttributeEditor();
 
-  explicit SchemaAttributeEditor ( OksClass * ClassInfo, OksAttribute * AttributeData,
+  explicit SchemaAttributeEditor ( dunedaq::oks::OksClass * ClassInfo, dunedaq::oks::OksAttribute * AttributeData,
                                    QWidget * parent = nullptr );
 
-  explicit SchemaAttributeEditor ( OksClass * ClassInfo, QWidget * parent = nullptr );
+  explicit SchemaAttributeEditor ( dunedaq::oks::OksClass * ClassInfo, QWidget * parent = nullptr );
 
   void InitialSettings();
   void SetController();
@@ -32,8 +32,8 @@ protected:
   void FillInfo();
 private:
   std::unique_ptr<dbse::Ui::SchemaAttributeEditor> ui;
-  OksClass * SchemaClass;
-  OksAttribute * SchemaAttribute;
+  dunedaq::oks::OksClass * SchemaClass;
+  dunedaq::oks::OksAttribute * SchemaAttribute;
   bool UsedNew;
 private slots:
   void ProxySlot();

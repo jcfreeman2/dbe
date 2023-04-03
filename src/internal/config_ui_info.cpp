@@ -19,6 +19,8 @@
 #include <map>
 #include <vector>
 
+using namespace dunedaq::oksdbinterfaces;
+
 dbe::ui::config::info::info ( std::vector<std::string> const & full_file_name )
   : this_full_filenames ( full_file_name )
 {

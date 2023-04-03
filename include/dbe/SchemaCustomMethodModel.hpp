@@ -15,11 +15,11 @@ namespace dbse
 class CustomMethodModel: public CustomModelInterface
 {
 public:
-  CustomMethodModel ( OksClass * ClassInfo, QStringList Headers, bool Derived = false );
+  CustomMethodModel ( dunedaq::oks::OksClass * ClassInfo, QStringList Headers, bool Derived = false );
   ~CustomMethodModel();
   void setupModel();
 private:
-  OksClass * SchemaClass;
+  dunedaq::oks::OksClass * SchemaClass;
   bool SchemaDerived;
 };
 

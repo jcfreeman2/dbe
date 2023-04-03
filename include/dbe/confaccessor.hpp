@@ -194,7 +194,7 @@ public:
   static QString dbfullname();
   static QString db_implementation_name();
 
-  static void CallbackFunction ( const std::vector<ConfigurationChange *> & changes,
+  static void CallbackFunction ( const std::vector<dunedaq::oksdbinterfaces::ConfigurationChange *> & changes,
                                  void * parameter );
 
   static void unsubscribe();
@@ -234,7 +234,7 @@ private:
   QString this_dblocation;
   QString this_resource_location;
 
-  Configuration::CallbackId CallId;
+  dunedaq::oksdbinterfaces::Configuration::CallbackId CallId;
 
   std::shared_ptr<t_internal_changes_stack> internal_change_stack;
   t_external_changes_stack external_change_stack;
@@ -263,7 +263,7 @@ private:
    */
   template<dbinfo N> void set_dbinfo ( QString const & p );
 
-  void docallback ( std::vector<ConfigurationChange *> const & changes, void * parameter );
+  void docallback ( std::vector<dunedaq::oksdbinterfaces::ConfigurationChange *> const & changes, void * parameter );
 
   confaccessor();
   confaccessor ( confaccessor const & ) = delete;

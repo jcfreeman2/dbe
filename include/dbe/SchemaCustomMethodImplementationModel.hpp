@@ -12,11 +12,11 @@ namespace dbse
 class CustomMethodImplementationModel: public CustomModelInterface
 {
 public:
-  CustomMethodImplementationModel ( OksMethod * Method, QStringList Headers );
+  CustomMethodImplementationModel ( dunedaq::oks::OksMethod * Method, QStringList Headers );
   ~CustomMethodImplementationModel();
   void setupModel();
 private:
-  OksMethod * SchemaMethod;
+  dunedaq::oks::OksMethod * SchemaMethod;
 };
 
 }  // namespace dbse

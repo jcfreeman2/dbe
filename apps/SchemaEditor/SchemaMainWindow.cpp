@@ -17,6 +17,9 @@
 #include <QPrinter>
 #include <QPrintDialog>
 
+using namespace dunedaq;
+using namespace dunedaq::oks;
+
 dbse::SchemaMainWindow::SchemaMainWindow ( QWidget * parent )
   : QMainWindow ( parent ),
     ui ( new Ui::SchemaMainWindow ),

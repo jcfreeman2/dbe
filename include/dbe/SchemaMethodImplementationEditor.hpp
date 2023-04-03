@@ -20,13 +20,13 @@ class SchemaMethodImplementationEditor: public QWidget
 public:
   ~SchemaMethodImplementationEditor();
 
-  explicit SchemaMethodImplementationEditor ( OksClass * Class,
-                                              OksMethod * Method,
-                                              OksMethodImplementation * Implementation,
+  explicit SchemaMethodImplementationEditor ( dunedaq::oks::OksClass * Class,
+                                              dunedaq::oks::OksMethod * Method,
+                                              dunedaq::oks::OksMethodImplementation * Implementation,
                                               QWidget * parent = nullptr );
 
-  explicit SchemaMethodImplementationEditor ( OksClass * Class,
-                                              OksMethod * Method,
+  explicit SchemaMethodImplementationEditor ( dunedaq::oks::OksClass * Class,
+                                              dunedaq::oks::OksMethod * Method,
                                               QWidget * parent = nullptr );
 
   void SetController();
@@ -37,9 +37,9 @@ protected:
   void FillInfo();
 private:
   std::unique_ptr<dbse::Ui::SchemaMethodImplementationEditor> ui;
-  OksClass * SchemaClass;
-  OksMethod * SchemaMethod;
-  OksMethodImplementation * SchemaImplementation;
+  dunedaq::oks::OksClass * SchemaClass;
+  dunedaq::oks::OksMethod * SchemaMethod;
+  dunedaq::oks::OksMethodImplementation * SchemaImplementation;
   bool UsedNew;
 private slots:
   void ProxySlot();

@@ -7,6 +7,8 @@
 /// Including auto-generated ui
 #include "ui_SchemaMethodEditor.h"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaMethodEditor::~SchemaMethodEditor() = default;
 
 dbse::SchemaMethodEditor::SchemaMethodEditor ( OksClass * ClassInfo, OksMethod * Method,

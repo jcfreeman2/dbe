@@ -17,7 +17,7 @@ class SchemaGraphicObject: public QGraphicsObject
 public:
   explicit SchemaGraphicObject ( QString & ClassName, QGraphicsObject * parent = nullptr );
   ~SchemaGraphicObject();
-  OksClass * GetClass() const;
+  dunedaq::oks::OksClass * GetClass() const;
   QString GetClassName() const;
   void GetInfo();
   /// Graphic API
@@ -33,7 +33,7 @@ public:
 protected:
   QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
 private:
-  OksClass * ClassInfo;
+  dunedaq::oks::OksClass * ClassInfo;
   QString ClassObjectName;
   QStringList ClassAttributes;
   QStringList ClassMethods;

@@ -43,8 +43,8 @@ public:
 
 private:
   void parse();
-  void parse_graphical ( std::shared_ptr<Configuration> , ConfigObject & );
-  void parse_window ( std::shared_ptr<Configuration> , ConfigObject & );
+  void parse_graphical ( std::shared_ptr<dunedaq::oksdbinterfaces::Configuration> , dunedaq::oksdbinterfaces::ConfigObject & );
+  void parse_window ( std::shared_ptr<dunedaq::oksdbinterfaces::Configuration> , dunedaq::oksdbinterfaces::ConfigObject & );
 
   std::map<std::string, Window> this_windows;
   std::map<std::string, GraphicalClass> this_graphical;

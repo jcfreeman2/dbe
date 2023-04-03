@@ -13,11 +13,11 @@ namespace dbse
 class CustomSuperClassModel: public CustomModelInterface
 {
 public:
-  CustomSuperClassModel ( OksClass * ClassInfo, QStringList Headers, bool Derived = false );
+  CustomSuperClassModel ( dunedaq::oks::OksClass * ClassInfo, QStringList Headers, bool Derived = false );
   ~CustomSuperClassModel();
   void setupModel();
 private:
-  OksClass * SchemaClass;
+  dunedaq::oks::OksClass * SchemaClass;
   bool SchemaDerived;
 };
 

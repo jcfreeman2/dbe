@@ -4,6 +4,8 @@
 /// Including auto-generated ui
 #include "ui_SchemaAttributeEditor.h"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaAttributeEditor::SchemaAttributeEditor ( OksClass * ClassInfo,
                                                      OksAttribute * AttributeData,
                                                      QWidget * parent )

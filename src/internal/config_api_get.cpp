@@ -11,6 +11,9 @@
 #include "dbe/messenger.hpp"
 #include "dbe/config_api.hpp"
 
+using namespace dunedaq::oksdbinterfaces;
+
+
 //------------------------------------------------------------------------------------------
 // NAMESPACE DBE::CONFIG::API::GET
 //------------------------------------------------------------------------------------------

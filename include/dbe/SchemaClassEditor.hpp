@@ -28,7 +28,7 @@ class SchemaClassEditor: public QWidget
 public:
   ~SchemaClassEditor();
 
-  explicit SchemaClassEditor ( OksClass * ClassInfo, QWidget * parent = nullptr );
+  explicit SchemaClassEditor ( dunedaq::oks::OksClass * ClassInfo, QWidget * parent = nullptr );
 
   static void createNewClass ();
 private:
@@ -43,7 +43,7 @@ private:
 
   std::unique_ptr<dbse::Ui::SchemaClassEditor> ui;
 
-  OksClass * SchemaClass;
+  dunedaq::oks::OksClass * SchemaClass;
   CustomMethodModel * MethodModel;
   CustomAttributeModel * AttributeModel;
   CustomRelationshipModel * RelationshipModel;

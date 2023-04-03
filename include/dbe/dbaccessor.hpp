@@ -43,8 +43,8 @@ class dbholder
   typedef dbe::types::common::type_mutex t_mutex;
   typedef dbe::types::common::type_lock t_lock;
 
-  static Configuration * database;
-  static cptr<Configuration> database_concurrent_ptr;
+  static dunedaq::oksdbinterfaces::Configuration * database;
+  static cptr<dunedaq::oksdbinterfaces::Configuration> database_concurrent_ptr;
   static dbe::types::common::type_mutex database_lock;
 
   friend class confaccessor;
@@ -60,7 +60,7 @@ class dbaccessor
    * Get a thread safe pointer to the configuration database
    * @return
    */
-  static cptr<Configuration> dbptr();
+  static cptr<dunedaq::oksdbinterfaces::Configuration> dbptr();
 
   static bool is_loaded();
 

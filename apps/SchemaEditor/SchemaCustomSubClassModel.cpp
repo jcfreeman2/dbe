@@ -1,5 +1,7 @@
 #include "dbe/SchemaCustomSubClassModel.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::CustomSubClassModel::CustomSubClassModel ( OksClass * ClassInfo,
                                                  QStringList Headers )
   : CustomModelInterface ( Headers ),

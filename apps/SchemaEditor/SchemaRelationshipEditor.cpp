@@ -4,6 +4,8 @@
 #include "dbe/SchemaKernelWrapper.hpp"
 #include "ui_SchemaRelationshipEditor.h"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaRelationshipEditor::~SchemaRelationshipEditor() = default;
 
 dbse::SchemaRelationshipEditor::SchemaRelationshipEditor ( OksClass * Class,

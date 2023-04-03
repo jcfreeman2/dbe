@@ -7,6 +7,8 @@
 
 #include "dbe/dbaccessor.hpp"
 
+using namespace dunedaq::oksdbinterfaces;
+
 //------------------------------------------------------------------------------------------
 dbe::dbholder::t_mutex dbe::dbholder::database_lock;
 Configuration * dbe::dbholder::database = nullptr;

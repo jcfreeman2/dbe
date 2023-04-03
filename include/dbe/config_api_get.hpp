@@ -81,7 +81,7 @@ class attribute
    * @return a string representation of values
    */
   template<typename T> inline static std::vector<std::string> read (
-    ConfigObject &, dunedaq::oksdbinterfaces::attribute_t const & );
+    dunedaq::oksdbinterfaces::ConfigObject &, dunedaq::oksdbinterfaces::attribute_t const & );
 
   /**
    * Read values associated with an attribute of a given object
@@ -125,7 +125,7 @@ class direct
   friend class dbe::ui::config::info;
   friend class dbe::config::api::get::attribute;
 
-  template<typename T> static T attribute ( ConfigObject &, dunedaq::oksdbinterfaces::attribute_t const & );
+  template<typename T> static T attribute ( dunedaq::oksdbinterfaces::ConfigObject &, dunedaq::oksdbinterfaces::attribute_t const & );
 };
 
 }
