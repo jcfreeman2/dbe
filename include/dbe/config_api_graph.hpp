@@ -160,7 +160,7 @@ class direct
    * @return the value of the relation converted to the specified type
    */
   template<typename T> static T linked (
-    ConfigObject & item, dunedaq::oksdbinterfaces::relationship_t const & relation );
+    dunedaq::oksdbinterfaces::ConfigObject & item, dunedaq::oksdbinterfaces::relationship_t const & relation );
 
   /**
    * Get object reference/s through a specified relation, acting directly on a ConfigObject
@@ -174,7 +174,7 @@ class direct
    * @return the value of the relation converted to the specified type
    */
   template<typename T> static T linked (
-    ConfigObject & item, dunedaq::oksdbinterfaces::attribute_t const & relation );
+    dunedaq::oksdbinterfaces::ConfigObject & item, dunedaq::oksdbinterfaces::attribute_t const & relation );
 };
 //------------------------------------------------------------------------------------------
 

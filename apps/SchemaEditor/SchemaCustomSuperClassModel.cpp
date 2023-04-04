@@ -1,5 +1,7 @@
 #include "dbe/SchemaCustomSuperClassModel.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::CustomSuperClassModel::CustomSuperClassModel ( OksClass * ClassInfo,
                                                      QStringList Headers, bool Derived )
   : CustomModelInterface ( Headers ),

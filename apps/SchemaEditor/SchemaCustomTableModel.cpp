@@ -3,6 +3,8 @@
 #include <QIODevice>
 #include <QDataStream>
 
+using namespace dunedaq::oks;
+
 dbse::CustomTableModel::CustomTableModel ( QStringList Headers, QObject * parent )
   : QAbstractTableModel ( parent ),
     HeaderList ( Headers )

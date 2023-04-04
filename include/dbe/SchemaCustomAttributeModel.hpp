@@ -12,11 +12,11 @@ namespace dbse
 class CustomAttributeModel: public CustomModelInterface
 {
 public:
-  CustomAttributeModel ( OksClass * ClassInfo, QStringList Headers, bool Derived = false );
+  CustomAttributeModel ( dunedaq::oks::OksClass * ClassInfo, QStringList Headers, bool Derived = false );
   ~CustomAttributeModel();
   void setupModel();
 private:
-  OksClass * SchemaClass;
+  dunedaq::oks::OksClass * SchemaClass;
   bool SchemaDerived;
 };
 }  // namespace dbse

@@ -1,5 +1,7 @@
 #include "dbe/SchemaCustomAttributeModel.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::CustomAttributeModel::CustomAttributeModel ( OksClass * ClassInfo,
                                                    QStringList Headers,
                                                    bool Derived )

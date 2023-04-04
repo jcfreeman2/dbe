@@ -11,6 +11,8 @@
 #include "dbe/Exceptions.hpp"
 #include "dbe/messenger.hpp"
 
+using namespace dunedaq::oksdbinterfaces;
+
 dbe::CreateDatabaseWidget::CreateDatabaseWidget ( QWidget * parent, bool Include,
                                                   const QString & CreateDir )
   : QWidget ( parent ),

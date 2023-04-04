@@ -13,11 +13,11 @@ namespace dbse
 class CustomRelationshipModel: public CustomModelInterface
 {
 public:
-  CustomRelationshipModel ( OksClass * ClassInfo, QStringList Headers, bool Derived = false );
+  CustomRelationshipModel ( dunedaq::oks::OksClass * ClassInfo, QStringList Headers, bool Derived = false );
   ~CustomRelationshipModel();
   void setupModel();
 private:
-  OksClass * SchemaClass;
+  dunedaq::oks::OksClass * SchemaClass;
   bool SchemaDerived;
 };
 

@@ -23,6 +23,8 @@
 #include <vector>
 #include <stack>
 
+using namespace dunedaq::oksdbinterfaces;
+
 char const * const dbe_lib_internal_version = dbe_compiled_version;
 
 //------------------------------------------------------------------------------------------

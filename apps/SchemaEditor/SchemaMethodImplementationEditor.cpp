@@ -4,6 +4,8 @@
 #include "dbe/SchemaKernelWrapper.hpp"
 #include "ui_SchemaMethodImplementationEditor.h"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaMethodImplementationEditor::~SchemaMethodImplementationEditor() = default;
 
 dbse::SchemaMethodImplementationEditor::SchemaMethodImplementationEditor (

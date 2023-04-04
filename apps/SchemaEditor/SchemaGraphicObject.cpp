@@ -11,6 +11,8 @@
 #include "dbe/SchemaGraphicsScene.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
                                                  QGraphicsObject * parent )
   : QGraphicsObject ( parent ),

@@ -22,9 +22,9 @@ class SchemaMethodEditor: public QWidget
   Q_OBJECT
 public:
   ~SchemaMethodEditor();
-  explicit SchemaMethodEditor ( OksClass * ClassInfo, OksMethod * Method, QWidget * parent =
+  explicit SchemaMethodEditor ( dunedaq::oks::OksClass * ClassInfo, dunedaq::oks::OksMethod * Method, QWidget * parent =
                                   nullptr );
-  explicit SchemaMethodEditor ( OksClass * ClassInfo, QWidget * parent = nullptr );
+  explicit SchemaMethodEditor ( dunedaq::oks::OksClass * ClassInfo, QWidget * parent = nullptr );
 
   void SetController();
   void InitialSettings();
@@ -35,8 +35,8 @@ protected:
   void FillInfo();
 private:
   std::unique_ptr<dbse::Ui::SchemaMethodEditor> ui;
-  OksClass * SchemaClass;
-  OksMethod * SchemaMethod;
+  dunedaq::oks::OksClass * SchemaClass;
+  dunedaq::oks::OksMethod * SchemaMethod;
   CustomMethodImplementationModel * ImplementationModel;
   bool UsedNew;
   bool ShouldOpenMethodImplementationEditor ( QString Name );

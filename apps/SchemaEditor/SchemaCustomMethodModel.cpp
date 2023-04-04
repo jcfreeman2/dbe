@@ -1,5 +1,7 @@
 #include "dbe/SchemaCustomMethodModel.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::CustomMethodModel::CustomMethodModel ( OksClass * ClassInfo, QStringList Headers,
                                              bool Derived )
   : CustomModelInterface ( Headers ),

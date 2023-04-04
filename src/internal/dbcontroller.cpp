@@ -12,6 +12,8 @@
 
 #include <utility>
 
+using namespace dunedaq::oksdbinterfaces;
+
 namespace dbe
 {
 namespace inner

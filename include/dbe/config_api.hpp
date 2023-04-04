@@ -31,7 +31,7 @@ namespace info
 
 template<typename T> inline T onclass::allnames()
 {
-  typedef ::oksdbinterfaces::fmap<::oksdbinterfaces::fset> type_cmap;
+  typedef dunedaq::oksdbinterfaces::fmap<dunedaq::oksdbinterfaces::fset> type_cmap;
   type_cmap const & baseclasses = dbaccessor::dbptr()->superclasses();
 
   T config_class_list;

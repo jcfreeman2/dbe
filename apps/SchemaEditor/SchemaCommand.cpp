@@ -4,6 +4,9 @@
 #include "dbe/SchemaCommand.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 
+using namespace dunedaq::oks;
+
+
 namespace dbse
 {
 

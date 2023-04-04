@@ -18,12 +18,12 @@ class SchemaRelationshipEditor: public QWidget
 public:
   ~SchemaRelationshipEditor();
 
-  explicit SchemaRelationshipEditor ( OksClass * Class, OksRelationship * Relationship,
+  explicit SchemaRelationshipEditor ( dunedaq::oks::OksClass * Class, dunedaq::oks::OksRelationship * Relationship,
                                       QWidget * parent = nullptr );
 
-  explicit SchemaRelationshipEditor ( OksClass * Class, QWidget * parent = nullptr );
+  explicit SchemaRelationshipEditor ( dunedaq::oks::OksClass * Class, QWidget * parent = nullptr );
 
-  explicit SchemaRelationshipEditor ( OksClass * Class, QString ClassType, QWidget * parent =
+  explicit SchemaRelationshipEditor ( dunedaq::oks::OksClass * Class, QString ClassType, QWidget * parent =
                                         nullptr );
 
   void InitialSettings();
@@ -34,8 +34,8 @@ protected:
   void FillInfo();
 private:
   dbse::Ui::SchemaRelationshipEditor * ui;
-  OksRelationship * SchemaRelationship;
-  OksClass * SchemaClass;
+  dunedaq::oks::OksRelationship * SchemaRelationship;
+  dunedaq::oks::OksClass * SchemaClass;
   bool UsedNew;
   bool GraphScene;
 private slots:

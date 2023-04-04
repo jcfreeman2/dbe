@@ -13,6 +13,8 @@
 #include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaRelationshipEditor.hpp"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
   : QGraphicsScene ( parent ),
     line ( nullptr ),

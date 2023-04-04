@@ -11,6 +11,8 @@
 /// Including Ui file
 #include "ui_SchemaClassEditor.h"
 
+using namespace dunedaq::oks;
+
 dbse::SchemaClassEditor::SchemaClassEditor ( OksClass * ClassInfo, QWidget * parent )
   : QWidget ( parent ),
     ui ( new Ui::SchemaClassEditor ),

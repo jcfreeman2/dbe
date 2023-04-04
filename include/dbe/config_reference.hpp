@@ -41,8 +41,8 @@ class oref;
  */
 class wref
 {
-		ConfigObject ref;
-		wref(ConfigObject const & o)
+		dunedaq::oksdbinterfaces::ConfigObject ref;
+		wref(dunedaq::oksdbinterfaces::ConfigObject const & o)
 				: ref(o)
 		{
 		}
@@ -82,7 +82,7 @@ class oref
 		 *
 		 * @param o the configobject to wrap this around
 		 */
-		oref(ConfigObject const & o) noexcept(true)
+		oref(dunedaq::oksdbinterfaces::ConfigObject const & o) noexcept(true)
 				: ref
 					{ o },
 					this_last_full_name(o.full_name())
@@ -105,12 +105,12 @@ class oref
 		 * object has been deleted. Otherwise it returns the underlying ConfigObject reference,
 		 * which is expected to be managed by dbe::inner::dbecontroller and be consistent or invalid.
 		 */
-		explicit operator ConfigObject&() noexcept
+		explicit operator dunedaq::oksdbinterfaces::ConfigObject&() noexcept
 		{
 			return ref.ref;
 		}
 
-		explicit operator ConfigObject const &() const noexcept
+		explicit operator dunedaq::oksdbinterfaces::ConfigObject const &() const noexcept
 		{
 			return ref.ref;
 		}
@@ -148,12 +148,12 @@ template<typename T, typename U> class authorized_getter
 template<typename T> class ref_interface
 {
 	private:
-		explicit operator ConfigObject &() noexcept
+		explicit operator dunedaq::oksdbinterfaces::ConfigObject &() noexcept
 		{
 			return static_cast<T*>(this)->ref();
 		}
 
-		explicit operator ConfigObject &() const noexcept
+		explicit operator dunedaq::oksdbinterfaces::ConfigObject &() const noexcept
 		{
 			return static_cast<T const *>(this)->ref();
 		}
@@ -170,7 +170,7 @@ template<typename T> class ref_interface
 			U value;
 			try
 			{
-				static_cast<ConfigObject &>(*const_cast<ref_interface<T>*>(this)).get(key, value);
+				static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*const_cast<ref_interface<T>*>(this)).get(key, value);
 			}
 			catch (dunedaq::oksdbinterfaces::Exception const & e)
 			{
@@ -185,27 +185,27 @@ template<typename T> class ref_interface
 
 		bool is_null() const
 		{
-			return static_cast<ConfigObject &>(static_cast<T const *>(this)->ref(false)).is_deleted();
+			return static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(static_cast<T const *>(this)->ref(false)).is_deleted();
 		}
 
 		std::string UID() const
 		{
-			return static_cast<ConfigObject &>(*this).UID();
+			return static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).UID();
 		}
 
 		std::string class_name() const
 		{
-			return static_cast<ConfigObject &>(*this).class_name();
+			return static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).class_name();
 		}
 
 		std::string full_name() const
 		{
-			return static_cast<ConfigObject &>(*this).full_name();
+			return static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).full_name();
 		}
 
 		std::string contained_in() const
 		{
-			return static_cast<ConfigObject &>(*this).contained_in();
+			return static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).contained_in();
 		}
 
 		/**
@@ -245,88 +245,88 @@ template<typename T> class ref_interface
 		{
 			if(is_simple)
 			{
-			  static_cast<ConfigObject &>(*this).set_obj(name, nullptr, skip_non_null_check);
+			  static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_obj(name, nullptr, skip_non_null_check);
 			} else
 			{
-			  static_cast<ConfigObject &>(*this).set_objs(name, {}, skip_non_null_check);
+			  static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_objs(name, {}, skip_non_null_check);
 			}
 		}
 
 		void set_obj(std::string const & name, T const & other,
 									bool skip_non_null_check = false)
 		{
-    static_cast<ConfigObject &> ( *this ).set_obj ( name,
-                                                    &static_cast<ConfigObject &> ( other ),
+    static_cast<dunedaq::oksdbinterfaces::ConfigObject &> ( *this ).set_obj ( name,
+                                                    &static_cast<dunedaq::oksdbinterfaces::ConfigObject &> ( other ),
 																									skip_non_null_check);
 		}
 
 		void set_objs(std::string const & name, std::vector<T> const & others,
 									bool skip_non_null_check = false)
 		{
-			std::vector<ConfigObject const *> configobjects;
+			std::vector<dunedaq::oksdbinterfaces::ConfigObject const *> configobjects;
 
 			std::transform(std::begin(others), std::end(others),
 											std::back_inserter(configobjects), [](T const & aref )
     {
-      return &static_cast<ConfigObject const &> ( aref );
+      return &static_cast<dunedaq::oksdbinterfaces::ConfigObject const &> ( aref );
     } );
 
-			static_cast<ConfigObject &>(*this).set_objs(name, configobjects, skip_non_null_check);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_objs(name, configobjects, skip_non_null_check);
 		}
 
 		template<typename U> void set_by_val(std::string const & name, U val)
 		{
-			static_cast<ConfigObject &>(*this).set_by_val(name, val);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_by_val(name, val);
 		}
 
 		template<typename U> void set_by_ref(std::string const & name, U & val)
 		{
-			static_cast<ConfigObject &>(*this).set_by_ref(name, val);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_by_ref(name, val);
 		}
 
 		void set_enum(std::string const & name, std::string const & val)
 		{
-			static_cast<ConfigObject &>(*this).set_enum(name, val);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_enum(name, val);
 		}
 
 		void set_class(std::string const & name, std::string const & val)
 		{
-			static_cast<ConfigObject &>(*this).set_class(name, val);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_class(name, val);
 		}
 
 		void set_date(std::string const & name, std::string const & val)
 		{
-			static_cast<ConfigObject &>(*this).set_date(name, val);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_date(name, val);
 		}
 
 		void set_time(std::string const & name, std::string const & val)
 		{
-			static_cast<ConfigObject &>(*this).set_time(name, val);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_time(name, val);
 		}
 
 		void set_enum(std::string const & name, const std::vector<std::string>& value)
 		{
-			static_cast<ConfigObject &>(*this).set_enum(name, value);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_enum(name, value);
 		}
 
 		void set_class(std::string const & name, const std::vector<std::string>& value)
 		{
-			static_cast<ConfigObject &>(*this).set_class(name, value);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_class(name, value);
 		}
 
 		void set_date(std::string const & name, const std::vector<std::string>& value)
 		{
-			static_cast<ConfigObject &>(*this).set_date(name, value);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_date(name, value);
 		}
 
 		void set_time(std::string const & name, const std::vector<std::string>& value)
 		{
-			static_cast<ConfigObject &>(*this).set_time(name, value);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).set_time(name, value);
 		}
 
 		void move(std::string const & at)
 		{
-			static_cast<ConfigObject &>(*this).move(at);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).move(at);
 		}
 
 		/**
@@ -334,13 +334,13 @@ template<typename T> class ref_interface
 		 */
 
 		void print_ref(std::ostream& s, /*!< the output stream */
-                   ::Configuration &
+                   dunedaq::oksdbinterfaces::Configuration &
                    conf, /*!< the configuration object (required to read schema description) */
 										const std::string& prefix = "", /*!< optional shift output using prefix */
 										bool show_contained_in = false /*!< optional print out info about object database file */
 										) const
 		{
-			static_cast<ConfigObject &>(*this).print_ref(s, conf, prefix, show_contained_in);
+			static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*this).print_ref(s, conf, prefix, show_contained_in);
 		}
 
 		friend std::ostream & operator<<(std::ostream & os,
@@ -391,7 +391,7 @@ template<typename T> class authorized_getter<T, std::vector<configobject::tref>>
 /**
  * Retrieving ConfigObject directly through ref_interface is not permitted
  */
-template<typename T> class authorized_getter<T, ConfigObject>
+template<typename T> class authorized_getter<T, dunedaq::oksdbinterfaces::ConfigObject>
 {
 	private:
 		ref_interface<T> const * that;
@@ -402,14 +402,14 @@ template<typename T> class authorized_getter<T, ConfigObject>
 		{
 		}
 
-		ConfigObject operator()(std::string const & key) = delete;
+		dunedaq::oksdbinterfaces::ConfigObject operator()(std::string const & key) = delete;
 
 };
 
 /**
  * Retrieving ConfigObject directly through ref_interface is not permitted
  */
-template<typename T> class authorized_getter<T, std::vector<ConfigObject>>
+template<typename T> class authorized_getter<T, std::vector<dunedaq::oksdbinterfaces::ConfigObject>>
 {
 	private:
 		ref_interface<T> const * that;
@@ -420,7 +420,7 @@ template<typename T> class authorized_getter<T, std::vector<ConfigObject>>
 		{
 		}
 
-		std::vector<ConfigObject> operator()(std::string const & key) = delete;
+		std::vector<dunedaq::oksdbinterfaces::ConfigObject> operator()(std::string const & key) = delete;
 
 };
 
@@ -453,9 +453,9 @@ class tref:
 	private:
 		std::shared_ptr<oref> refered;
 
-		ConfigObject & ref(bool check_null = true) const
+		dunedaq::oksdbinterfaces::ConfigObject & ref(bool check_null = true) const
 		{
-			ConfigObject & rval = static_cast<ConfigObject &>(*refered.get());
+			dunedaq::oksdbinterfaces::ConfigObject & rval = static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*refered.get());
 			DEBUG_THROW_ON_NULL_CONFIGOBJECT_REFERENCE
 			return rval;
 		}
@@ -480,12 +480,12 @@ class vref:
 	private:
 		std::weak_ptr<oref> refered;
 
-		ConfigObject & ref(bool check_null = false) const
+		dunedaq::oksdbinterfaces::ConfigObject & ref(bool check_null = false) const
 		{
 			std::shared_ptr<oref> return_val =
 					refered.expired() ?
-							std::shared_ptr<oref>(new oref(ConfigObject())) : refered.lock();
-			ConfigObject & rval = static_cast<ConfigObject &>(*return_val);
+							std::shared_ptr<oref>(new oref(dunedaq::oksdbinterfaces::ConfigObject())) : refered.lock();
+			dunedaq::oksdbinterfaces::ConfigObject & rval = static_cast<dunedaq::oksdbinterfaces::ConfigObject &>(*return_val);
 			DEBUG_THROW_ON_NULL_CONFIGOBJECT_REFERENCE
 			return rval;
 		}
