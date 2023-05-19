@@ -9,7 +9,6 @@ add_compile_options(-Wno-deprecated)
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(oks REQUIRED)
-find_package(dal REQUIRED)
 find_package(oksdbinterfaces REQUIRED)
 find_package(logging REQUIRED)
 
@@ -41,7 +40,6 @@ set(dbe_common_test_libs
 
 set(dbe_common_tdaq_libs
         oksdbinterfaces::oksdbinterfaces
-        dal::dal 
         ers::ers
         )
         
