@@ -49,7 +49,7 @@ gtool::gtool ( std::string const & rl, dbinfo dbtype )
       else
       {
         ERROR ( "Could not load database", "OKS error ",
-                " Actions : check environment variables e.g. TDAQ_DB_PATH" );
+                " Actions : check environment variables e.g. DUNEDAQ_SHARE_PATH" );
         throw std::string ( "Could not load database" );
       }
     }

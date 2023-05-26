@@ -346,14 +346,14 @@ std::list<std::string> dbe::confaccessor::save ( const QString & CommitMessage )
 //------------------------------------------------------------------------------------------
 void dbe::confaccessor::init()
 {
-  QString TDAQ_VARIABLE = getenv ( "TDAQ_DB_PATH" );
+  QString TDAQ_VARIABLE = getenv ( "DUNEDAQ_SHARE_PATH" );
   QString GUI_PATH = getenv ( "OKS_GUI_PATH" );
   QString GUI_DATA = getenv ( "OKS_GUI_INIT_DATA" );
   QString NEW_TDAQ_VARIABLE = GUI_PATH + ":" + TDAQ_VARIABLE;
 
   QStringList CONFIG_DATABASE = GUI_DATA.split ( ":", QString::SkipEmptyParts );
   QStringList GUI_PATH_SPLIT = GUI_PATH.split ( ":", QString::SkipEmptyParts );
-  setenv ( "TDAQ_DB_PATH", NEW_TDAQ_VARIABLE.toStdString().c_str(), 1 );
+  setenv ( "DUNEDAQ_SHARE_PATH", NEW_TDAQ_VARIABLE.toStdString().c_str(), 1 );
 
   // We need to read the current configuration ( to retrieve parameters affecting dbe )
 
@@ -376,7 +376,7 @@ void dbe::confaccessor::init()
 
   confaccessor::ref().coreconfig = new ui::config::info ( full_path_names );
 
-  setenv ( "TDAQ_DB_PATH", TDAQ_VARIABLE.toStdString().c_str(), 1 );
+  setenv ( "DUNEDAQ_SHARE_PATH", TDAQ_VARIABLE.toStdString().c_str(), 1 );
 }
 
 QList<QStringList> dbe::confaccessor::GetIncludedFileCache() const
