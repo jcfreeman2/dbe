@@ -4,7 +4,7 @@
 
 The DBE package provides a GUI interface to the OKS suite, allowing you to edit both schema files and data files. Note that these instructions will assume you have a basic familiarity with OKS as [described here](https://github.com/DUNE-DAQ/dal#readme). They also assume that you [know how to download and build repositories](https://dune-daq-sw.readthedocs.io/en/latest/packages/daq-buildtools/) and are able to display windows from your command line (e.g. `xclock &` or `emacs &` pop up windows for you). 
 
-While DBE was [originally written as part of the ATLAS TDAQ effort](https://gitlab.cern.ch/atlas-tdaq-software/dbe.git), it has been modified to build within the DUNE DAQ framework. To get started working with DBE, you'll want to set up a work area based on release `NT23-02-18`, which among other things provides the core packages of the OKS suite, DBE, and the Qt GUI package DBE depends on. 
+While DBE was [originally written as part of the ATLAS TDAQ effort](https://gitlab.cern.ch/atlas-tdaq-software/dbe.git), it has been modified to build within the DUNE DAQ framework. To get started working with DBE, you'll want to set up a work area based on a nightly release produced on or after June 9, 2023; these nightly releases will among other things provide the core packages of the OKS suite and the Qt GUI package DBE depends on. However, you'll need to explicitly check out and build this repo. 
 
 ## Walkthrough, Part 1: Editing Objects in a Configuration
 
