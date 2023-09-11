@@ -69,7 +69,9 @@ jobs:
           cd $GITHUB_WORKSPACE/dev-${{ matrix.os_name }}
           source env.sh || true
           spack load qt
-          spack unload $REPO || true
+          deactivate
+          source .venv/bin/activate
+          #spack unload $REPO || true
           cp -pr $GITHUB_WORKSPACE/DUNE-DAQ/$REPO $GITHUB_WORKSPACE/dev-${{ matrix.os_name }}/sourcecode
           dbt-build
           #[[ $REPO == "daq-cmake" ]] && dbt-build || dbt-build --lint
