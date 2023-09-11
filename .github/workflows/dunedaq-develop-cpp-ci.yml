@@ -70,7 +70,7 @@ jobs:
           source env.sh || true
           spack load qt
           deactivate
-          source .venv/bin/activate
+          source $SPACK_RELEASES_DIR/$SPACK_RELEASE/.venv/bin/activate
           #spack unload $REPO || true
           cp -pr $GITHUB_WORKSPACE/DUNE-DAQ/$REPO $GITHUB_WORKSPACE/dev-${{ matrix.os_name }}/sourcecode
           dbt-build
