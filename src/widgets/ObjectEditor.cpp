@@ -654,7 +654,14 @@ void dbe::ObjectEditor::set_attribute_widget ( dunedaq::oksdbinterfaces::attribu
   {
     QStringList defaults_values
     { dbe::config::api::get::defaults::attribute::value ( Attribute ) };
+    for ( auto qs : defaults_values ) {
+      std::cout << Attribute.p_name << " : " << qs.toStdString() << std::endl;
+    }
     Widget->setdefaults ( defaults_values.at ( 0 ) );
+
+    if ( this_is_in_creation_mode) {
+      Widget->setdata(defaults_values);
+    }
   }
 
   Widget->SetEditor();
