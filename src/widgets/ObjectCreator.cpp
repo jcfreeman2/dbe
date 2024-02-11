@@ -55,7 +55,6 @@ dbe::ObjectCreator::ObjectCreator ( dunedaq::oksdbinterfaces::class_t const & ci
   this_create_copy ( false ),
   uuid ( QUuid::createUuid() )
 {
-  std::cout << "Create Object From Class " << this_object_class.p_name << std::endl;
   ui->setupUi ( this );
   this_status_bar = new QStatusBar ( ui->StatusFrame );
 

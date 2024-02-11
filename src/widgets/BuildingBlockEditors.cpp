@@ -1075,7 +1075,6 @@ void stringattr::SetController()
 
 void stringattr::setdefaults ( const QString & ValueDefault )
 {
-  std::cout << "stringattr::setdefaults" << std::endl;
   this_defaults = ValueDefault;
   StringLineEdit->SetDefaultValue ( ValueDefault );
 }
@@ -1261,10 +1260,8 @@ numericattr::numericattr ( t_virtue const & attr, QWidget * parent,
 
 void numericattr::setdefaults ( const QString & ValueDefault )
 {
-  std::cout << "numericattr::setdefaults " << ValueDefault.toStdString() <<  std::endl;
   this_defaults = ValueDefault;
   LineEdit->SetDefaultValue ( this_defaults );
-  
 }
 
 QLineEdit * numericattr::GetLineEdit() const
