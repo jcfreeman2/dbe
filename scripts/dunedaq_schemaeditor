@@ -13,5 +13,4 @@ done
 
 export OKS_GUI_PATH
 
-echo $OKS_GUI_PATH
-dbe_main ${@:1}
+schemaeditor ${@:1}
