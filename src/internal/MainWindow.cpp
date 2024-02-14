@@ -694,6 +694,10 @@ void dbe::MainWindow::LoadDefaultSetting()
 
 QString dbe::MainWindow::find_db_repository_dir()
 {
+    if (confaccessor::dbfullname().isEmpty()) {
+      return "";
+    }
+
     const QStringList& incs =dbe::config::api::get::file::inclusions({confaccessor::dbfullname()});
     for(QString f : allFiles) {
         for(const QString& j : incs) {
@@ -708,6 +712,7 @@ QString dbe::MainWindow::find_db_repository_dir()
 
 void dbe::MainWindow::slot_create_newdb()
 {
+
   CreateDatabaseWidget * CreateDatabaseW = new CreateDatabaseWidget(nullptr, false, find_db_repository_dir());
   CreateDatabaseW->show();
   connect ( CreateDatabaseW, SIGNAL ( CanLoadDatabase ( const QString & ) ), this,
