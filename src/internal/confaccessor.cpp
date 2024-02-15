@@ -376,7 +376,7 @@ void dbe::confaccessor::init()
 
   confaccessor::ref().coreconfig = new ui::config::info ( full_path_names );
 
-  setenv ( "DUNEDAQ_SHARE_PATH", TDAQ_VARIABLE.toStdString().c_str(), 1 );
+  // setenv ( "DUNEDAQ_SHARE_PATH", TDAQ_VARIABLE.toStdString().c_str(), 1 );
 }
 
 QList<QStringList> dbe::confaccessor::GetIncludedFileCache() const

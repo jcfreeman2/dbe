@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+OKS_GUI_PATH=""
+SOURCE_DIR=${DBT_AREA_ROOT}/sourcecode
+DBT_PACKAGES=$(find -L ${SOURCE_DIR}/ -mindepth 2 -maxdepth 2 -name CMakeLists.txt | sed "s#${SOURCE_DIR}/\(.*\)/CMakeLists.txt#\1#")
+
+for p in ${DBT_PACKAGES}; do
+
+    OKS_GUI_PATH+=":${SOURCE_DIR}/$p" 
+
+done
+
+export DUNEDAQ_SHARE_PATH="${OKS_GUI_PATH}:${DUNEDAQ_SHARE_PATH}"
+
+schemaeditor ${@:1}
