@@ -98,8 +98,8 @@ void dbe::FileModel::initpaths()
 
       FolderPathList << dbe::MainWindow::findthis()->find_db_repository_dir();
   } else {
-      QString DUNEDAQ_SHARE_PATH = getenv ( "DUNEDAQ_SHARE_PATH" );
-      FolderPathList = DUNEDAQ_SHARE_PATH.split ( ":", QString::SkipEmptyParts );
+      QString DUNEDAQ_DB_PATH = getenv ( "DUNEDAQ_DB_PATH" );
+      FolderPathList = DUNEDAQ_DB_PATH.split ( ":", QString::SkipEmptyParts );
   }
 
   for ( QString & PathName : FolderPathList )
