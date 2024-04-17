@@ -99,7 +99,7 @@
                  </property>
                  <item>
                   <property name="text">
-                   <string>DUNEDAQ_SHARE_PATH Dir's (select one)</string>
+                   <string>DUNEDAQ_DB_PATH Dir's (select one)</string>
                   </property>
                  </item>
                 </widget>

@@ -1484,7 +1484,7 @@ void dbe::MainWindow::slot_edit_object_from_class_view ( QModelIndex const & Pro
 
 /**
  * Takes necessary actions to load a database from a file provided
- * @param dbpath is the path (absolute or relative to the DUNEDAQ_SHARE_PATH) of the associated file
+ * @param dbpath is the path (absolute or relative to the DUNEDAQ_DB_PATH) of the associated file
  * @return
  */
 bool dbe::MainWindow::dbopen ( QString const & dbpath, dbinfo const & loadtype )
