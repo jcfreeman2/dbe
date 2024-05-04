@@ -15,9 +15,13 @@
 #include "dbe/gtool.hpp"
 #include "dbe/segregate.hpp"
 
+#include "logging/Logging.hpp"
+
 #include <boost/program_options.hpp>
 
 #include <numeric>
+#include <sstream>
+#include <stdexcept>
 
 namespace bop = boost::program_options;
 
@@ -77,7 +81,7 @@ int main ( int argc, char * argv[] )
 
   auto display_help_message = [&options_description]()
   {
-    std::cout
+    TLOG() 
         << "DBE gtool : Generate dot graphs from database files"
         << std::endl
         << std::endl
@@ -137,21 +141,22 @@ int main ( int argc, char * argv[] )
     // If neither separate or result have been provided , output the help message and a warning
     if ( not args.count ( "result" ) and not args.count ( "separate" ) )
     {
-      WARN ( "Output file not specified ", "User input warning",
-             "Output will be sent to standard output" );
+      TLOG() << "Output file not specified, output will be sent to standard output";
       display_help_message();
     }
-
   }
   catch ( std::string const & e )
   {
-    ERROR ( "Program execution failure", e );
+    ers::error(dbe::GeneralGraphToolError(ERS_HERE, "Program execution failure"));
     return EXIT_FAILURE;
   }
   catch ( std::exception const & e )
   {
-    ERROR ( "Incorrect command line argument", e.what() );
     display_help_message();
+    
+    std::stringstream errmsgstr;
+    errmsgstr << "Incorrect command line argument: " << e.what();
+    ers::error(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
     return EXIT_FAILURE;
   }
 
@@ -159,14 +164,14 @@ int main ( int argc, char * argv[] )
   {
     if ( args.count ( "separate" ) )
     {
-      INFO ( "Graph will be separated to its components", "Program execution control" );
+      TLOG() << "Graph will be separated to its components";
       dbe::tool::graph::segregated_graph_write sgw ( sepfnbase, min_component_size,
                                                      max_component_size );
       return proc->load_and_run ( sgw );
     }
     else
     {
-      INFO ( "One large output file to be created", "Program execution control" );
+      TLOG() << "One large output file to be created";
       dbe::tool::graph::writegraph w ( outfn );
       return proc->load_and_run ( w );
     }

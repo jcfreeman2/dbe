@@ -13,6 +13,9 @@
 #include "dbe/config_reference.hpp"
 #include "dbe/config_api.hpp"
 
+#include "logging/Logging.hpp"
+
+
 #include <QFileInfo>
 
 #include <boost/graph/graphviz.hpp>
@@ -40,23 +43,24 @@ gtool::gtool ( std::string const & rl, dbinfo dbtype )
     QString path_to_database = QString ( DatabaseFile.absoluteFilePath() );
     {
       confaccessor::setdbinfo ( path_to_database, dbtype );
-      INFO ( "Database location set", "Program execution control success" );
+      TLOG() << "Database location set";
 
       if ( confaccessor::load() )
       {
-        INFO ( "Database initialized", "User request" );
+        TLOG () << "Database initialized";
       }
       else
       {
-        ERROR ( "Could not load database", "OKS error ",
-                " Actions : check environment variables e.g. DUNEDAQ_DB_PATH" );
-        throw std::string ( "Could not load database" );
+	ers::error(dbe::GeneralGraphToolError(ERS_HERE, "Could not load database. Check environment variable DUNEDAQ_DB_PATH"));
+	throw std::string ( "Could not load database" );
       }
     }
   }
   else
   {
-    ERROR ( "Cannot open database", "File error", "for file", rl );
+    std::stringstream errmsg;
+    errmsg << "Cannot open database. File error for file " << rl;
+    ers::error(dbe::GeneralGraphToolError(ERS_HERE, errmsg.str()));
   }
 }
 
@@ -67,18 +71,17 @@ gtool::t_graph const & gtool::getgraph() const
 
 void gtool::load_all()
 {
-  INFO ( "Start load objects into internal cache", "Program execution control" );
+  TLOG () << "Start load objects into internal cache" ;
 
   std::vector<std::string> all_classes =
   { config::api::info::onclass::allnames<std::vector<std::string>>() };
-
+  
   for ( auto const & x : all_classes )
   {
     load_all_class_objects ( x );
   }
 
-  INFO ( "All objects loaded into internal cache", "Program execution control success",
-         "#objects:", std::to_string ( this_all_objects.size() ) );
+  TLOG () << "All objects loaded into internal cache. #objects:" << std::to_string ( this_all_objects.size() ) ;
 }
 
 void gtool::load_all_class_objects ( std::string const & cname )
@@ -86,20 +89,19 @@ void gtool::load_all_class_objects ( std::string const & cname )
   std::vector<dbe::tref> all_objects = config::api::info::onclass::objects<false> ( cname,
                                                                                     false );
 
-  INFO ( "Class to load: ", "Program execution control", cname );
+  TLOG () << "Class to load: " << cname ;
 
   for ( dbe::tref const & x : all_objects )
   {
     this_all_objects.push_back ( x );
   }
 
-  INFO ( "Class load success: ", "Program execution control", cname,
-         "#objects", std::to_string ( all_objects.size() ) );
+  TLOG () << "Class load success: #objects:" << std::to_string ( all_objects.size() ) ;
 }
 
 void gtool::create_graph()
 {
-  INFO ( "Database graph generation initiated", "Program execution control" );
+  TLOG () << "Database graph generation initiated";
   already_processed.clear();
 
   for ( auto const & x : this_all_objects )
@@ -107,7 +109,7 @@ void gtool::create_graph()
     add_object_and_friends ( this_graph, x, already_processed );
   }
 
-  INFO ( "Graph generation completed successfully", "Program execution control success" );
+  TLOG () << "Graph generation completed successfully" ;
 }
 
 gtool::t_vertex gtool::add_object ( gtool::t_graph & g, tref const & x, bool uniqueness )
@@ -145,7 +147,7 @@ gtool::t_vertex gtool::add_object ( gtool::t_graph & g, tref const & x,
 
   if ( std::end ( registry ) == vat )
   {
-    FULLDEBUG ( "Adding object", "Program execution control", x.full_name() );
+    TLOG () << "Adding object " << x.full_name() ;
     // not in the registry implies it is not in the graph , i.e. its user responsibility
     t_registry::iterator v;
     std::tie ( v, std::ignore ) = registry.emplace ( x.full_name(), add_object ( g, x,
@@ -161,20 +163,18 @@ gtool::t_vertex gtool::add_object ( gtool::t_graph & g, tref const & x,
 gtool::t_vertex gtool::add_object_and_friends ( t_graph & g, tref const & o,
                                                 t_registry & registry )
 {
-  DEBUG ( "Processing object", "Program execution control", o.full_name() );
+  TLOG() << "Processing object " << o.full_name() ;
   t_vertex ov = add_object ( g, o, registry );
 
   std::vector<tref> friends
   { config::api::graph::linked::by::object<tref> ( o ) }; // get all neighbors
-  DEBUG ( "Processing object", "Program execution control", o.full_name(), " # friends: ",
-          std::to_string ( friends.size() ) );
+  TLOG () <<  "Processing object " << o.full_name() << ", # friends: " << friends.size() ;
 
   for ( tref const & x : friends )
   {
     t_vertex xv = add_object ( g, x, registry );
     boost::add_edge ( ov, xv, g );
-    FULLDEBUG ( "Add edge ", "Program excecution control", o.full_name() , "->",
-                x.full_name() );
+    TLOG() << "Add edge " << o.full_name() << " -> " << x.full_name();
   }
 
   return ov;
@@ -205,9 +205,9 @@ writegraph::writegraph ( std::string const & s )
 
 int writegraph::operator() ( gtool const & x ) const
 {
-  INFO ( "Saving result", "Program execution control", this_dest );
+  TLOG () << "Saving result" << this_dest ;
   write ( x.getgraph() );
-  INFO ( "Result sent to output", "Program execution control success", this_dest );
+  TLOG () << "Result sent to output" << this_dest ;
   return EXIT_SUCCESS;
 }
 
@@ -232,9 +232,9 @@ void write ( gtool::t_graph const & g, std::string const & ofn )
 
 void write_to_cout ( gtool::t_graph const & g )
 {
-  INFO ( "Sending output to stdout", "Program execution control" )
+  TLOG () << "Sending output to stdout";
   boost::write_graphviz (
-    std::cout, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::label, g ) ) );
+			 std::cout, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::label, g ) ) ) ;
 }
 
 void write_to_file ( gtool::t_graph const & g, std::string const & ofn )
@@ -244,7 +244,7 @@ void write_to_file ( gtool::t_graph const & g, std::string const & ofn )
 
   if ( of.is_open() )
   {
-    INFO ( "Sending output to file", "Program execution control", "File name:", ofn );
+    TLOG () << "Sending output to file. File name:" << ofn ;
     boost::write_graphviz (
       of, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::label, g ) ) );
 
@@ -252,18 +252,14 @@ void write_to_file ( gtool::t_graph const & g, std::string const & ofn )
 
     if ( of.fail() )
     {
-      ERROR ( "Could not close file", "Program execution control", "File name:", ofn );
+      std::stringstream errmsg;
+      errmsg << "Could not close file " << ofn;
+      ers::error(dbe::GeneralGraphToolError(ERS_HERE, errmsg.str()));
     }
-    else
-    {
-      NOTE ( "Output written to file", "Program execution control success", "File name:", ofn );
-    }
-  }
-  else
-  {
-    ERROR (
-      "Output could not be written file", "Stream could not be opened", "File name:", ofn );
-    write_to_cout ( g );
+  } else {
+    std::stringstream errmsg;
+    errmsg << "Output could not be written to file, stream could not be opened: " << ofn;
+    ers::error(dbe::GeneralGraphToolError(ERS_HERE, errmsg.str()));
   }
 }
 //------------------------------------------------------------------------------------------

@@ -41,6 +41,7 @@ set(dbe_common_test_libs
 set(dbe_common_tdaq_libs
         oksdbinterfaces::oksdbinterfaces
         ers::ers
+	logging::logging
         )
         
 set(dbe_common_libs

@@ -8,6 +8,8 @@
 #include "dbe/segregate.hpp"
 #include "dbe/dbcontroller.hpp"
 
+#include "logging/Logging.hpp"
+
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/filtered_graph.hpp>
 
@@ -85,18 +87,10 @@ int segregated_graph_write::operator () ( gtool const & tool ) const
         {
           if ( e.code() == std::errc::resource_unavailable_try_again )
           {
-
-            ERROR (
-              "Could not launch another thread", e.what(), "for file:", output_file,
-              "try to launch in deferred" );
+	    TLOG() << "Could not launch another thread " << e.what() << " for file " << output_file << ", try to launch in deferred";
 
             punits.push_back (
               std::async ( std::launch::deferred, graph::write, g, output_file ) );
-
-            WARN (
-              "File write policy change", "Program execution correction", " for file:",
-              output_file, " launched in deferred" );
-
           }
           else
           {

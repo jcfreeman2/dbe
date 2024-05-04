@@ -12,11 +12,21 @@
 #ifndef DBE_GRAPHTOOL_H_
 #define DBE_GRAPHTOOL_H_
 
+#include "ers/ers.hpp"
+
+#include <string>
 
 #define t_messenger dbe::interface::messenger::console
 
 #define MESSAGE_STATICS(msg) \
     static t_msghandler::t_str sms(msg); \
     static t_msghandler::t_str smsr("\tReason: "); \
+
+ERS_DECLARE_ISSUE(dbe,                 
+                  GeneralGraphToolError,
+                  "A graph tool error occured: " << errmsg,
+                  ((std::string)errmsg)
+)
+
 
 #endif /* DBE_GRAPHTOOL_H_ */
