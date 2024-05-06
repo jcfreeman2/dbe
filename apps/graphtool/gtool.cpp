@@ -23,6 +23,9 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cassert>
+
+#define GENERAL_DEBUG_LVL 10
 
 namespace dbe
 {
@@ -69,6 +72,33 @@ gtool::t_graph const & gtool::getgraph() const
   return this_graph;
 }
 
+bool gtool::allow_object(std::string const& name) {
+
+  bool allow = false;
+
+  std::vector<std::string> allowed_tokens = {"pplication", "ession", "egment"};
+  std::vector<std::string> not_actually_allowed_tokens = {"RCApplication"};
+
+  auto classname = name;
+
+  auto at_position = name.find('@');
+  assert( at_position != std::string::npos );
+
+  if ( at_position != std::string::npos ) {
+    classname = name.substr(at_position + 1);
+  }
+
+  for (const auto& good_token : allowed_tokens) {
+    for (const auto& bad_token : not_actually_allowed_tokens ) {
+      if (classname.find(good_token) != std::string::npos && classname.find(bad_token) == std::string::npos) {
+	allow = true;
+      }
+    }
+  }
+
+  return allow;
+}
+  
 void gtool::load_all()
 {
   TLOG () << "Start load objects into internal cache" ;
@@ -78,7 +108,9 @@ void gtool::load_all()
   
   for ( auto const & x : all_classes )
   {
-    load_all_class_objects ( x );
+    if (allow_object(x)) {
+      load_all_class_objects ( x );
+    }
   }
 
   TLOG () << "All objects loaded into internal cache. #objects:" << std::to_string ( this_all_objects.size() ) ;
@@ -115,7 +147,7 @@ void gtool::create_graph()
 gtool::t_vertex gtool::add_object ( gtool::t_graph & g, tref const & x, bool uniqueness )
 {
   vertex_label xl
-  { x.UID(), x.class_name(), x.full_name() };
+    { x.UID(), x.class_name(), x.full_name(), x.UID() + "\n" + x.class_name() };
 
   if ( not uniqueness )
   {
@@ -147,7 +179,7 @@ gtool::t_vertex gtool::add_object ( gtool::t_graph & g, tref const & x,
 
   if ( std::end ( registry ) == vat )
   {
-    TLOG () << "Adding object " << x.full_name() ;
+    TLOG_DEBUG(GENERAL_DEBUG_LVL) << "Adding object " << x.full_name() ;
     // not in the registry implies it is not in the graph , i.e. its user responsibility
     t_registry::iterator v;
     std::tie ( v, std::ignore ) = registry.emplace ( x.full_name(), add_object ( g, x,
@@ -163,7 +195,6 @@ gtool::t_vertex gtool::add_object ( gtool::t_graph & g, tref const & x,
 gtool::t_vertex gtool::add_object_and_friends ( t_graph & g, tref const & o,
                                                 t_registry & registry )
 {
-  TLOG() << "Processing object " << o.full_name() ;
   t_vertex ov = add_object ( g, o, registry );
 
   std::vector<tref> friends
@@ -172,9 +203,13 @@ gtool::t_vertex gtool::add_object_and_friends ( t_graph & g, tref const & o,
 
   for ( tref const & x : friends )
   {
+    if (! allow_object(x.full_name()) ) {
+      continue;
+    }
+
     t_vertex xv = add_object ( g, x, registry );
     boost::add_edge ( ov, xv, g );
-    TLOG() << "Add edge " << o.full_name() << " -> " << x.full_name();
+    TLOG_DEBUG(GENERAL_DEBUG_LVL) << "Add edge " << o.full_name() << " -> " << x.full_name();
   }
 
   return ov;
@@ -234,7 +269,7 @@ void write_to_cout ( gtool::t_graph const & g )
 {
   TLOG () << "Sending output to stdout";
   boost::write_graphviz (
-			 std::cout, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::label, g ) ) ) ;
+			 std::cout, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::displaylabel, g ) ) ) ;
 }
 
 void write_to_file ( gtool::t_graph const & g, std::string const & ofn )
@@ -246,7 +281,7 @@ void write_to_file ( gtool::t_graph const & g, std::string const & ofn )
   {
     TLOG () << "Sending output to file. File name:" << ofn ;
     boost::write_graphviz (
-      of, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::label, g ) ) );
+      of, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::displaylabel, g ) ) );
 
     of.close();
 

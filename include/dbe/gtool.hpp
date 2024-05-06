@@ -44,6 +44,7 @@ public:
     std::string uid;
     std::string cname;
     std::string label;
+    std::string displaylabel;
   };
 
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
@@ -119,6 +120,8 @@ private:
   void load_all();
   void load_all_class_objects ( std::string const & cname );
 
+  static bool allow_object(std::string const& cname);
+  
   void create_graph();
 
   typedef std::vector<tref> t_objects;
