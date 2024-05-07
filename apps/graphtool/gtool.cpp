@@ -76,13 +76,13 @@ bool gtool::allow_object(std::string const& name) {
 
   bool allow = false;
 
-  std::vector<std::string> allowed_tokens = {"pplication", "ession", "egment"};
+  //std::vector<std::string> allowed_tokens = {"Application", "Session", "Segment", "Rule", "Conf"};
+  std::vector<std::string> allowed_tokens = {"Application", "Session", "Segment", "NetworkConnectionRule"};
   std::vector<std::string> not_actually_allowed_tokens = {"RCApplication"};
 
   auto classname = name;
 
   auto at_position = name.find('@');
-  assert( at_position != std::string::npos );
 
   if ( at_position != std::string::npos ) {
     classname = name.substr(at_position + 1);
@@ -240,9 +240,9 @@ writegraph::writegraph ( std::string const & s )
 
 int writegraph::operator() ( gtool const & x ) const
 {
-  TLOG () << "Saving result" << this_dest ;
+  TLOG () << "Saving result " << this_dest ;
   write ( x.getgraph() );
-  TLOG () << "Result sent to output" << this_dest ;
+  TLOG () << "Result sent to output " << this_dest ;
   return EXIT_SUCCESS;
 }
 
@@ -279,7 +279,7 @@ void write_to_file ( gtool::t_graph const & g, std::string const & ofn )
 
   if ( of.is_open() )
   {
-    TLOG () << "Sending output to file. File name:" << ofn ;
+    TLOG () << "Sending output to file. File name: " << ofn ;
     boost::write_graphviz (
       of, g, boost::make_label_writer ( boost::get ( &gtool::vertex_label::displaylabel, g ) ) );
 
