@@ -21,7 +21,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace bop = boost::program_options;
+namespace bpo = boost::program_options;
 
 int main ( int argc, char * argv[] )
 {
@@ -31,21 +31,21 @@ int main ( int argc, char * argv[] )
   std::string oksfilename, outputfilename;
   std::string level;
 
-  bop::options_description options_description (
+  bpo::options_description options_description (
     "Allowed options", 128 );
 
   options_description.add_options()
 
   ( "help,h", "Provide help message" )
 
-  ( "file,f", bop::value<std::string> ( &oksfilename ), "OKS database file name" )
+  ( "file,f", bpo::value<std::string> ( &oksfilename ), "OKS database file name" )
 
-  ( "level,l", bop::value<std::string>(&level), "base level (session, segment, application, module)")
+  ( "level,l", bpo::value<std::string>(&level), "base level (session, segment, application, module)")
 
-  ( "output,o", bop::value<std::string> ( &outputfilename ),
+  ( "output,o", bpo::value<std::string> ( &outputfilename ),
     "Output DOT file which can be used as input to GraphViz" );
 
-  bop::variables_map args;
+  bpo::variables_map args;
 
   auto display_help_message = [&options_description]()
   {
@@ -63,9 +63,9 @@ int main ( int argc, char * argv[] )
 
   try
   {
-    bop::store ( bop::command_line_parser ( argc, argv ).options ( options_description ).run(),
+    bpo::store ( bpo::command_line_parser ( argc, argv ).options ( options_description ).run(),
                  args );
-    bop::notify ( args );
+    bpo::notify ( args );
 
     const std::map<std::string, dbe::GraphBuilder::TopGraphLevel> level_as_enum {
       {"session", dbe::GraphBuilder::TopGraphLevel::kSession },
@@ -82,22 +82,32 @@ int main ( int argc, char * argv[] )
 
     // Initialize access to configuration backend
     dbe::confaccessor::init();
-
     
     dbe::GraphBuilder graphbuilder(oksfilename); 
     graphbuilder.construct_graph( level_as_enum.at( level ) );
+
+    write_graph(
+		graphbuilder.get_graph(),
+		outputfilename
+		);
     
-  } catch ( std::string const & e ) {
-    ers::error(dbe::GeneralGraphToolError(ERS_HERE, "Program execution failure"));
-    return EXIT_FAILURE;
-  } catch ( std::exception const & e ) {
+  } catch (const bpo::error& e) {
+
     display_help_message();
     
     std::stringstream errmsgstr;
     errmsgstr << "Incorrect command line argument: " << e.what();
-    ers::error(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
-    return EXIT_FAILURE;
-  }
+    ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
+
+  } catch(const dbe::GeneralGraphToolError& e) {
+
+    ers::fatal(e);
+
+  } catch (...) {
+
+    ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, "Program execution failure"));
+
+  } 
 
   return 0;
 
