@@ -29,6 +29,17 @@ namespace api
 namespace info
 {
 
+  template <typename T>
+  const T* onclass::get_underlying_object(const std::string obj_uid) {
+    assert(dbaccessor::dbptr().get() != nullptr);
+    return dbaccessor::dbptr()->get<T>(obj_uid);
+  }
+
+  inline dunedaq::oksdbinterfaces::Configuration* onclass::get_underlying_configuration() {
+    assert(dbaccessor::dbptr().get() != nullptr);
+    return dbaccessor::dbptr().get();
+  }
+  
 template<typename T> inline T onclass::allnames()
 {
   typedef dunedaq::oksdbinterfaces::fmap<dunedaq::oksdbinterfaces::fset> type_cmap;

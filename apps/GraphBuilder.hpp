@@ -4,6 +4,7 @@
 #include "dbe/config_reference.hpp"
 #include "dbe/config_api.hpp"
 
+#include "coredal/Session.hpp"
 #include "ers/ers.hpp"
 
 #include "boost/graph/graph_traits.hpp"
@@ -50,6 +51,8 @@ namespace dbe {
     explicit GraphBuilder(const std::string& oksfilename);
 
     void construct_graph(const TopGraphLevel level);
+    void construct_graph(const TopGraphLevel level, const std::string& root_obj_uid);
+    
     Graph_t get_graph() const { return m_graph; };
     
     GraphBuilder(const GraphBuilder&) = delete;
@@ -60,16 +63,19 @@ namespace dbe {
   private:
 
     void add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx);
-    
+    void find_candidate_objects(const TopGraphLevel level);
+
     const std::string m_oksfilename;
     std::map<TopGraphLevel, std::vector<std::string>> m_included_classes;
 
+    std::vector<std::string> m_ignored_application_uids;
     std::vector<tref> m_all_objects;
     std::vector<tref> m_candidate_objects;
     std::vector<tref> m_passed_objects;
     
     Graph_t m_graph;
-    
+
+    dunedaq::coredal::Session* m_session {nullptr};
   };
 
   void write_graph(const GraphBuilder::Graph_t& graph, const std::string& outputfilename = "");
@@ -82,5 +88,6 @@ ERS_DECLARE_ISSUE(dbe,
                   "A graph tool error occured: " << errmsg,
                   ((std::string)errmsg)
 )
+
 
 #endif // DBE_APPS_GRAPHBUILDER_HPP_

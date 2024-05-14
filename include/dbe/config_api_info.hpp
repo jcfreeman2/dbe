@@ -75,6 +75,13 @@ bool is_simple ( dunedaq::oksdbinterfaces::relationship_t const & );
 class onclass
 {
 public:
+
+  // Given the UID of the object, get its underlying representation as an actual C++ object 
+  template <typename T>
+  static const T* get_underlying_object(const std::string obj_uid); 
+
+  static dunedaq::oksdbinterfaces::Configuration* get_underlying_configuration();
+  
   /**
    * Get a list of all classes defined in the database
    *

@@ -8,11 +8,16 @@
  * be used to generate graphs that visualize the database
  * patterns
  *
- ************************************************************/
+ * This is part of the DUNE DAQ Application Framework, copyright 2020.
+ * Licensing/copyright details are in the COPYING file that you should have
+ * received with this code.
+ *
+ *************************************************************/
 #include "GraphBuilder.hpp"
 #include "dbe/confaccessor.hpp"
 
 #include "logging/Logging.hpp"
+#include "appdal/appdalIssues.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -28,8 +33,10 @@ int main ( int argc, char * argv[] )
   // Setting language variable to English (otherwise "," is interpreted as "." in numbers)
   setenv ( "LC_ALL", "C", 1 );
 
-  std::string oksfilename, outputfilename;
-  std::string level;
+  std::string oksfilename = "";
+  std::string outputfilename = "";
+  std::string level = "";
+  std::string object_uid = "";
 
   bpo::options_description options_description (
     "Allowed options", 128 );
@@ -41,6 +48,8 @@ int main ( int argc, char * argv[] )
   ( "file,f", bpo::value<std::string> ( &oksfilename ), "OKS database file name" )
 
   ( "level,l", bpo::value<std::string>(&level), "base level (session, segment, application, module)")
+
+  ( "object,b", bpo::value<std::string>(&object_uid), "base object UID")
 
   ( "output,o", bpo::value<std::string> ( &outputfilename ),
     "Output DOT file which can be used as input to GraphViz" );
@@ -83,8 +92,13 @@ int main ( int argc, char * argv[] )
     // Initialize access to configuration backend
     dbe::confaccessor::init();
     
-    dbe::GraphBuilder graphbuilder(oksfilename); 
-    graphbuilder.construct_graph( level_as_enum.at( level ) );
+    dbe::GraphBuilder graphbuilder(oksfilename);
+
+    if (args.count("object")) {
+      graphbuilder.construct_graph( level_as_enum.at( level ), object_uid );
+    } else {
+      graphbuilder.construct_graph( level_as_enum.at( level ) );
+    }
 
     write_graph(
 		graphbuilder.get_graph(),
@@ -99,15 +113,20 @@ int main ( int argc, char * argv[] )
     errmsgstr << "Incorrect command line argument: " << e.what();
     ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
 
+  } catch (dunedaq::appdal::BadConf& exc) {
+    std::stringstream errmsgstr;
+    errmsgstr << "Caught BadConf exception: " << exc;
+    ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
+
   } catch(const dbe::GeneralGraphToolError& e) {
 
     ers::fatal(e);
 
-  } catch (...) {
+  } // catch (...) {
 
-    ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, "Program execution failure"));
+  //    ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, "Program execution failure"));
 
-  } 
+  //  } 
 
   return 0;
 
