@@ -37,7 +37,25 @@ namespace dbe {
 	label(uid_arg + "@" + classname_arg),
 	displaylabel(uid_arg + "\n" + classname_arg)
       {}
-      
+
+
+      bool operator>(const VertexLabel& other) const {
+        if (uid > other.uid) {
+	  return true;
+        } else if (uid == other.uid) {
+	  return classname > other.classname;
+        }
+        return false;
+      }
+
+      bool operator<(const VertexLabel& other) const {
+        return other > *this;
+      }
+
+      bool operator==(const VertexLabel& other) const {
+	return !(*this < other) && !(other < *this); // !(a < b) && !(b < a) is equivalent to a == b
+      }
+
       std::string uid;
       std::string classname;
       std::string label;

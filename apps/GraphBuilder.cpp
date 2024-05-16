@@ -27,6 +27,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -170,10 +171,36 @@ namespace dbe {
 	  if (daqapp) {
 	    auto modules = daqapp->generate_modules(
 					       config::api::info::onclass::get_underlying_configuration(), m_oksfilename, m_session);
+
+	    // This map will exist until it's determined how to check a Graph_t for an already-existing vertex
+	    std::map<VertexLabel, Vertex_t> io_vertices;
+
 	    for (const auto& module : modules) {
-	      TLOG() << "Module " << module->UID() << "@" << module->class_name();
+
 	      auto module_vertex = boost::add_vertex( VertexLabel(module->UID(), module->class_name()), m_graph);
-	      boost::add_edge(vertex, module_vertex, m_graph); 
+	      boost::add_edge(vertex, module_vertex, m_graph);
+
+	      auto raw_io_connections = module->get_inputs();
+	      std::copy(module->get_outputs().begin(),
+			module->get_outputs().end(),
+			std::back_inserter(raw_io_connections));
+
+	      for (auto connection : raw_io_connections) {
+
+		// The network vertices add clutter, for now focus just on queues
+		if (connection->config_object().class_name().find("Network") != std::string::npos) {
+		  continue;
+		}
+
+		auto connection_vertex_label = VertexLabel(connection->config_object().UID(),
+						      connection->config_object().class_name());
+
+		if (io_vertices.find(connection_vertex_label) == io_vertices.end()) {
+		  io_vertices[connection_vertex_label] = boost::add_vertex(connection_vertex_label, m_graph);
+		}
+
+		boost::add_edge(module_vertex, io_vertices[connection_vertex_label], m_graph);
+	      }
 	    }
 	  }
 	}

@@ -122,11 +122,7 @@ int main ( int argc, char * argv[] )
 
     ers::fatal(e);
 
-  } // catch (...) {
-
-  //    ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, "Program execution failure"));
-
-  //  } 
+  }
 
   return 0;
 
