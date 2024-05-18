@@ -112,8 +112,6 @@ namespace dbe {
 	  
 	  if (daqapp != nullptr) {
 
-	    TLOG() << appobj.UID() << " is of class " << daqapp->class_name() << std::endl;
-
 	    auto res = daqapp->cast<dunedaq::coredal::ResourceBase>();
 	    
 	    if (res != nullptr && res->disabled(*m_session)) {
@@ -148,7 +146,7 @@ namespace dbe {
 	m_passed_objects.emplace_back(obj);
 	auto vertex = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
 
-	add_connected_objects(obj, vertex);
+	add_connected_objects(obj, vertex, true);
       }
     }
   }
@@ -163,7 +161,7 @@ namespace dbe {
 	found = true;
 	m_passed_objects.emplace_back(obj);
 	auto vertex = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
-	add_connected_objects(obj, vertex);
+	add_connected_objects(obj, vertex, false);
       
 	if (obj.class_name().find("Application")) {
 
@@ -178,22 +176,26 @@ namespace dbe {
 	    for (const auto& module : modules) {
 
 	      auto module_vertex = boost::add_vertex( VertexLabel(module->UID(), module->class_name()), m_graph);
-	      boost::add_edge(vertex, module_vertex, m_graph);
 
-	      auto raw_io_connections = module->get_inputs();
-	      std::copy(module->get_outputs().begin(),
-			module->get_outputs().end(),
-			std::back_inserter(raw_io_connections));
+	      // Easier to look at an Application graph without the lines between it and the (obviously-owned) modules
+	      // boost::add_edge(vertex, module_vertex, m_graph);
 
-	      for (auto connection : raw_io_connections) {
-
-		// The network vertices add clutter, for now focus just on queues
-		if (connection->config_object().class_name().find("Network") != std::string::npos) {
-		  continue;
-		}
+	      for (auto connection : module->get_inputs()) {
 
 		auto connection_vertex_label = VertexLabel(connection->config_object().UID(),
-						      connection->config_object().class_name());
+							   connection->config_object().class_name());
+
+		if (io_vertices.find(connection_vertex_label) == io_vertices.end()) {
+		  io_vertices[connection_vertex_label] = boost::add_vertex(connection_vertex_label, m_graph);
+		}
+
+		boost::add_edge(io_vertices[connection_vertex_label], module_vertex, m_graph);
+	      }
+
+	      for (auto connection : module->get_outputs()) {
+
+		auto connection_vertex_label = VertexLabel(connection->config_object().UID(),
+							   connection->config_object().class_name());
 
 		if (io_vertices.find(connection_vertex_label) == io_vertices.end()) {
 		  io_vertices[connection_vertex_label] = boost::add_vertex(connection_vertex_label, m_graph);
@@ -234,8 +236,8 @@ namespace dbe {
     }
   }
     
-  void GraphBuilder::add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx) {
-    
+  void GraphBuilder::add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx, bool add_edges) {
+
     VertexLabel starting_vtx_label(starting_obj.UID(), starting_obj.class_name());
     
     std::vector<tref> connected_objs = config::api::graph::linked::by::object<tref> ( starting_obj ); 
@@ -250,9 +252,12 @@ namespace dbe {
 
 	  VertexLabel connected_vtx_label(connected_obj.UID(), connected_obj.class_name());
 	  const auto& connected_vtx = boost::add_vertex(connected_vtx_label, m_graph);
-	  boost::add_edge(starting_vtx, connected_vtx, m_graph); 
+
+	  if (add_edges) {
+	    boost::add_edge(starting_vtx, connected_vtx, m_graph);
+	  }
 	  
-	  add_connected_objects(connected_obj, connected_vtx);
+	  add_connected_objects(connected_obj, connected_vtx, true);
 	}
       }
     }

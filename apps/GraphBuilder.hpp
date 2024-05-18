@@ -80,7 +80,7 @@ namespace dbe {
 
   private:
 
-    void add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx);
+    void add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx, bool add_edges);
     void find_candidate_objects(const TopGraphLevel level);
 
     const std::string m_oksfilename;

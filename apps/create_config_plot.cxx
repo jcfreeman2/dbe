@@ -62,7 +62,7 @@ int main ( int argc, char * argv[] )
         << "DBE create_config_plot : Generate dot graphs from database files"
         << std::endl
         << std::endl
-        << "Usage: create_config_plot -f/--file <input OKS file> -l/--level <session, segment, application or module> (-o/--output <output DOT file>)"
+        << "Usage: create_config_plot -f/--file <input OKS file> -b/--object <base object UID for a session or application> -l/--level <session, segment, application or module> (-o/--output <output DOT file>)"
         << "\nIf no output file is specified the result is sent to stdout"
         << std::endl
         << std::endl
