@@ -11,7 +11,7 @@
 #include "dbe/messenger.hpp"
 #include "dbe/config_api.hpp"
 
-using namespace dunedaq::oksdbinterfaces;
+using namespace dunedaq::conffwk;
 
 
 //------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ namespace get
 
 template<typename T>
 inline std::vector<std::string> attribute::read (
-  ConfigObject & input, dunedaq::oksdbinterfaces::attribute_t const & attr )
+  ConfigObject & input, dunedaq::conffwk::attribute_t const & attr )
 {
   std::vector<T> attrvalues;
 
@@ -64,7 +64,7 @@ inline std::vector<std::string> attribute::read (
 //------------------------------------------------------------------------------------------
 template<typename T>
 inline T direct::attribute ( ConfigObject & input,
-                             dunedaq::oksdbinterfaces::attribute_t const & attr )
+                             dunedaq::conffwk::attribute_t const & attr )
 {
   T value;
   input.get ( attr.p_name, value );
@@ -76,66 +76,66 @@ inline T direct::attribute ( ConfigObject & input,
 //------------------------------------------------------------------------------------------
 template<>
 QStringList direct::attribute<QStringList> ( ConfigObject & input,
-                                             dunedaq::oksdbinterfaces::attribute_t const & attr )
+                                             dunedaq::conffwk::attribute_t const & attr )
 {
   std::vector<std::string> data;
 
   switch ( attr.p_type )
   {
 
-  case dunedaq::oksdbinterfaces::bool_type:
+  case dunedaq::conffwk::bool_type:
     data = get::attribute::read<bool> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::enum_type:
+  case dunedaq::conffwk::enum_type:
 
-  case dunedaq::oksdbinterfaces::date_type:
+  case dunedaq::conffwk::date_type:
 
-  case dunedaq::oksdbinterfaces::time_type:
+  case dunedaq::conffwk::time_type:
 
-  case dunedaq::oksdbinterfaces::string_type:
+  case dunedaq::conffwk::string_type:
 
-  case dunedaq::oksdbinterfaces::class_type:
+  case dunedaq::conffwk::class_type:
     data = get::attribute::read<std::string> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::float_type:
+  case dunedaq::conffwk::float_type:
     data = get::attribute::read<float> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::double_type:
+  case dunedaq::conffwk::double_type:
     data = get::attribute::read<double> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::s8_type:
+  case dunedaq::conffwk::s8_type:
     data = get::attribute::read<int8_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::u8_type:
+  case dunedaq::conffwk::u8_type:
     data = get::attribute::read<u_int8_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::s16_type:
+  case dunedaq::conffwk::s16_type:
     data = get::attribute::read<int16_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::u16_type:
+  case dunedaq::conffwk::u16_type:
     data = get::attribute::read<u_int16_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::s32_type:
+  case dunedaq::conffwk::s32_type:
     data = get::attribute::read<int32_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::u32_type:
+  case dunedaq::conffwk::u32_type:
     data = get::attribute::read<u_int32_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::s64_type:
+  case dunedaq::conffwk::s64_type:
     data = get::attribute::read<int64_t> ( input, attr );
     break;
 
-  case dunedaq::oksdbinterfaces::u64_type:
+  case dunedaq::conffwk::u64_type:
     data = get::attribute::read<u_int64_t> ( input, attr );
     break;
   }
@@ -154,83 +154,83 @@ QStringList direct::attribute<QStringList> ( ConfigObject & input,
 template
 QStringList direct::attribute<QStringList>
 ( ConfigObject &,
-  dunedaq::oksdbinterfaces::attribute_t const & );
+  dunedaq::conffwk::attribute_t const & );
 
 template
 ConfigObject direct::attribute<ConfigObject>
 ( ConfigObject &,
-  dunedaq::oksdbinterfaces::attribute_t const & );
+  dunedaq::conffwk::attribute_t const & );
 
 template
 std::vector<ConfigObject>
 direct::attribute<std::vector<ConfigObject>> (
-                                            ConfigObject &, dunedaq::oksdbinterfaces::attribute_t const & );
+                                            ConfigObject &, dunedaq::conffwk::attribute_t const & );
 
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
 template<typename T>
 inline T attribute::list ( dbe::inner::configobject::tref obj,
-                           dunedaq::oksdbinterfaces::attribute_t const & Attribute )
+                           dunedaq::conffwk::attribute_t const & Attribute )
 {
   std::vector<std::string> attrvalues;
 
   switch ( Attribute.p_type )
   {
 
-  case dunedaq::oksdbinterfaces::bool_type:
+  case dunedaq::conffwk::bool_type:
     attrvalues = get::attribute::read<bool> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::enum_type:
+  case dunedaq::conffwk::enum_type:
 
-  case dunedaq::oksdbinterfaces::date_type:
+  case dunedaq::conffwk::date_type:
 
-  case dunedaq::oksdbinterfaces::time_type:
+  case dunedaq::conffwk::time_type:
 
-  case dunedaq::oksdbinterfaces::string_type:
+  case dunedaq::conffwk::string_type:
 
-  case dunedaq::oksdbinterfaces::class_type:
+  case dunedaq::conffwk::class_type:
     attrvalues = get::attribute::read<std::string> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::float_type:
+  case dunedaq::conffwk::float_type:
     attrvalues = get::attribute::read<float> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::double_type:
+  case dunedaq::conffwk::double_type:
     attrvalues = get::attribute::read<double> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::s8_type:
+  case dunedaq::conffwk::s8_type:
     attrvalues = get::attribute::read<int8_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::u8_type:
+  case dunedaq::conffwk::u8_type:
     attrvalues = get::attribute::read<u_int8_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::s16_type:
+  case dunedaq::conffwk::s16_type:
     attrvalues = get::attribute::read<int16_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::u16_type:
+  case dunedaq::conffwk::u16_type:
     attrvalues = get::attribute::read<u_int16_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::s32_type:
+  case dunedaq::conffwk::s32_type:
     attrvalues = get::attribute::read<int32_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::u32_type:
+  case dunedaq::conffwk::u32_type:
     attrvalues = get::attribute::read<u_int32_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::s64_type:
+  case dunedaq::conffwk::s64_type:
     attrvalues = get::attribute::read<int64_t> ( obj, Attribute );
     break;
 
-  case dunedaq::oksdbinterfaces::u64_type:
+  case dunedaq::conffwk::u64_type:
     attrvalues = get::attribute::read<u_int64_t> ( obj, Attribute );
     break;
   }
@@ -241,7 +241,7 @@ inline T attribute::list ( dbe::inner::configobject::tref obj,
 // Template method declaration of attribute::list for type QStringList
 template
 QStringList attribute::list<QStringList> ( dbe::inner::configobject::tref obj,
-                              dunedaq::oksdbinterfaces::attribute_t const & );
+                              dunedaq::conffwk::attribute_t const & );
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
@@ -266,7 +266,7 @@ QStringList file::inclusions ( QStringList const & candidates, QStringList files
 
         try
         {
-          if ( not ( fname.contains ( "rdbconfig:" ) or fname.contains ( "roksconfig:" ) ) )
+          if ( not ( fname.contains ( "rdbconfig:" ) or fname.contains ( "roksconflibs:" ) ) )
           {
             // Process file based sources
             dbaccessor::dbptr()->get_includes ( fname.toStdString(), configfiles );
@@ -278,7 +278,7 @@ QStringList file::inclusions ( QStringList const & candidates, QStringList files
             files.removeAll ( fname ); // Once used RDB / Oracle sources must be removed
           }
         }
-        catch ( dunedaq::oksdbinterfaces::Exception const & ex )
+        catch ( dunedaq::conffwk::Exception const & ex )
         {
           ERROR ( "Include did not succeed for ", dbe::config::errors::parse ( ex ).c_str(),
                   "filename:", fname.toStdString().c_str() );
@@ -323,7 +323,7 @@ QStringList file::inclusions_singlefile ( QString const & FileName )
       dbfiles.push_back ( QString ( includeName.c_str() ) );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception & ex )
+  catch ( dunedaq::conffwk::Exception & ex )
   {
     WARN ( "Include : Could not retrieve included files",
            dbe::config::errors::parse ( ex ).c_str() );
@@ -335,7 +335,7 @@ QStringList file::inclusions_singlefile ( QString const & FileName )
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-QStringList get::defaults::attribute::value ( dunedaq::oksdbinterfaces::attribute_t const & attr )
+QStringList get::defaults::attribute::value ( dunedaq::conffwk::attribute_t const & attr )
 {
   return QString::fromStdString ( attr.p_default_value ).split ( "," );
 }

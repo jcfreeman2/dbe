@@ -15,9 +15,9 @@
 #include "dbe/Exceptions.hpp"
 #include "dbe/messenger.hpp"
 
-#include "oksdbinterfaces/ConfigObject.hpp"
-#include "oksdbinterfaces/Errors.hpp"
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/ConfigObject.hpp"
+#include "conffwk/Errors.hpp"
+#include "conffwk/Schema.hpp"
 
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
@@ -35,7 +35,7 @@ class ChangeEnum:
   public onobject
 {
 public:
-  ChangeEnum ( tref Object, dunedaq::oksdbinterfaces::attribute_t AttributeData, T NewValueData,
+  ChangeEnum ( tref Object, dunedaq::conffwk::attribute_t AttributeData, T NewValueData,
                QUndoCommand * parent = nullptr );
   void undo();
   void redo();
@@ -43,12 +43,12 @@ public:
 private:
   T OldValue;
   T NewValue;
-  dunedaq::oksdbinterfaces::attribute_t Attribute;
+  dunedaq::conffwk::attribute_t Attribute;
   bool Success;
 };
 
 template<typename T>
-ChangeEnum<T>::ChangeEnum ( tref Object, dunedaq::oksdbinterfaces::attribute_t AttributeData,
+ChangeEnum<T>::ChangeEnum ( tref Object, dunedaq::conffwk::attribute_t AttributeData,
                             T NewValueData, QUndoCommand * parent )
   : onobject ( Object, parent ),
     NewValue ( NewValueData ),
@@ -61,7 +61,7 @@ ChangeEnum<T>::ChangeEnum ( tref Object, dunedaq::oksdbinterfaces::attribute_t A
     { dbe::config::api::get::attribute::list<QStringList> ( Object, Attribute ) };
     OldValue = convert::to<T> ( Data );
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     Q_UNUSED ( e )
   }
@@ -83,7 +83,7 @@ void ChangeEnum<T>::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     Success = false;
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );
@@ -116,7 +116,7 @@ void ChangeEnum<T>::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     Success = false;
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, e );

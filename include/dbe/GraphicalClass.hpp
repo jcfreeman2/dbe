@@ -4,7 +4,7 @@
 /// Including QT
 #include <QGraphicsObject>
 /// Including config
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 
 namespace dbe
 {
@@ -95,7 +95,7 @@ class GraphicalRelationship: public QGraphicsObject
   Q_OBJECT
 public:
   explicit GraphicalRelationship ( QString ObjectName, QString ClassName,
-                                   dunedaq::oksdbinterfaces::relationship_t & Data, QGraphicsObject * parent =
+                                   dunedaq::conffwk::relationship_t & Data, QGraphicsObject * parent =
                                      0 );
   ~GraphicalRelationship();
   QRectF boundingRect() const;
@@ -111,7 +111,7 @@ public:
 private:
   QString DatabaseClassName;
   QString DatabaseUidName;
-  dunedaq::oksdbinterfaces::relationship_t RelationshipData;
+  dunedaq::conffwk::relationship_t RelationshipData;
   QGraphicsTextItem * TextItem;
 };
 

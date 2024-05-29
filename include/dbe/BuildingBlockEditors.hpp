@@ -1,7 +1,7 @@
 #ifndef BUILDINGBLOCKEDITORS_H
 #define BUILDINGBLOCKEDITORS_H
 
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 
 #include "ui_RelationshipWidgetForm.h"
 #include "ui_StringAttributeWidgetForm.h"
@@ -168,7 +168,7 @@ class relation: public base, private dbe::Ui::RelationshipForm
 
 public:
 
-  typedef dunedaq::oksdbinterfaces::relationship_t t_virtue;
+  typedef dunedaq::conffwk::relationship_t t_virtue;
   typedef editor_data<t_virtue> t_build_block_editor;
 
   relation ( t_virtue const & relation, QWidget * parent = nullptr, bool owned = false );
@@ -237,7 +237,7 @@ class stringattr: public base, private Ui::StringAttributeWidgetForm
   Q_OBJECT
 
 public:
-  typedef dunedaq::oksdbinterfaces::attribute_t t_virtue;
+  typedef dunedaq::conffwk::attribute_t t_virtue;
   typedef editor_data<t_virtue> t_build_block_editor;
 
   stringattr ( t_virtue const & attr, QWidget * parent = nullptr, bool owned = false );
@@ -291,7 +291,7 @@ class numericattr: public base, private Ui::NumericAttributeWidgetForm
   Q_OBJECT
 
 public:
-  typedef dunedaq::oksdbinterfaces::attribute_t t_virtue;
+  typedef dunedaq::conffwk::attribute_t t_virtue;
   typedef editor_data<t_virtue> t_build_block_editor;
 
   numericattr ( t_virtue const & attr, QWidget * parent = nullptr, bool owned = false );
@@ -338,7 +338,7 @@ class combo: public base, public Ui::EditCombo
   Q_OBJECT
 
 public:
-  typedef dunedaq::oksdbinterfaces::attribute_t t_virtue;
+  typedef dunedaq::conffwk::attribute_t t_virtue;
   typedef editor_data<t_virtue> t_build_block_editor;
 
   combo ( t_virtue const & attr, QWidget * parent = nullptr, bool owned = false );
@@ -376,7 +376,7 @@ class multiattr: public base
   Q_OBJECT
 
 public:
-  typedef dunedaq::oksdbinterfaces::attribute_t t_virtue;
+  typedef dunedaq::conffwk::attribute_t t_virtue;
   typedef editor_data<t_virtue> t_build_block_editor;
 
   multiattr ( t_virtue const & attr, QWidget * parent = nullptr, bool owned = false );

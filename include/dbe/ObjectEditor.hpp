@@ -52,10 +52,10 @@ private:
   void SetController();
   void BuildWidgets();
 
-  void set_tooltip ( dunedaq::oksdbinterfaces::attribute_t const &, widgets::editors::base * );
-  void set_tooltip ( dunedaq::oksdbinterfaces::relationship_t const &, widgets::editors::base * );
+  void set_tooltip ( dunedaq::conffwk::attribute_t const &, widgets::editors::base * );
+  void set_tooltip ( dunedaq::conffwk::relationship_t const &, widgets::editors::base * );
 
-  void set_attribute_widget ( dunedaq::oksdbinterfaces::attribute_t const &, widgets::editors::base * );
+  void set_attribute_widget ( dunedaq::conffwk::attribute_t const &, widgets::editors::base * );
 
   void register_attribute_widget ( QString const & name, widgets::editors::base * widget );
   void register_relation_widget ( QString const & name, widgets::editors::base * widget );

@@ -11,11 +11,11 @@
 #include "dbe/dbcontroller.hpp"
 #include "dbe/messenger.hpp"
 
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 
 #include <algorithm>
 
-using namespace dunedaq::oksdbinterfaces;
+using namespace dunedaq::conffwk;
 
 //------------------------------------------------------------------------------------------
 //                                      DBE::CONFIG::API::GRAPH NAMESPACE
@@ -41,16 +41,16 @@ namespace through
  * Objects referenced by the given object through a specific attribute
  */
 template<>
-tref attribute<tref> ( tref object, dunedaq::oksdbinterfaces::attribute_t const & attr )
+tref attribute<tref> ( tref object, dunedaq::conffwk::attribute_t const & attr )
 {
   return object.get<tref> ( attr.p_name );
 }
 
 template<>
 std::vector<tref> attribute<std::vector<tref>> (
-                                              tref item, dunedaq::oksdbinterfaces::attribute_t const & attr )
+                                              tref item, dunedaq::conffwk::attribute_t const & attr )
 {
-  if ( attr.p_type == dunedaq::oksdbinterfaces::class_type )
+  if ( attr.p_type == dunedaq::conffwk::class_type )
   {
     if ( attr.p_is_multi_value )
     {
@@ -92,14 +92,14 @@ std::vector<tref> attribute<std::vector<tref>> (
  * Objects referenced by the given object through a specific relation
  */
 template<>
-tref relation<tref> ( tref object, dunedaq::oksdbinterfaces::relationship_t const & r )
+tref relation<tref> ( tref object, dunedaq::conffwk::relationship_t const & r )
 {
   return object.get<tref> ( r.p_name );
 }
 
 template<>
 std::vector<tref> relation<std::vector<tref>> (
-                                             tref item, dunedaq::oksdbinterfaces::relationship_t const & r )
+                                             tref item, dunedaq::conffwk::relationship_t const & r )
 {
   if ( dbe::config::api::info::relation::is_simple ( r ) )
   {
@@ -124,7 +124,7 @@ std::vector<tref> relation<std::vector<tref>> (
 
 template<>
 QStringList relation<QStringList> (
-  tref item, dunedaq::oksdbinterfaces::relationship_t const & r )
+  tref item, dunedaq::conffwk::relationship_t const & r )
 {
   QStringList result;
   std::vector<tref> adjacent = relation<std::vector<tref>> ( item, r );
@@ -140,7 +140,7 @@ QStringList relation<QStringList> (
 template<>
 std::vector<dbe::config_object_description<std::string>> relation <
                                                       std::vector<dbe::config_object_description<std::string> > > (
-                                                        tref object, dunedaq::oksdbinterfaces::relationship_t const & relation )
+                                                        tref object, dunedaq::conffwk::relationship_t const & relation )
 {
   std::vector<dbe::config_object_description<std::string>> result;
 
@@ -162,7 +162,7 @@ std::vector<dbe::config_object_description<std::string>> relation <
 //------------------------------------------------------------------------------------------
 template<typename T>
 inline T direct::linked ( ConfigObject & input,
-                          dunedaq::oksdbinterfaces::relationship_t const & relation )
+                          dunedaq::conffwk::relationship_t const & relation )
 {
   T value;
   input.get ( relation.p_name, value );
@@ -171,12 +171,12 @@ inline T direct::linked ( ConfigObject & input,
 
 template
 ConfigObject direct::linked<ConfigObject> (
-  ConfigObject &, dunedaq::oksdbinterfaces::relationship_t const & );
+  ConfigObject &, dunedaq::conffwk::relationship_t const & );
 
 template
 std::vector<ConfigObject>
 direct::linked<std::vector<ConfigObject>> (
-  ConfigObject &, dunedaq::oksdbinterfaces::relationship_t const & );
+  ConfigObject &, dunedaq::conffwk::relationship_t const & );
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
@@ -186,12 +186,12 @@ direct::linked<std::vector<ConfigObject>> (
 template<typename T>
 std::vector<T> linked::through::relations ( inner::configobject::tref const & o )
 {
-  dunedaq::oksdbinterfaces::class_t classdef
+  dunedaq::conffwk::class_t classdef
   { info::onclass::definition ( o.class_name(), false ) };
 
   std::vector<T> voisins;
 
-  for ( dunedaq::oksdbinterfaces::relationship_t const & r : classdef.p_relationships )
+  for ( dunedaq::conffwk::relationship_t const & r : classdef.p_relationships )
   {
     std::vector<T> a = relation<std::vector<T>> ( o, r );
     voisins.insert ( voisins.end(), a.begin(), a.end() );
@@ -209,12 +209,12 @@ template std::vector<tref> linked::through::relations<tref> ( tref const & );
 template<typename T>
 std::vector<T> linked::through::attributes ( inner::configobject::tref const & o )
 {
-  dunedaq::oksdbinterfaces::class_t classdef
+  dunedaq::conffwk::class_t classdef
   { info::onclass::definition ( o.class_name(), true ) };
 
   std::vector<T> voisins;
 
-  for ( dunedaq::oksdbinterfaces::attribute_t const & attr : classdef.p_attributes )
+  for ( dunedaq::conffwk::attribute_t const & attr : classdef.p_attributes )
   {
     std::vector<tref> a = attribute<std::vector<T>> ( o, attr );
     voisins.insert ( voisins.end(), a.begin(), a.end() );
@@ -232,7 +232,7 @@ template std::vector<tref> linked::through::attributes<tref> ( tref const & );
  * Retrieve links by operating directly on a ConfigObject
  */
 template<typename T>
-inline T direct::linked ( ConfigObject & input, dunedaq::oksdbinterfaces::attribute_t const & relation )
+inline T direct::linked ( ConfigObject & input, dunedaq::conffwk::attribute_t const & relation )
 {
   T value;
   input.get ( relation.p_name, value );
@@ -241,7 +241,7 @@ inline T direct::linked ( ConfigObject & input, dunedaq::oksdbinterfaces::attrib
 
 template<>
 inline QStringList direct::linked<QStringList> (
-  ConfigObject & input, dunedaq::oksdbinterfaces::relationship_t const & relation )
+  ConfigObject & input, dunedaq::conffwk::relationship_t const & relation )
 {
   QStringList result;
   std::vector<ConfigObject> adjacent;
@@ -266,35 +266,35 @@ inline QStringList direct::linked<QStringList> (
 
 template
 ConfigObject direct::linked<ConfigObject> ( ConfigObject &,
-                                            dunedaq::oksdbinterfaces::attribute_t const & );
+                                            dunedaq::conffwk::attribute_t const & );
 template
 std::vector<ConfigObject>
 direct::linked<std::vector<ConfigObject>> ( ConfigObject &,
-                                            dunedaq::oksdbinterfaces::attribute_t const & );
+                                            dunedaq::conffwk::attribute_t const & );
 template
 QStringList direct::linked<QStringList> (
-  ConfigObject &, dunedaq::oksdbinterfaces::relationship_t const & );
+  ConfigObject &, dunedaq::conffwk::relationship_t const & );
 //------------------------------------------------------------------------------------------
 
 
 template
 tref linked::through::attribute<tref> (
-  inner::configobject::tref, dunedaq::oksdbinterfaces::attribute_t const & );
+  inner::configobject::tref, dunedaq::conffwk::attribute_t const & );
 template
 std::vector<tref> linked::through::attribute<std::vector<tref>> (
-                                                               inner::configobject::tref, dunedaq::oksdbinterfaces::attribute_t const & );
+                                                               inner::configobject::tref, dunedaq::conffwk::attribute_t const & );
 template
-tref linked::through::relation<tref> ( tref, dunedaq::oksdbinterfaces::relationship_t const & );
+tref linked::through::relation<tref> ( tref, dunedaq::conffwk::relationship_t const & );
 template
 std::vector<tref>
-linked::through::relation<std::vector<tref>> ( tref, dunedaq::oksdbinterfaces::relationship_t const & );
+linked::through::relation<std::vector<tref>> ( tref, dunedaq::conffwk::relationship_t const & );
 template
 QStringList linked::through::relation<QStringList> ( tref,
-                                                     dunedaq::oksdbinterfaces::relationship_t const & );
+                                                     dunedaq::conffwk::relationship_t const & );
 template
 std::vector<dbe::config_object_description<std::string>> linked::through::relation <
 std::vector<dbe::config_object_description<std::string> > > (
-  dbe::inner::configobject::tref, dunedaq::oksdbinterfaces::relationship_t const & );
+  dbe::inner::configobject::tref, dunedaq::conffwk::relationship_t const & );
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------

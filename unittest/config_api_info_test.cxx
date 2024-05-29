@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(on_not_existent_class)
 		BOOST_CHECK_NO_THROW(api::info::onclass::definition(class_not_existent, false));
 
 		// Returns an empty object
-		dunedaq::oksdbinterfaces::class_t definition =
+		dunedaq::conffwk::class_t definition =
 		{ api::info::onclass::definition(class_not_existent, false) };
 
 		BOOST_CHECK(definition.p_name.empty());
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(on_abstract_class_definition)
 	{
 		BOOST_CHECK_NO_THROW(api::info::onclass::definition(class_abstract, false));
 
-		dunedaq::oksdbinterfaces::class_t definition =
+		dunedaq::conffwk::class_t definition =
 		{ api::info::onclass::definition(class_abstract, false) };
 
 		BOOST_CHECK(definition.p_abstract);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(on_abstract_class_definition)
 
 	{
 		BOOST_CHECK_NO_THROW(api::info::onclass::definition(class_non_abstract, false));
-		dunedaq::oksdbinterfaces::class_t definition =
+		dunedaq::conffwk::class_t definition =
 		{ api::info::onclass::definition(class_non_abstract, false) };
 
 		BOOST_CHECK_EQUAL(definition.p_abstract, false);
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(on_class_definition)
 	{
 		// Can retrieve definition for a class and not-only direct relations
 		BOOST_CHECK_NO_THROW(api::info::onclass::definition(class_non_abstract, false));
-		dunedaq::oksdbinterfaces::class_t definition = api::info::onclass::definition(class_non_abstract,
+		dunedaq::conffwk::class_t definition = api::info::onclass::definition(class_non_abstract,
 		false);
 		BOOST_CHECK_EQUAL(definition.p_name, class_non_abstract);
 		BOOST_CHECK(not definition.p_abstract);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(on_class_definition)
 	 
 		// Can retrieve definition for a class and direct only relations
 		BOOST_CHECK_NO_THROW(api::info::onclass::definition(class_non_abstract, true));
-		dunedaq::oksdbinterfaces::class_t result_class = api::info::onclass::definition(class_non_abstract,
+		dunedaq::conffwk::class_t result_class = api::info::onclass::definition(class_non_abstract,
 		true);
 
 		BOOST_CHECK_EQUAL(result_class.p_name, class_non_abstract);

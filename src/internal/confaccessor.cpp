@@ -11,7 +11,7 @@
 #include "dbe/config_ui_info.hpp"
 #include "dbe/version.hpp"
 
-#include "oksdbinterfaces/Configuration.hpp"
+#include "conffwk/Configuration.hpp"
 
 #include <QFileInfo>
 #include <QStringList>
@@ -23,7 +23,7 @@
 #include <vector>
 #include <stack>
 
-using namespace dunedaq::oksdbinterfaces;
+using namespace dunedaq::conffwk;
 
 char const * const dbe_lib_internal_version = dbe_compiled_version;
 
@@ -173,7 +173,7 @@ void dbe::confaccessor::set_total_objects ( int const i )
 template<>
 void dbe::confaccessor::set_dbinfo<dbe::dbinfo::oks> ( QString const & location )
 {
-  static QString const implementation ( "oksconfig" );
+  static QString const implementation ( "oksconflibs" );
 
   this_dblocation = location;
   this_resource_location = implementation + ":" + location;
@@ -185,7 +185,7 @@ template<>
 void dbe::confaccessor::set_dbinfo<dbe::dbinfo::roks> ( QString const & location )
 {
   this_dblocation = location;
-  static QString const implementation ( "roksconfig" );
+  static QString const implementation ( "roksconflibs" );
   this_resource_location = implementation + ":" + location;
   t_lock l ( this_change_enabled_mutex );
   this_change_enabled = true;
@@ -246,7 +246,7 @@ bool dbe::confaccessor::check_file_rw ( QString const & fn )
       return dbaccessor::dbptr()->is_writable ( fn.toStdString() );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Generic const & ex )
+  catch ( dunedaq::conffwk::Generic const & ex )
   {
     ERROR ( "Not possible to operate on file", dbe::config::errors::parse ( ex ),
             "\n\nCheck filename:", fn.toStdString() );
@@ -312,7 +312,7 @@ bool dbe::confaccessor::load(bool subscribeToChanges)
     dbholder::database_concurrent_ptr = cptr<Configuration> ( dbholder::database );
     return true;
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     FAIL ( "Database loading failed", dbe::config::errors::parse ( e ).c_str() );
     return false;
@@ -335,7 +335,7 @@ std::list<std::string> dbe::confaccessor::save ( const QString & CommitMessage )
 
     return tobecommited;
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::CouldNotCommitChanges ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }

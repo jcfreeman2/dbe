@@ -15,7 +15,7 @@ QStringList dbe::TableNode::GetData() const
   return Data;
 }
 
-dbe::TableAttributeNode::TableAttributeNode ( dunedaq::oksdbinterfaces::attribute_t Attribute,
+dbe::TableAttributeNode::TableAttributeNode ( dunedaq::conffwk::attribute_t Attribute,
                                               const QStringList & NodeData )
   : TableNode ( NodeData ),
     AttributeData ( Attribute )
@@ -29,12 +29,12 @@ QStringList dbe::TableAttributeNode::GetData() const
   return Data;
 }
 
-dunedaq::oksdbinterfaces::attribute_t dbe::TableAttributeNode::GetAttribute() const
+dunedaq::conffwk::attribute_t dbe::TableAttributeNode::GetAttribute() const
 {
   return AttributeData;
 }
 
-dbe::TableRelationshipNode::TableRelationshipNode ( dunedaq::oksdbinterfaces::relationship_t
+dbe::TableRelationshipNode::TableRelationshipNode ( dunedaq::conffwk::relationship_t
                                                     Relationship,
                                                     const QStringList & NodeData )
   : TableNode ( NodeData ),
@@ -49,7 +49,7 @@ QStringList dbe::TableRelationshipNode::GetData() const
   return Data;
 }
 
-dunedaq::oksdbinterfaces::relationship_t dbe::TableRelationshipNode::GetRelationship() const
+dunedaq::conffwk::relationship_t dbe::TableRelationshipNode::GetRelationship() const
 {
   return RelationshipData;
 }

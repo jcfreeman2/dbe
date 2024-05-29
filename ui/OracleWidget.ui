@@ -37,7 +37,7 @@
            <item>
             <widget class="QLabel" name="PluginLabel">
              <property name="text">
-              <string>roksconfig:</string>
+              <string>roksconflibs:</string>
              </property>
             </widget>
            </item>

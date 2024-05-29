@@ -381,7 +381,7 @@ void dbe::MainWindow::edit_object_at ( const QModelIndex Index )
   {
     // Class node
     QString const cname = tree_node->GetData ( 0 ).toString();
-    dunedaq::oksdbinterfaces::class_t cinfo = dbe::config::api::info::onclass::definition (
+    dunedaq::conffwk::class_t cinfo = dbe::config::api::info::onclass::definition (
                                    cname.toStdString(),
                                    false );
 
@@ -471,7 +471,7 @@ void dbe::MainWindow::build_file_model()
 {
   /// Changed -> Now accepting rdbconfig this means || !ConfigWrapper::GetInstance().GetDatabaseImplementation().contains("rdbconfig") was removed
 
-  if ( !confaccessor::db_implementation_name().contains ( "roksconfig" ) )
+  if ( !confaccessor::db_implementation_name().contains ( "roksconflibs" ) )
   {
     if ( this_files == nullptr )
     {
@@ -543,7 +543,7 @@ void dbe::MainWindow::slot_commit_database ( bool Exit )
       }
 
     }
-    catch ( dunedaq::oksdbinterfaces::Exception const & e )
+    catch ( dunedaq::conffwk::Exception const & e )
     {
       WARN ( "The changes could not be committed", dbe::config::errors::parse ( e ).c_str() )
       ers::error ( e );
@@ -568,7 +568,7 @@ void dbe::MainWindow::slot_abort_changes()
       confaccessor::clear_commands();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     ERROR ( "Database changes aborted", dbe::config::errors::parse ( e ).c_str() );
     ers::error ( e );
@@ -584,7 +584,7 @@ void dbe::MainWindow::slot_abort_external_changes()
       confaccessor::abort();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     ERROR ( "External changes aborted", dbe::config::errors::parse ( e ).c_str() );
     ers::error ( e );
@@ -868,7 +868,7 @@ void dbe::MainWindow::load_settings ( bool LoadSettings )
 {
   /// Load Settings means default settings
   QSettings * Settings;
-  QString userPath = QDir::homePath() + "/.oksdbinterfaces/ATLAS_TDAQ_DBE";
+  QString userPath = QDir::homePath() + "/.conffwk/ATLAS_TDAQ_DBE";
   QString userFile = "DBE_User_Settings.conf";
 
   if ( !LoadSettings )
@@ -1363,7 +1363,7 @@ std::vector<dbe::tref> dbe::MainWindow::ProcessQuery ( QString const & Tmp )
 
       return result;
     }
-    catch ( dunedaq::oksdbinterfaces::Exception const & ex )
+    catch ( dunedaq::conffwk::Exception const & ex )
     {
       ers::error ( ex );
       ERROR ( "Query process error", dbe::config::errors::parse ( ex ).c_str() );
@@ -1675,7 +1675,7 @@ void dbe::MainWindow::slot_process_externalchanges()
           }
 
         }
-        catch ( dunedaq::oksdbinterfaces::Exception const & e )
+        catch ( dunedaq::conffwk::Exception const & e )
         {
           WARN ( "Object reference could not be changed",
                  dbe::config::errors::parse ( e ).c_str(), "for object with UID:", Change.uid,

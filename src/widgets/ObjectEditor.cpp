@@ -62,7 +62,7 @@ dbe::ObjectEditor::ObjectEditor ( std::string const & cname, QWidget * parent )
   ui->RenameButton->setDisabled ( true ); // Cannot rename an object that does not exist
   ui->ClassLabel->setText ( QString ( "New Object" ) );
 
-  dunedaq::oksdbinterfaces::class_t const & Class =
+  dunedaq::conffwk::class_t const & Class =
     dbe::config::api::info::onclass::definition ( classname, false );
   int NumberOfRows = Class.p_attributes.size() + Class.p_relationships.size();
   int NumberOfColumns = 1;
@@ -138,7 +138,7 @@ dbe::ObjectEditor::ObjectEditor ( tref const & object, QWidget * parent, bool is
   this->setObjectName (
     QString ( "%1@%2" ).arg ( Object().UID().c_str() ).arg ( Object().class_name().c_str() ) );
 
-  dunedaq::oksdbinterfaces::class_t const & Class =
+  dunedaq::conffwk::class_t const & Class =
     dbe::config::api::info::onclass::definition ( classname, false );
   int NumberOfRows = Class.p_attributes.size() + Class.p_relationships.size();
   int NumberOfColumns = 1;
@@ -322,12 +322,12 @@ void dbe::ObjectEditor::UpdateObjectEditor ( QString const & src, dref updated_o
 
     object_to_edit.reset ( new dref ( updated_object ) );
 
-    dunedaq::oksdbinterfaces::class_t const & classdef =
+    dunedaq::conffwk::class_t const & classdef =
       dbe::config::api::info::onclass::definition ( classname, false );
-    std::vector<dunedaq::oksdbinterfaces::attribute_t> class_attributes = classdef.p_attributes;
-    std::vector<dunedaq::oksdbinterfaces::relationship_t> class_relations = classdef.p_relationships;
+    std::vector<dunedaq::conffwk::attribute_t> class_attributes = classdef.p_attributes;
+    std::vector<dunedaq::conffwk::relationship_t> class_relations = classdef.p_relationships;
 
-    for ( dunedaq::oksdbinterfaces::attribute_t attr : class_attributes )
+    for ( dunedaq::conffwk::attribute_t attr : class_attributes )
     {
       if ( widgets::editors::base * attreditor =
              this_widgets[QString::fromStdString ( attr.p_name )] )
@@ -336,7 +336,7 @@ void dbe::ObjectEditor::UpdateObjectEditor ( QString const & src, dref updated_o
       }
     }
 
-    for ( dunedaq::oksdbinterfaces::relationship_t arelation : class_relations )
+    for ( dunedaq::conffwk::relationship_t arelation : class_relations )
     {
       QStringList relvalues;
       QString relname = QString ( arelation.p_name.c_str() );
@@ -413,12 +413,12 @@ void dbe::ObjectEditor::ShouldCloseThisWindow ( QString const src, dref const ke
 //------------------------------------------------------------------------------------------
 void dbe::ObjectEditor::BuildWidgets()
 {
-  dunedaq::oksdbinterfaces::class_t const & classdef =
+  dunedaq::conffwk::class_t const & classdef =
     dbe::config::api::info::onclass::definition ( classname, false );
-  std::vector<dunedaq::oksdbinterfaces::attribute_t> attributes = classdef.p_attributes;
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> relations = classdef.p_relationships;
+  std::vector<dunedaq::conffwk::attribute_t> attributes = classdef.p_attributes;
+  std::vector<dunedaq::conffwk::relationship_t> relations = classdef.p_relationships;
 
-  for ( dunedaq::oksdbinterfaces::attribute_t const & attr : attributes ) // Build widgets for attributes
+  for ( dunedaq::conffwk::attribute_t const & attr : attributes ) // Build widgets for attributes
 
   {
     QString name = QString::fromStdString ( attr.p_name );
@@ -441,9 +441,9 @@ void dbe::ObjectEditor::BuildWidgets()
       switch ( attr.p_type )
       {
 
-      case dunedaq::oksdbinterfaces::enum_type:
+      case dunedaq::conffwk::enum_type:
 
-      case dunedaq::oksdbinterfaces::bool_type:
+      case dunedaq::conffwk::bool_type:
       {
         widgets::editors::combo * Widget = new widgets::editors::combo ( attr, this, true );
         set_attribute_widget ( attr, Widget );
@@ -457,25 +457,25 @@ void dbe::ObjectEditor::BuildWidgets()
         break;
       }
 
-      case dunedaq::oksdbinterfaces::double_type:
+      case dunedaq::conffwk::double_type:
 
-      case dunedaq::oksdbinterfaces::float_type:
+      case dunedaq::conffwk::float_type:
 
-      case dunedaq::oksdbinterfaces::s8_type:
+      case dunedaq::conffwk::s8_type:
 
-      case dunedaq::oksdbinterfaces::s16_type:
+      case dunedaq::conffwk::s16_type:
 
-      case dunedaq::oksdbinterfaces::s32_type:
+      case dunedaq::conffwk::s32_type:
 
-      case dunedaq::oksdbinterfaces::s64_type:
+      case dunedaq::conffwk::s64_type:
 
-      case dunedaq::oksdbinterfaces::u8_type:
+      case dunedaq::conffwk::u8_type:
 
-      case dunedaq::oksdbinterfaces::u16_type:
+      case dunedaq::conffwk::u16_type:
 
-      case dunedaq::oksdbinterfaces::u32_type:
+      case dunedaq::conffwk::u32_type:
 
-      case dunedaq::oksdbinterfaces::u64_type:
+      case dunedaq::conffwk::u64_type:
       {
         widgets::editors::numericattr * Widget = new widgets::editors::numericattr ( attr, this,
                                                                                      true );
@@ -490,11 +490,11 @@ void dbe::ObjectEditor::BuildWidgets()
         break;
       }
 
-      case dunedaq::oksdbinterfaces::string_type:
+      case dunedaq::conffwk::string_type:
 
-      case dunedaq::oksdbinterfaces::date_type:
+      case dunedaq::conffwk::date_type:
 
-      case dunedaq::oksdbinterfaces::time_type:
+      case dunedaq::conffwk::time_type:
       {
         widgets::editors::stringattr * Widget = new widgets::editors::stringattr ( attr, this,
                                                                                    true );
@@ -509,7 +509,7 @@ void dbe::ObjectEditor::BuildWidgets()
         break;
       }
 
-      case dunedaq::oksdbinterfaces::class_type:
+      case dunedaq::conffwk::class_type:
       {
         widgets::editors::combo * Widget = new widgets::editors::combo ( attr, this, true );
         set_attribute_widget ( attr, Widget );
@@ -526,7 +526,7 @@ void dbe::ObjectEditor::BuildWidgets()
     }
   }
 
-  for ( dunedaq::oksdbinterfaces::relationship_t const & arelation :
+  for ( dunedaq::conffwk::relationship_t const & arelation :
         relations ) // Build widgets for relations ( relationships )
   {
     widgets::editors::relation * widget = new widgets::editors::relation ( arelation, this,
@@ -584,7 +584,7 @@ void dbe::ObjectEditor::BuildWidgets()
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-void dbe::ObjectEditor::set_tooltip ( dunedaq::oksdbinterfaces::attribute_t const & Attribute,
+void dbe::ObjectEditor::set_tooltip ( dunedaq::conffwk::attribute_t const & Attribute,
                                       widgets::editors::base * Widget )
 {
   QString ToolTip;
@@ -592,12 +592,12 @@ void dbe::ObjectEditor::set_tooltip ( dunedaq::oksdbinterfaces::attribute_t cons
                      Attribute.p_name.c_str() ) );
   ToolTip.append (
     QString ( "          Type:           %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::type2str ( Attribute.p_type ) ) );
+      dunedaq::conffwk::attribute_t::type2str ( Attribute.p_type ) ) );
   ToolTip.append ( QString ( "          Range:          %1 \n" ).arg (
                      Attribute.p_range.c_str() ) );
   ToolTip.append (
     QString ( "          Format:         %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::format2str ( Attribute.p_int_format ) ) );
+      dunedaq::conffwk::attribute_t::format2str ( Attribute.p_int_format ) ) );
   ToolTip.append ( QString ( "          Not Null:       %1 \n" ).arg (
                      Attribute.p_is_not_null ) );
   ToolTip.append (
@@ -612,7 +612,7 @@ void dbe::ObjectEditor::set_tooltip ( dunedaq::oksdbinterfaces::attribute_t cons
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-void dbe::ObjectEditor::set_tooltip ( dunedaq::oksdbinterfaces::relationship_t const & relation,
+void dbe::ObjectEditor::set_tooltip ( dunedaq::conffwk::relationship_t const & relation,
                                       widgets::editors::base * widget )
 {
   QString ToolTip;
@@ -622,7 +622,7 @@ void dbe::ObjectEditor::set_tooltip ( dunedaq::oksdbinterfaces::relationship_t c
     QString ( "             Type:           %1 \n" ).arg ( relation.p_type.c_str() ) );
   ToolTip.append (
     QString ( "             Cardinality     %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::relationship_t::card2str ( relation.p_cardinality ) ) );
+      dunedaq::conffwk::relationship_t::card2str ( relation.p_cardinality ) ) );
   ToolTip.append (
     QString ( "             Is Aggregation: %1 \n" ).arg ( relation.p_is_aggregation ) );
   ToolTip.append (
@@ -633,7 +633,7 @@ void dbe::ObjectEditor::set_tooltip ( dunedaq::oksdbinterfaces::relationship_t c
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-void dbe::ObjectEditor::set_attribute_widget ( dunedaq::oksdbinterfaces::attribute_t const & Attribute,
+void dbe::ObjectEditor::set_attribute_widget ( dunedaq::conffwk::attribute_t const & Attribute,
                                                widgets::editors::base * Widget )
 {
   {
@@ -857,18 +857,18 @@ void dbe::ObjectEditor::ParseToSave()
       {
         QStringList DataList = ceditor->getdata();
 
-        if ( auto attreditor = ceditor->dataeditor<editor_data<dunedaq::oksdbinterfaces::attribute_t>>() )
+        if ( auto attreditor = ceditor->dataeditor<editor_data<dunedaq::conffwk::attribute_t>>() )
         {
-          dunedaq::oksdbinterfaces::attribute_t Attribute = attreditor->get();
+          dunedaq::conffwk::attribute_t Attribute = attreditor->get();
 
           dbe::config::api::set::attribute ( Object(), Attribute, DataList );
           ceditor->setdata ( DataList );
           ceditor->setchanged ( false );
         }
         else if ( auto releditor =
-                    ceditor->dataeditor<editor_data<dunedaq::oksdbinterfaces::relationship_t>>() )
+                    ceditor->dataeditor<editor_data<dunedaq::conffwk::relationship_t>>() )
         {
-          dunedaq::oksdbinterfaces::relationship_t Relationship = releditor->get();
+          dunedaq::conffwk::relationship_t Relationship = releditor->get();
           dbe::config::api::set::relation ( Object(), Relationship, DataList );
           ceditor->setdata ( DataList );
           ceditor->setchanged ( false );
@@ -1026,10 +1026,10 @@ bool dbe::ObjectEditor::ParseToCreate ( std::string const & objectname,
         // Retrieve data held by the editor
         QStringList editordata = editor->getdata();
 
-        if ( std::shared_ptr<editor_data<dunedaq::oksdbinterfaces::attribute_t>> accessor =
-               editor->dataeditor<editor_data<dunedaq::oksdbinterfaces::attribute_t>>() )
+        if ( std::shared_ptr<editor_data<dunedaq::conffwk::attribute_t>> accessor =
+               editor->dataeditor<editor_data<dunedaq::conffwk::attribute_t>>() )
         {
-          dunedaq::oksdbinterfaces::attribute_t attribute = accessor->get();
+          dunedaq::conffwk::attribute_t attribute = accessor->get();
 
           /*
            * Convert to the preimage value type
@@ -1040,10 +1040,10 @@ bool dbe::ObjectEditor::ParseToCreate ( std::string const & objectname,
             object_attributes[attribute.p_name].push_back ( element.toStdString() );
           }
         }
-        else if ( std::shared_ptr<editor_data<dunedaq::oksdbinterfaces::relationship_t>> accessor =
-                    editor->dataeditor<editor_data<dunedaq::oksdbinterfaces::relationship_t>>() )
+        else if ( std::shared_ptr<editor_data<dunedaq::conffwk::relationship_t>> accessor =
+                    editor->dataeditor<editor_data<dunedaq::conffwk::relationship_t>>() )
         {
-          dunedaq::oksdbinterfaces::relationship_t relation = accessor->get();
+          dunedaq::conffwk::relationship_t relation = accessor->get();
 
           /*
            * Convert to the preimage value type
@@ -1070,7 +1070,7 @@ bool dbe::ObjectEditor::ParseToCreate ( std::string const & objectname,
       ERROR ( "Object creation did not complete successfully", dbe::config::errors::parse ( e ) );
       return false;
     }
-    catch ( dunedaq::oksdbinterfaces::Exception const & e )
+    catch ( dunedaq::conffwk::Exception const & e )
     {
       ERROR ( "Object could not be created", dbe::config::errors::parse ( e ) );
       return false;

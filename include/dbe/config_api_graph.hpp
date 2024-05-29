@@ -10,8 +10,8 @@
 
 #include "dbe/tref.hpp"
 
-#include "oksdbinterfaces/Schema.hpp"
-#include "oksdbinterfaces/ConfigObject.hpp"
+#include "conffwk/Schema.hpp"
+#include "conffwk/ConfigObject.hpp"
 
 #include <vector>
 
@@ -121,7 +121,7 @@ template<typename T> std::vector<T> attributes ( tref const & item );
  * @param relation is the relation to retrieve the value for
  * @return the value of the relation converted to the specified type
  */
-template<typename T> T relation ( tref item, dunedaq::oksdbinterfaces::relationship_t const & relation );
+template<typename T> T relation ( tref item, dunedaq::conffwk::relationship_t const & relation );
 
 /**
  * Get object reference/s through a specified attribute
@@ -134,7 +134,7 @@ template<typename T> T relation ( tref item, dunedaq::oksdbinterfaces::relations
  * @param relation is the relation to retrieve the value for
  * @return the value of the relation converted to the specified type
  */
-template<typename T> T attribute ( tref item, dunedaq::oksdbinterfaces::attribute_t const & attr );
+template<typename T> T attribute ( tref item, dunedaq::conffwk::attribute_t const & attr );
 
 }
 //------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ class direct
    * @return the value of the relation converted to the specified type
    */
   template<typename T> static T linked (
-    dunedaq::oksdbinterfaces::ConfigObject & item, dunedaq::oksdbinterfaces::relationship_t const & relation );
+    dunedaq::conffwk::ConfigObject & item, dunedaq::conffwk::relationship_t const & relation );
 
   /**
    * Get object reference/s through a specified relation, acting directly on a ConfigObject
@@ -174,7 +174,7 @@ class direct
    * @return the value of the relation converted to the specified type
    */
   template<typename T> static T linked (
-    dunedaq::oksdbinterfaces::ConfigObject & item, dunedaq::oksdbinterfaces::attribute_t const & relation );
+    dunedaq::conffwk::ConfigObject & item, dunedaq::conffwk::attribute_t const & relation );
 };
 //------------------------------------------------------------------------------------------
 

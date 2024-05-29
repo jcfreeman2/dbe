@@ -1,7 +1,7 @@
 #ifndef SORTING_H
 #define SORTING_H
 
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 #include "dbe/dbcontroller.hpp"
 #include <string>
 
@@ -21,7 +21,7 @@ public:
     return ( L.UID() ).compare ( ( R.UID() ) ) < 0;
   }
 
-  bool operator () ( const dunedaq::oksdbinterfaces::attribute_t & L, const dunedaq::oksdbinterfaces::attribute_t & R )
+  bool operator () ( const dunedaq::conffwk::attribute_t & L, const dunedaq::conffwk::attribute_t & R )
   {
     int LString = L.p_type;
     int RString = R.p_type;

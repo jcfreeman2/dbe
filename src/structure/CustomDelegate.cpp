@@ -44,7 +44,7 @@ QWidget * dbe::CustomDelegate::createEditor ( QWidget * parent,
   if ( dynamic_cast<TableRelationshipNode *> ( Item ) )
   {
     TableRelationshipNode * RelationshipItem = dynamic_cast<TableRelationshipNode *> ( Item );
-    dunedaq::oksdbinterfaces::relationship_t RelationshipData = RelationshipItem->GetRelationship();
+    dunedaq::conffwk::relationship_t RelationshipData = RelationshipItem->GetRelationship();
     widgets::editors::relation * Editor = new widgets::editors::relation ( RelationshipData );
     connect ( Editor, SIGNAL ( signal_edit_end() ), this, SLOT ( CommitAndClose() ) );
     connect ( Editor, SIGNAL ( signal_force_close() ), this, SLOT ( Close() ) );
@@ -53,7 +53,7 @@ QWidget * dbe::CustomDelegate::createEditor ( QWidget * parent,
   else if ( dynamic_cast<TableAttributeNode *> ( Item ) )
   {
     TableAttributeNode * AttributeItem = dynamic_cast<TableAttributeNode *> ( Item );
-    dunedaq::oksdbinterfaces::attribute_t AttributeData = AttributeItem->GetAttribute();
+    dunedaq::conffwk::attribute_t AttributeData = AttributeItem->GetAttribute();
 
     if ( AttributeData.p_is_multi_value )
     {
@@ -67,11 +67,11 @@ QWidget * dbe::CustomDelegate::createEditor ( QWidget * parent,
       switch ( AttributeData.p_type )
       {
 
-      case dunedaq::oksdbinterfaces::date_type:
+      case dunedaq::conffwk::date_type:
 
-      case dunedaq::oksdbinterfaces::time_type:
+      case dunedaq::conffwk::time_type:
 
-      case dunedaq::oksdbinterfaces::string_type:
+      case dunedaq::conffwk::string_type:
       {
         widgets::editors::stringattr * Editor = new widgets::editors::stringattr ( AttributeData,
                                                                                    parent );
@@ -80,25 +80,25 @@ QWidget * dbe::CustomDelegate::createEditor ( QWidget * parent,
         return Editor;
       }
 
-      case dunedaq::oksdbinterfaces::double_type:
+      case dunedaq::conffwk::double_type:
 
-      case dunedaq::oksdbinterfaces::float_type:
+      case dunedaq::conffwk::float_type:
 
-      case dunedaq::oksdbinterfaces::s8_type:
+      case dunedaq::conffwk::s8_type:
 
-      case dunedaq::oksdbinterfaces::s16_type:
+      case dunedaq::conffwk::s16_type:
 
-      case dunedaq::oksdbinterfaces::s32_type:
+      case dunedaq::conffwk::s32_type:
 
-      case dunedaq::oksdbinterfaces::s64_type:
+      case dunedaq::conffwk::s64_type:
 
-      case dunedaq::oksdbinterfaces::u8_type:
+      case dunedaq::conffwk::u8_type:
 
-      case dunedaq::oksdbinterfaces::u16_type:
+      case dunedaq::conffwk::u16_type:
 
-      case dunedaq::oksdbinterfaces::u32_type:
+      case dunedaq::conffwk::u32_type:
 
-      case dunedaq::oksdbinterfaces::u64_type:
+      case dunedaq::conffwk::u64_type:
       {
         widgets::editors::numericattr * Editor = new widgets::editors::numericattr ( AttributeData,
                                                                                      parent );
@@ -107,9 +107,9 @@ QWidget * dbe::CustomDelegate::createEditor ( QWidget * parent,
         return Editor;
       }
 
-      case dunedaq::oksdbinterfaces::bool_type:
+      case dunedaq::conffwk::bool_type:
 
-      case dunedaq::oksdbinterfaces::enum_type:
+      case dunedaq::conffwk::enum_type:
       {
         widgets::editors::combo * Editor = new widgets::editors::combo ( AttributeData, parent );
         connect ( Editor, SIGNAL ( signal_value_change() ), this, SLOT ( CommitAndClose() ) );
@@ -117,7 +117,7 @@ QWidget * dbe::CustomDelegate::createEditor ( QWidget * parent,
         return Editor;
       }
 
-      case dunedaq::oksdbinterfaces::class_type:
+      case dunedaq::conffwk::class_type:
       {
         widgets::editors::combo * Editor = new widgets::editors::combo ( AttributeData, parent );
         connect ( Editor, SIGNAL ( signal_edit_end() ), this, SLOT ( CommitAndClose() ) );
