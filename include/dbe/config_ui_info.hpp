@@ -10,8 +10,8 @@
 
 #include "dbe/datahandler.hpp"
 #include "dbe/GraphicalClass.hpp"
-#include "oksdbinterfaces/ConfigObject.hpp"
-#include "oksdbinterfaces/Configuration.hpp"
+#include "conffwk/ConfigObject.hpp"
+#include "conffwk/Configuration.hpp"
 #include <memory>
 #include <vector>
 #include <string>
@@ -43,8 +43,8 @@ public:
 
 private:
   void parse();
-  void parse_graphical ( std::shared_ptr<dunedaq::oksdbinterfaces::Configuration> , dunedaq::oksdbinterfaces::ConfigObject & );
-  void parse_window ( std::shared_ptr<dunedaq::oksdbinterfaces::Configuration> , dunedaq::oksdbinterfaces::ConfigObject & );
+  void parse_graphical ( std::shared_ptr<dunedaq::conffwk::Configuration> , dunedaq::conffwk::ConfigObject & );
+  void parse_window ( std::shared_ptr<dunedaq::conffwk::Configuration> , dunedaq::conffwk::ConfigObject & );
 
   std::map<std::string, Window> this_windows;
   std::map<std::string, GraphicalClass> this_graphical;

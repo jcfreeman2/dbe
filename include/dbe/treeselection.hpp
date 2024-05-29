@@ -6,7 +6,7 @@
 #include "dbe/model_common_interface.hpp"
 #include "dbe/dbcontroller.hpp"
 
-#include "oksdbinterfaces/ConfigObject.hpp"
+#include "conffwk/ConfigObject.hpp"
 
 #include <QSortFilterProxyModel>
 #include <QUuid>

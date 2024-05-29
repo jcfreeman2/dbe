@@ -13,7 +13,7 @@
 #include "dbe/Conversion.hpp"
 #include "dbe/dbcontroller.hpp"
 
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 
 #include <QString>
 
@@ -36,7 +36,7 @@ namespace set
 namespace noactions
 {
 
-void relation ( tref object, dunedaq::oksdbinterfaces::relationship_t const & arelation,
+void relation ( tref object, dunedaq::conffwk::relationship_t const & arelation,
                 std::vector<dbe::cokey> const & keys )
 {
   std::vector<dbe::inner::configobject::tref> trefs;
@@ -49,7 +49,7 @@ void relation ( tref object, dunedaq::oksdbinterfaces::relationship_t const & ar
   dbe::config::api::set::noactions::relation ( object, arelation, trefs );
 }
 
-void relation ( tref src, dunedaq::oksdbinterfaces::relationship_t const & edge,
+void relation ( tref src, dunedaq::conffwk::relationship_t const & edge,
                 std::vector<tref> const & targets )
 {
   try
@@ -70,7 +70,7 @@ void relation ( tref src, dunedaq::oksdbinterfaces::relationship_t const & edge,
      	src.set_obj_null( edge.p_name, info::relation::is_simple(edge) );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, config::errors::parse ( e ) );
   }
@@ -96,7 +96,7 @@ namespace set
 {
 
 //------------------------------------------------------------------------------------------
-void relation ( tref src, dunedaq::oksdbinterfaces::relationship_t const & edge,
+void relation ( tref src, dunedaq::conffwk::relationship_t const & edge,
                 QStringList const & targets )
 {
   std::vector<std::string> targetnames;
@@ -111,12 +111,12 @@ void relation ( tref src, dunedaq::oksdbinterfaces::relationship_t const & edge,
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attribute_info,
+void attribute ( tref Object, dunedaq::conffwk::attribute_t const & attribute_info,
                  QStringList const & values )
 {
   switch ( attribute_info.p_type )
   {
-  case dunedaq::oksdbinterfaces::bool_type:
+  case dunedaq::conffwk::bool_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -133,11 +133,11 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::enum_type:
-  case dunedaq::oksdbinterfaces::date_type:
-  case dunedaq::oksdbinterfaces::time_type:
-  case dunedaq::oksdbinterfaces::string_type:
-  case dunedaq::oksdbinterfaces::class_type:
+  case dunedaq::conffwk::enum_type:
+  case dunedaq::conffwk::date_type:
+  case dunedaq::conffwk::time_type:
+  case dunedaq::conffwk::string_type:
+  case dunedaq::conffwk::class_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -152,7 +152,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::float_type:
+  case dunedaq::conffwk::float_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -169,7 +169,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::double_type:
+  case dunedaq::conffwk::double_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -186,7 +186,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::s8_type:
+  case dunedaq::conffwk::s8_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -203,7 +203,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::s16_type:
+  case dunedaq::conffwk::s16_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -220,7 +220,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::s32_type:
+  case dunedaq::conffwk::s32_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -237,7 +237,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::s64_type:
+  case dunedaq::conffwk::s64_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -254,7 +254,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::u8_type:
+  case dunedaq::conffwk::u8_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -271,7 +271,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::u16_type:
+  case dunedaq::conffwk::u16_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -289,7 +289,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::u32_type:
+  case dunedaq::conffwk::u32_type:
   {
     if ( attribute_info.p_is_multi_value )
     {
@@ -307,7 +307,7 @@ void attribute ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & attr
     break;
   }
 
-  case dunedaq::oksdbinterfaces::u64_type:
+  case dunedaq::conffwk::u64_type:
   {
     if ( attribute_info.p_is_multi_value ) commands::modobj (
         Object, attribute_info,

@@ -5,13 +5,13 @@
 #include"dbe/CreateDatabaseWidget.hpp"
 #include"dbe/StyleUtility.hpp"
 /// Including config headers
-#include "oksdbinterfaces/ConfigObject.hpp"
-#include "oksdbinterfaces/Configuration.hpp"
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/ConfigObject.hpp"
+#include "conffwk/Configuration.hpp"
+#include "conffwk/Schema.hpp"
 #include "dbe/Exceptions.hpp"
 #include "dbe/messenger.hpp"
 
-using namespace dunedaq::oksdbinterfaces;
+using namespace dunedaq::conffwk;
 
 dbe::CreateDatabaseWidget::CreateDatabaseWidget ( QWidget * parent, bool Include,
                                                   const QString & CreateDir )
@@ -107,7 +107,7 @@ void dbe::CreateDatabaseWidget::DefineDatabaseFile()
 
 void dbe::CreateDatabaseWidget::CreateDatabaseFileLoad()
 {
-  Configuration db ( "oksconfig" );
+  Configuration db ( "oksconflibs" );
 
   try
   {
@@ -130,7 +130,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileLoad()
     emit CanLoadDatabase ( DatabaseFile.absoluteFilePath() );
     close();
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & ex )
+  catch ( dunedaq::conffwk::Exception const & ex )
   {
     FAIL ( "Database creation failure", dbe::config::errors::parse ( ex ).c_str() );
   }
@@ -138,7 +138,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileLoad()
 
 void dbe::CreateDatabaseWidget::CreateDatabaseFileNoLoad()
 {
-  Configuration db ( "oksconfig" );
+  Configuration db ( "oksconflibs" );
 
   try
   {
@@ -158,7 +158,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileNoLoad()
                                QMessageBox::Ok );
     close();
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & ex )
+  catch ( dunedaq::conffwk::Exception const & ex )
   {
     FAIL ( "Database creation failure", dbe::config::errors::parse ( ex ).c_str() );
   }
@@ -166,7 +166,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileNoLoad()
 
 void dbe::CreateDatabaseWidget::CreateDatabaseFileInclude()
 {
-  Configuration db ( "oksconfig" );
+  Configuration db ( "oksconflibs" );
 
   try
   {
@@ -187,7 +187,7 @@ void dbe::CreateDatabaseWidget::CreateDatabaseFileInclude()
     emit CanIncludeDatabase ( DatabaseFile.absoluteFilePath() );
     close();
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & ex )
+  catch ( dunedaq::conffwk::Exception const & ex )
   {
     FAIL ( "Database creation error", dbe::config::errors::parse ( ex ).c_str() );
   }

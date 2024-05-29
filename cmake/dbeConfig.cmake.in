@@ -5,7 +5,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(Boost COMPONENTS unit_test_framework)
 find_dependency(oks)
-find_dependency(oksdbinterfaces)
+find_dependency(conffwk)
 find_dependency(logging)
 
 find_dependency( Qt5 COMPONENTS Widgets Gui Core PrintSupport)

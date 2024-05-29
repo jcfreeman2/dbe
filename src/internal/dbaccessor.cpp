@@ -7,7 +7,7 @@
 
 #include "dbe/dbaccessor.hpp"
 
-using namespace dunedaq::oksdbinterfaces;
+using namespace dunedaq::conffwk;
 
 //------------------------------------------------------------------------------------------
 dbe::dbholder::t_mutex dbe::dbholder::database_lock;

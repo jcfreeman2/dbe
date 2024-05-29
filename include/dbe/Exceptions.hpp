@@ -4,7 +4,7 @@
 /// Including ers headers
 #include "ers/ers.hpp"
 
-#include "oksdbinterfaces/Errors.hpp"
+#include "conffwk/Errors.hpp"
 
 #include <string>
 
@@ -18,7 +18,7 @@ ERS_DECLARE_ISSUE_BASE ( dbe, ObjectChangeWasNotSuccessful, Exception,
 
 ERS_DECLARE_ISSUE_BASE (
   dbe, ChangeNotAllowed, Exception,
-  "Only Configuration DB opened by rdbconfig or oksconfig plug-in can be changed.", , )
+  "Only Configuration DB opened by rdbconfig or oksconflibs plug-in can be changed.", , )
 
 ERS_DECLARE_ISSUE_BASE ( dbe, CouldNotCommitChanges, Exception,
                          "Changes could not be committed, no object was changed.", , )

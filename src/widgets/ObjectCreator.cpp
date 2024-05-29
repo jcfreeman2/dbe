@@ -37,13 +37,13 @@ dbe::ObjectCreator::~ObjectCreator() = default;
 /*
  * Create an object in a class
  */
-dbe::ObjectCreator::ObjectCreator ( dunedaq::oksdbinterfaces::class_t const & cinfo, QWidget * parent )
+dbe::ObjectCreator::ObjectCreator ( dunedaq::conffwk::class_t const & cinfo, QWidget * parent )
   :
   QWidget ( parent ),
   ui ( new Ui::ObjectCreator ),
   this_object_class ( cinfo ),
   this_target_object ( nullptr ),
-  this_relation ( dunedaq::oksdbinterfaces::relationship_t() ),
+  this_relation ( dunedaq::conffwk::relationship_t() ),
   this_files ( nullptr ),
   this_status_bar ( nullptr ),
   this_state ( 0 ),
@@ -98,7 +98,7 @@ dbe::ObjectCreator::ObjectCreator ( dunedaq::oksdbinterfaces::class_t const & ci
  * Clone an object in a class , uid will be required to be set explicitly
  */
 dbe::ObjectCreator::ObjectCreator ( tref const & clonefrom,
-                                    dunedaq::oksdbinterfaces::relationship_t const & the_relation,
+                                    dunedaq::conffwk::relationship_t const & the_relation,
                                     QWidget * parent )
   :
   ObjectCreator (
@@ -229,7 +229,7 @@ void dbe::ObjectCreator::SetController()
 
 void dbe::ObjectCreator::BuildFileModel()
 {
-  if ( not confaccessor::db_implementation_name().contains ( "roksconfig" ) )
+  if ( not confaccessor::db_implementation_name().contains ( "roksconflibs" ) )
   {
     if ( this_files != nullptr )
     {

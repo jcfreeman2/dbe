@@ -126,13 +126,13 @@ bool dbe::models::table::setData ( const QModelIndex & index, const QVariant & v
   {
     TableRelationshipNode * RelationshipNode =
       dynamic_cast<TableRelationshipNode *> ( TableItem );
-    dunedaq::oksdbinterfaces::relationship_t RelationshipData = RelationshipNode->GetRelationship();
+    dunedaq::conffwk::relationship_t RelationshipData = RelationshipNode->GetRelationship();
     dbe::config::api::set::relation ( Object, RelationshipData, NewDataList );
   }
   else if ( dynamic_cast<TableAttributeNode *> ( TableItem ) )
   {
     TableAttributeNode * AttributeNode = dynamic_cast<TableAttributeNode *> ( TableItem );
-    dunedaq::oksdbinterfaces::attribute_t AttributeData = AttributeNode->GetAttribute();
+    dunedaq::conffwk::attribute_t AttributeData = AttributeNode->GetAttribute();
     dbe::config::api::set::attribute ( Object, AttributeData, NewDataList );
   }
 
@@ -246,7 +246,7 @@ bool dbe::models::table::BuildTableFromClass ( const QString & cname, bool inclu
 
   cptr<dbe::datahandler> dbaccess_guard = confaccessor::gethandler();
 
-  dunedaq::oksdbinterfaces::class_t classinfo = dbe::config::api::info::onclass::definition (
+  dunedaq::conffwk::class_t classinfo = dbe::config::api::info::onclass::definition (
                                      cname.toStdString(),
                                      false );
 
@@ -299,11 +299,11 @@ QList<dbe::models::table::type_datum *> dbe::models::table::createrow (
 
   this_objects.append ( obj );
 
-  dunedaq::oksdbinterfaces::class_t const & cdef = dbe::config::api::info::onclass::definition (
+  dunedaq::conffwk::class_t const & cdef = dbe::config::api::info::onclass::definition (
                                         obj.class_name(),
                                         false );
-  std::vector<dunedaq::oksdbinterfaces::attribute_t> const & attributes = cdef.p_attributes;
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> const & relations = cdef.p_relationships;
+  std::vector<dunedaq::conffwk::attribute_t> const & attributes = cdef.p_attributes;
+  std::vector<dunedaq::conffwk::relationship_t> const & relations = cdef.p_relationships;
 
   assert ( attributes.size() + relations.size() < 1025 );
   std::bitset<1024> hindex; // maximum number of columns to display
@@ -311,12 +311,12 @@ QList<dbe::models::table::type_datum *> dbe::models::table::createrow (
   {
     int c = 0;
 
-    for ( dunedaq::oksdbinterfaces::attribute_t const & a : attributes )
+    for ( dunedaq::conffwk::attribute_t const & a : attributes )
     {
       hindex.set ( c++, this_headers.contains ( QString::fromStdString ( a.p_name ) ) );
     }
 
-    for ( dunedaq::oksdbinterfaces::relationship_t const & r : relations )
+    for ( dunedaq::conffwk::relationship_t const & r : relations )
     {
       hindex.set ( c++, this_headers.contains ( QString::fromStdString ( r.p_name ) ) );
     }
@@ -377,7 +377,7 @@ void dbe::models::table::reset ( QString const & cname )
   this_class_name = cname;
 }
 
-void dbe::models::table::setheader ( dunedaq::oksdbinterfaces::class_t const & cinfo )
+void dbe::models::table::setheader ( dunedaq::conffwk::class_t const & cinfo )
 {
   if ( !this_headers.contains ( "Object Name" ) )
   {
@@ -408,7 +408,7 @@ bool dbe::models::table::BuildTableFromObject ( QList<QStringList> BuildList )
 
   treenode * classnode = confaccessor::gethandler()->getnode ( this_class_name );
 
-  dunedaq::oksdbinterfaces::class_t classinfo = dbe::config::api::info::onclass::definition (
+  dunedaq::conffwk::class_t classinfo = dbe::config::api::info::onclass::definition (
                                      this_class_name.toStdString(),
                                      false );
 
@@ -484,14 +484,14 @@ dbe::tref dbe::models::table::getobject ( QModelIndex const & index ) const
   throw daq::dbe::cannot_handle_invalid_qmodelindex ( ERS_HERE );
 }
 
-dunedaq::oksdbinterfaces::class_t dbe::models::table::getclass ( QModelIndex const & index ) const
+dunedaq::conffwk::class_t dbe::models::table::getclass ( QModelIndex const & index ) const
 {
   if ( index.isValid() )
   {
     return class_type_info;
   }
 
-  return dunedaq::oksdbinterfaces::class_t();
+  return dunedaq::conffwk::class_t();
 }
 
 void dbe::models::table::objectsUpdated(const std::vector<dbe::dref>& objects) {

@@ -134,7 +134,7 @@ private:
    * @param the configuration object to insert, actually makes a copy of it
    * @return a tref to the inserted copy of the object
    */
-  configobject::tref insert ( dunedaq::oksdbinterfaces::ConfigObject const & );
+  configobject::tref insert ( dunedaq::conffwk::ConfigObject const & );
 
   /**
    * Searches for an object matching the criteria in the underlying database connection and

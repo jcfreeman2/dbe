@@ -142,7 +142,7 @@ bool dbe::treenode::GetWasFetched() const
   return WasFetched;
 }
 
-dbe::ClassNode::ClassNode ( const dunedaq::oksdbinterfaces::class_t & Info, treenode * ParentNode )
+dbe::ClassNode::ClassNode ( const dunedaq::conffwk::class_t & Info, treenode * ParentNode )
   :
   treenode ( ParentNode ),
   ClassInfo ( Info ),
@@ -204,7 +204,7 @@ QVariant dbe::ClassNode::GetData ( const int Column, int role ) const
   return QVariant();
 }
 
-dunedaq::oksdbinterfaces::class_t dbe::ClassNode::GetClassInfo() const
+dunedaq::conffwk::class_t dbe::ClassNode::GetClassInfo() const
 {
   return ClassInfo;
 }
@@ -218,23 +218,23 @@ dbe::ObjectNode::ObjectNode ( dref obj, bool acopy, treenode * ParentNode )
 
   if ( not acopy )
   {
-    dunedaq::oksdbinterfaces::class_t ClassInfo = dbe::config::api::info::onclass::definition (
+    dunedaq::conffwk::class_t ClassInfo = dbe::config::api::info::onclass::definition (
                                        configdata.class_name(),
                                        false );
-    std::vector<dunedaq::oksdbinterfaces::attribute_t> Attributes = ClassInfo.p_attributes;
-    std::vector<dunedaq::oksdbinterfaces::relationship_t> Relationships = ClassInfo.p_relationships;
+    std::vector<dunedaq::conffwk::attribute_t> Attributes = ClassInfo.p_attributes;
+    std::vector<dunedaq::conffwk::relationship_t> Relationships = ClassInfo.p_relationships;
 
     if ( ( Relationships.size() > 0 ) )
     {
       SetHasStructure ( true );
     }
 
-    for ( dunedaq::oksdbinterfaces::attribute_t & Attribute : Attributes )
+    for ( dunedaq::conffwk::attribute_t & Attribute : Attributes )
     {
       new AttributeNode ( Attribute, static_cast<treenode *> ( this ) );
     }
 
-    for ( dunedaq::oksdbinterfaces::relationship_t & Relationship : Relationships )
+    for ( dunedaq::conffwk::relationship_t & Relationship : Relationships )
     {
       new RelationshipNode ( Relationship, static_cast<treenode *> ( this ) );
     }
@@ -269,7 +269,7 @@ dbe::tref dbe::ObjectNode::GetObject() const
   return configdata.ref();
 }
 
-dbe::AttributeNode::AttributeNode ( const dunedaq::oksdbinterfaces::attribute_t & AttributeData,
+dbe::AttributeNode::AttributeNode ( const dunedaq::conffwk::attribute_t & AttributeData,
                                     treenode * ParentNode )
   :
   treenode ( ParentNode ),
@@ -320,12 +320,12 @@ QVariant dbe::AttributeNode::GetData ( const int Column, int role ) const
   return QVariant();
 }
 
-dunedaq::oksdbinterfaces::attribute_t dbe::AttributeNode::attribute_t() const
+dunedaq::conffwk::attribute_t dbe::AttributeNode::attribute_t() const
 {
   return attribute_t_definition;
 }
 
-dbe::RelationshipNode::RelationshipNode ( const dunedaq::oksdbinterfaces::relationship_t & relation,
+dbe::RelationshipNode::RelationshipNode ( const dunedaq::conffwk::relationship_t & relation,
                                           treenode * ParentNode )
   :
   treenode ( ParentNode ),
@@ -336,10 +336,10 @@ dbe::RelationshipNode::RelationshipNode ( const dunedaq::oksdbinterfaces::relati
   std::vector<tref> DataList;
   tref ObjectParent = GetParent()->GetObject();
 
-  if ( ( relation_t_definition.p_cardinality == dunedaq::oksdbinterfaces::only_one )
+  if ( ( relation_t_definition.p_cardinality == dunedaq::conffwk::only_one )
        || ( relation_t_definition
             .p_cardinality
-            == dunedaq::oksdbinterfaces::zero_or_one ) )
+            == dunedaq::conffwk::zero_or_one ) )
   {
     try
     {
@@ -396,7 +396,7 @@ QVariant dbe::RelationshipNode::GetData ( const int Column, int role ) const
   return QVariant();
 }
 
-dunedaq::oksdbinterfaces::relationship_t dbe::RelationshipNode::relation_t() const
+dunedaq::conffwk::relationship_t dbe::RelationshipNode::relation_t() const
 {
   return relation_t_definition;
 }

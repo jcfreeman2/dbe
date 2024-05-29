@@ -11,7 +11,7 @@
 #include "dbe/dbcontroller.hpp"
 #include "dbe/confobject_desc.hpp"
 
-#include "oksdbinterfaces/ConfigObject.hpp"
+#include "conffwk/ConfigObject.hpp"
 
 #include <string>
 
@@ -36,7 +36,7 @@ class rwdacc
    * @param query is a regular expression to match against the objects in the given class
    * @return  a list of configobjects
    */
-  static std::vector<dunedaq::oksdbinterfaces::ConfigObject> query_class ( std::string const & classname,
+  static std::vector<dunedaq::conffwk::ConfigObject> query_class ( std::string const & classname,
                                                  std::string const & query );
 
   /**
@@ -50,7 +50,7 @@ class rwdacc
    *
    * @return a copy of the thin wrapper ConfigObject
    */
-  static dunedaq::oksdbinterfaces::ConfigObject create_object ( std::string const & fn, std::string const & cn,
+  static dunedaq::conffwk::ConfigObject create_object ( std::string const & fn, std::string const & cn,
                                       std::string const & name );
 
   /**
@@ -60,7 +60,7 @@ class rwdacc
    * @param object uid
    * @return a config object that is not null only if it exists in the database
    */
-  static dunedaq::oksdbinterfaces::ConfigObject get_object ( std::string const &, std::string const & );
+  static dunedaq::conffwk::ConfigObject get_object ( std::string const &, std::string const & );
 
   /**
    * Given a reference to an object set its attributes and relations
@@ -82,14 +82,14 @@ class rwdacc
    * @param newname as a string
    * @return a reference with the object
    */
-  static void rename_object ( dunedaq::oksdbinterfaces::ConfigObject & object, std::string const & newname );
+  static void rename_object ( dunedaq::conffwk::ConfigObject & object, std::string const & newname );
 
   /**
    * Destroys the object in the online database ( changes are not committed)
    *
    * @param the object definition to create in the database
    */
-  static void destroy_object ( dunedaq::oksdbinterfaces::ConfigObject & );
+  static void destroy_object ( dunedaq::conffwk::ConfigObject & );
 
   friend class inner::dbcontroller;
 };

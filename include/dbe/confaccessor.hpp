@@ -6,8 +6,8 @@
 #include "dbe/cptr.hpp"
 #include "dbe/dbinfo.hpp"
 
-#include "oksdbinterfaces/Configuration.hpp"
-#include "oksdbinterfaces/Change.hpp"
+#include "conffwk/Configuration.hpp"
+#include "conffwk/Change.hpp"
 
 #include <QUndoCommand>
 #include <QObject>
@@ -194,7 +194,7 @@ public:
   static QString dbfullname();
   static QString db_implementation_name();
 
-  static void CallbackFunction ( const std::vector<dunedaq::oksdbinterfaces::ConfigurationChange *> & changes,
+  static void CallbackFunction ( const std::vector<dunedaq::conffwk::ConfigurationChange *> & changes,
                                  void * parameter );
 
   static void unsubscribe();
@@ -234,7 +234,7 @@ private:
   QString this_dblocation;
   QString this_resource_location;
 
-  dunedaq::oksdbinterfaces::Configuration::CallbackId CallId;
+  dunedaq::conffwk::Configuration::CallbackId CallId;
 
   std::shared_ptr<t_internal_changes_stack> internal_change_stack;
   t_external_changes_stack external_change_stack;
@@ -263,7 +263,7 @@ private:
    */
   template<dbinfo N> void set_dbinfo ( QString const & p );
 
-  void docallback ( std::vector<dunedaq::oksdbinterfaces::ConfigurationChange *> const & changes, void * parameter );
+  void docallback ( std::vector<dunedaq::conffwk::ConfigurationChange *> const & changes, void * parameter );
 
   confaccessor();
   confaccessor ( confaccessor const & ) = delete;

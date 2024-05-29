@@ -9,7 +9,7 @@
 #include "dbe/version.hpp"
 #include "dbe/config_api_version.hpp"
 
-#include "oksdbinterfaces/Errors.hpp"
+#include "conffwk/Errors.hpp"
 #include "ers/Issue.hpp"
 #include <algorithm>
 #include <sstream>

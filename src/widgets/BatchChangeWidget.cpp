@@ -115,10 +115,10 @@ void dbe::BatchChangeWidget::SetController()
 void dbe::BatchChangeWidget::filter ( std::vector<dref> & objs, const QString & cname )
 {
 
-  dunedaq::oksdbinterfaces::class_t const & cinfo = dbe::config::api::info::onclass::definition (
+  dunedaq::conffwk::class_t const & cinfo = dbe::config::api::info::onclass::definition (
                                          cname.toStdString(), false );
-  std::vector<dunedaq::oksdbinterfaces::attribute_t> const & attributes = cinfo.p_attributes;
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> const & relations = cinfo.p_relationships;
+  std::vector<dunedaq::conffwk::attribute_t> const & attributes = cinfo.p_attributes;
+  std::vector<dunedaq::conffwk::relationship_t> const & relations = cinfo.p_relationships;
 
   // Filtering UID
   std::vector<dref> filtered;
@@ -147,9 +147,9 @@ void dbe::BatchChangeWidget::filter ( std::vector<dref> & objs, const QString & 
 
   std::string selected_attribute_name = ui->AttributeComboBox->currentText().toStdString();
 
-  std::vector<dunedaq::oksdbinterfaces::attribute_t>::const_iterator attrdef = std::find_if (
+  std::vector<dunedaq::conffwk::attribute_t>::const_iterator attrdef = std::find_if (
                                                                     std::begin ( attributes ), std::end ( attributes ),
-                                                                    [&selected_attribute_name] ( dunedaq::oksdbinterfaces::attribute_t const & attr )
+                                                                    [&selected_attribute_name] ( dunedaq::conffwk::attribute_t const & attr )
   {
     return attr.p_name == selected_attribute_name;
   } );
@@ -179,9 +179,9 @@ void dbe::BatchChangeWidget::filter ( std::vector<dref> & objs, const QString & 
   std::string selected_relation_name =
     ui->RelationshipComboBox->currentText().toStdString();
 
-  std::vector<dunedaq::oksdbinterfaces::relationship_t>::const_iterator relationdef = std::find_if (
+  std::vector<dunedaq::conffwk::relationship_t>::const_iterator relationdef = std::find_if (
                                                                            std::begin ( relations ), std::end ( relations ),
-                                                                           [&selected_relation_name] ( dunedaq::oksdbinterfaces::relationship_t const & rel )
+                                                                           [&selected_relation_name] ( dunedaq::conffwk::relationship_t const & rel )
   {
     return rel.p_name == selected_relation_name;
   } );
@@ -227,16 +227,16 @@ void dbe::BatchChangeWidget::FillInfo ( const QString & Name )
   ui->NewAttributeGroupBox->setEnabled ( false );
   ui->NewRelationshipGroupBox->setEnabled ( false );
 
-  const dunedaq::oksdbinterfaces::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
+  const dunedaq::conffwk::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
                                              Name.toStdString(),
                                              false );
-  const std::vector<dunedaq::oksdbinterfaces::attribute_t> AttributeList = ClassInfo.p_attributes;
-  const std::vector<dunedaq::oksdbinterfaces::relationship_t> RelationshipList = ClassInfo
+  const std::vector<dunedaq::conffwk::attribute_t> AttributeList = ClassInfo.p_attributes;
+  const std::vector<dunedaq::conffwk::relationship_t> RelationshipList = ClassInfo
                                                                     .p_relationships;
 
   QStringList ValueList;
 
-  for ( dunedaq::oksdbinterfaces::attribute_t Attribute : AttributeList )
+  for ( dunedaq::conffwk::attribute_t Attribute : AttributeList )
   {
     ValueList.append ( QString ( Attribute.p_name.c_str() ) );
   }
@@ -260,7 +260,7 @@ void dbe::BatchChangeWidget::FillInfo ( const QString & Name )
 
   ValueList.clear();
 
-  for ( dunedaq::oksdbinterfaces::relationship_t Relationship : RelationshipList )
+  for ( dunedaq::conffwk::relationship_t Relationship : RelationshipList )
   {
     ValueList.append ( QString ( Relationship.p_name.c_str() ) );
   }
@@ -357,22 +357,22 @@ void dbe::BatchChangeWidget::MakeChanges()
                                                       tr ( "No objects match filter!" ) );
   else
   {
-    const dunedaq::oksdbinterfaces::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
+    const dunedaq::conffwk::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
                                                ClassName.toStdString(), false );
-    const std::vector<dunedaq::oksdbinterfaces::attribute_t> AttributeList = ClassInfo.p_attributes;
-    const std::vector<dunedaq::oksdbinterfaces::relationship_t> RelationshipList = ClassInfo
+    const std::vector<dunedaq::conffwk::attribute_t> AttributeList = ClassInfo.p_attributes;
+    const std::vector<dunedaq::conffwk::relationship_t> RelationshipList = ClassInfo
                                                                       .p_relationships;
-    dunedaq::oksdbinterfaces::attribute_t AttributeChange;
-    dunedaq::oksdbinterfaces::relationship_t RelationshipChange;
+    dunedaq::conffwk::attribute_t AttributeChange;
+    dunedaq::conffwk::relationship_t RelationshipChange;
 
-    for ( dunedaq::oksdbinterfaces::attribute_t i : AttributeList )
+    for ( dunedaq::conffwk::attribute_t i : AttributeList )
       if ( i.p_name == ui->NewAttributeComboBox->currentText().toStdString() )
       {
         AttributeChange = i;
         break;
       }
 
-    for ( dunedaq::oksdbinterfaces::relationship_t i : RelationshipList )
+    for ( dunedaq::conffwk::relationship_t i : RelationshipList )
       if ( i.p_name == ui->NewRelationshipComboBox->currentText().toStdString() )
       {
         RelationshipChange = i;
@@ -469,7 +469,7 @@ void dbe::BatchChangeWidget::FindMatching()
 
       if ( AttributeEnabled )
       {
-        dunedaq::oksdbinterfaces::attribute_t Attribute = dbe::config::api::info::attributematch (
+        dunedaq::conffwk::attribute_t Attribute = dbe::config::api::info::attributematch (
                                                ui->AttributeComboBox->currentText(), ClassName );
 
         QStringList AttributeValueList
@@ -483,7 +483,7 @@ void dbe::BatchChangeWidget::FindMatching()
 
       if ( RelationshipEnabled )
       {
-        dunedaq::oksdbinterfaces::relationship_t Relationship = config::api::info::relation::match (
+        dunedaq::conffwk::relationship_t Relationship = config::api::info::relation::match (
                                                      ui->RelationshipComboBox->currentText(), ClassName );
 
         QStringList RelationshipList
@@ -521,16 +521,16 @@ void dbe::BatchChangeWidget::FindMatching()
 void dbe::BatchChangeWidget::EnableCheckBox ( QString RelationshipName )
 {
   QString ClassName = ui->ClassCombo->currentText();
-  const dunedaq::oksdbinterfaces::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
+  const dunedaq::conffwk::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
                                              ClassName.toStdString(), false );
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> RelationshipList = ClassInfo.p_relationships;
+  std::vector<dunedaq::conffwk::relationship_t> RelationshipList = ClassInfo.p_relationships;
 
-  for ( dunedaq::oksdbinterfaces::relationship_t & i : RelationshipList )
+  for ( dunedaq::conffwk::relationship_t & i : RelationshipList )
   {
     if ( i.p_name == RelationshipName.toStdString() )
     {
-      if ( ( i.p_cardinality == dunedaq::oksdbinterfaces::zero_or_many ) || ( i.p_cardinality
-                                                                 == dunedaq::oksdbinterfaces::one_or_many ) )
+      if ( ( i.p_cardinality == dunedaq::conffwk::zero_or_many ) || ( i.p_cardinality
+                                                                 == dunedaq::conffwk::one_or_many ) )
       {
         ui->AddCheckBox->setEnabled ( true );
       }
@@ -552,15 +552,15 @@ void dbe::BatchChangeWidget::UpdateRelationshipFilter ( int )
   QString ClassName = ui->ClassCombo->currentText();
   QString RelationshipName = ui->RelationshipComboBox->currentText();
 
-  const dunedaq::oksdbinterfaces::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
+  const dunedaq::conffwk::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
                                              ClassName.toStdString(), false );
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> RelationshipList = ClassInfo.p_relationships;
+  std::vector<dunedaq::conffwk::relationship_t> RelationshipList = ClassInfo.p_relationships;
 
   if ( RelationshipList.size() != 0 )
   {
-    dunedaq::oksdbinterfaces::relationship_t ChosenRelationship;
+    dunedaq::conffwk::relationship_t ChosenRelationship;
 
-    for ( dunedaq::oksdbinterfaces::relationship_t & i : RelationshipList )
+    for ( dunedaq::conffwk::relationship_t & i : RelationshipList )
     {
       if ( i.p_name == RelationshipName.toStdString() )
       {
@@ -590,15 +590,15 @@ void dbe::BatchChangeWidget::UpdateRelationshipNewValues ( int )
   QString ClassName = ui->ClassCombo->currentText();
   QString RelationshipName = ui->NewRelationshipComboBox->currentText();
 
-  const dunedaq::oksdbinterfaces::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
+  const dunedaq::conffwk::class_t & ClassInfo = dbe::config::api::info::onclass::definition (
                                              ClassName.toStdString(), false );
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> RelationshipList = ClassInfo.p_relationships;
+  std::vector<dunedaq::conffwk::relationship_t> RelationshipList = ClassInfo.p_relationships;
 
   if ( RelationshipList.size() != 0 )
   {
-    dunedaq::oksdbinterfaces::relationship_t ChosenRelationship;
+    dunedaq::conffwk::relationship_t ChosenRelationship;
 
-    for ( dunedaq::oksdbinterfaces::relationship_t & i : RelationshipList )
+    for ( dunedaq::conffwk::relationship_t & i : RelationshipList )
     {
       if ( i.p_name == RelationshipName.toStdString() )
       {

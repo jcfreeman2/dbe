@@ -9,7 +9,7 @@ add_compile_options(-Wno-deprecated)
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(oks REQUIRED)
-find_package(oksdbinterfaces REQUIRED)
+find_package(conffwk REQUIRED)
 find_package(logging REQUIRED)
 
 find_package( Qt5 REQUIRED COMPONENTS Widgets Gui Core PrintSupport)
@@ -39,7 +39,7 @@ set(dbe_common_test_libs
         )
 
 set(dbe_common_tdaq_libs
-        oksdbinterfaces::oksdbinterfaces
+        conffwk::conffwk
         ers::ers
         )
         

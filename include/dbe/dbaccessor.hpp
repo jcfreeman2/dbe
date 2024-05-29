@@ -11,7 +11,7 @@
 #include "dbe/cptr.hpp"
 #include "dbe/types.hpp"
 
-#include "oksdbinterfaces/Configuration.hpp"
+#include "conffwk/Configuration.hpp"
 #include <string>
 
 namespace dbe
@@ -43,8 +43,8 @@ class dbholder
   typedef dbe::types::common::type_mutex t_mutex;
   typedef dbe::types::common::type_lock t_lock;
 
-  static dunedaq::oksdbinterfaces::Configuration * database;
-  static cptr<dunedaq::oksdbinterfaces::Configuration> database_concurrent_ptr;
+  static dunedaq::conffwk::Configuration * database;
+  static cptr<dunedaq::conffwk::Configuration> database_concurrent_ptr;
   static dbe::types::common::type_mutex database_lock;
 
   friend class confaccessor;
@@ -60,7 +60,7 @@ class dbaccessor
    * Get a thread safe pointer to the configuration database
    * @return
    */
-  static cptr<dunedaq::oksdbinterfaces::Configuration> dbptr();
+  static cptr<dunedaq::conffwk::Configuration> dbptr();
 
   static bool is_loaded();
 

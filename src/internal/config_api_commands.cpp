@@ -20,7 +20,7 @@
 #include "dbe/change_attribute.hpp"
 
 
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 #include "ers/Issue.hpp"
 
 #include <QString>
@@ -152,7 +152,7 @@ bool movobj ( tref obj, std::string const & destination, QUuid const & src )
 //------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
-void modobj ( tref object, const dunedaq::oksdbinterfaces::relationship_t & linkinfo,
+void modobj ( tref object, const dunedaq::conffwk::relationship_t & linkinfo,
               std::vector<std::string> const & others_names )
 {
   try
@@ -180,7 +180,7 @@ void modobj ( tref object, const dunedaq::oksdbinterfaces::relationship_t & link
 
 //------------------------------------------------------------------------------------------
 template<>
-void modobj<std::string> ( tref Object, const dunedaq::oksdbinterfaces::attribute_t & AttributeData,
+void modobj<std::string> ( tref Object, const dunedaq::conffwk::attribute_t & AttributeData,
                            std::string Value )
 {
   try
@@ -192,28 +192,28 @@ void modobj<std::string> ( tref Object, const dunedaq::oksdbinterfaces::attribut
     Change.description = QString ( "Attribute " ).append ( AttributeData.p_name.c_str() )
                          .toStdString();
 
-    if ( AttributeData.p_type == dunedaq::oksdbinterfaces::string_type )
+    if ( AttributeData.p_type == dunedaq::conffwk::string_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeAttribute<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::enum_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::enum_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeEnum<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::class_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::class_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeClass<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::date_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::date_type )
     {
 
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeDate<std::string> ( Object, AttributeData, Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::time_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::time_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeTime<std::string> ( Object, AttributeData, Value ) );
@@ -231,7 +231,7 @@ void modobj<std::string> ( tref Object, const dunedaq::oksdbinterfaces::attribut
 //------------------------------------------------------------------------------------------
 template<>
 void modobj<std::vector<std::string>> (
-                                     tref Object, const dunedaq::oksdbinterfaces::attribute_t & AttributeData,
+                                     tref Object, const dunedaq::conffwk::attribute_t & AttributeData,
                                      std::vector<std::string> Value )
 {
   try
@@ -243,31 +243,31 @@ void modobj<std::vector<std::string>> (
     Change.description = QString ( "Attribute " ).append ( AttributeData.p_name.c_str() )
                          .toStdString();
 
-    if ( AttributeData.p_type == dunedaq::oksdbinterfaces::string_type )
+    if ( AttributeData.p_type == dunedaq::conffwk::string_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeAttribute<std::vector<std::string>> ( Object, AttributeData,
                                                                       Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::enum_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::enum_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeEnum<std::vector<std::string>> ( Object, AttributeData,
                                                                  Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::class_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::class_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeClass<std::vector<std::string>> ( Object, AttributeData,
                                                                   Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::date_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::date_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeDate<std::vector<std::string>> ( Object, AttributeData,
                                                                  Value ) );
     }
-    else if ( AttributeData.p_type == dunedaq::oksdbinterfaces::time_type )
+    else if ( AttributeData.p_type == dunedaq::conffwk::time_type )
     {
       confaccessor::get_commands()->push (
         new dbe::actions::ChangeTime<std::vector<std::string>> ( Object, AttributeData,

@@ -31,7 +31,7 @@ namespace info
 
 template<typename T> inline T onclass::allnames()
 {
-  typedef dunedaq::oksdbinterfaces::fmap<dunedaq::oksdbinterfaces::fset> type_cmap;
+  typedef dunedaq::conffwk::fmap<dunedaq::conffwk::fset> type_cmap;
   type_cmap const & baseclasses = dbaccessor::dbptr()->superclasses();
 
   T config_class_list;
@@ -57,7 +57,7 @@ template<typename T> inline T onclass::allnames()
 namespace get
 {
 template<typename T> inline std::vector<std::string> attribute::read (
-  inner::configobject::tref obj, dunedaq::oksdbinterfaces::attribute_t const & attr )
+  inner::configobject::tref obj, dunedaq::conffwk::attribute_t const & attr )
 {
 
   if ( attr.p_is_multi_value )
@@ -67,7 +67,7 @@ template<typename T> inline std::vector<std::string> attribute::read (
 
     std::vector<std::string> result;
 
-    if ( attr.p_int_format == dunedaq::oksdbinterfaces::int_format_t::na_int_format )
+    if ( attr.p_int_format == dunedaq::conffwk::int_format_t::na_int_format )
     {
 	  result.assign(values.size(), "");
       std::transform ( values.begin(), values.end(), result.begin(),
@@ -88,7 +88,7 @@ template<typename T> inline std::vector<std::string> attribute::read (
     T value;
     obj.get ( attr.p_name, value );
 
-    if ( attr.p_int_format == dunedaq::oksdbinterfaces::int_format_t::na_int_format )
+    if ( attr.p_int_format == dunedaq::conffwk::int_format_t::na_int_format )
     {
       return
       { convert::valtostr ( value ) };
@@ -107,7 +107,7 @@ template<typename T> inline std::vector<std::string> attribute::read (
 namespace commands
 {
 template<class T>
-void modobj ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & AttributeData, T Value )
+void modobj ( tref Object, dunedaq::conffwk::attribute_t const & AttributeData, T Value )
 {
   try
   {
@@ -130,7 +130,7 @@ void modobj ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & Attribu
   {
     WARN ( "The object attribute could not be changed", dbe::config::errors::parse ( dbe_err ).c_str() );
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     WARN ( "Change Attribute: The attribute could not be changed",
            dbe::config::errors::parse ( e ).c_str() );
@@ -141,7 +141,7 @@ void modobj ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & Attribu
 //------------------------------------------------------------------------------------------
 template<>
 void modobj<std::vector<std::string>> ( tref Object,
-                                        dunedaq::oksdbinterfaces::attribute_t const & AttributeData,
+                                        dunedaq::conffwk::attribute_t const & AttributeData,
                                         std::vector<std::string> Value );
 }
 //------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ void modobj<std::vector<std::string>> ( tref Object,
 //------------------------------------------------------------------------------------------
 template<class T>
 void set::noactions::attribute ( tref Object,
-                                 dunedaq::oksdbinterfaces::attribute_t const & AttributeData,
+                                 dunedaq::conffwk::attribute_t const & AttributeData,
                                  T NewValueData,
                                  bool NotEmit )
 {
@@ -167,7 +167,7 @@ void set::noactions::attribute ( tref Object,
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & error )
+  catch ( dunedaq::conffwk::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -176,7 +176,7 @@ void set::noactions::attribute ( tref Object,
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::anenum ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & AttributeData,
+void set::noactions::anenum ( tref Object, dunedaq::conffwk::attribute_t const & AttributeData,
                               T NewValueData,
                               bool NotEmit )
 {
@@ -194,7 +194,7 @@ void set::noactions::anenum ( tref Object, dunedaq::oksdbinterfaces::attribute_t
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & error )
+  catch ( dunedaq::conffwk::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -203,7 +203,7 @@ void set::noactions::anenum ( tref Object, dunedaq::oksdbinterfaces::attribute_t
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::aclass ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & AttributeData,
+void set::noactions::aclass ( tref Object, dunedaq::conffwk::attribute_t const & AttributeData,
                               T NewValueData,
                               bool NotEmit )
 {
@@ -221,7 +221,7 @@ void set::noactions::aclass ( tref Object, dunedaq::oksdbinterfaces::attribute_t
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & error )
+  catch ( dunedaq::conffwk::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -230,7 +230,7 @@ void set::noactions::aclass ( tref Object, dunedaq::oksdbinterfaces::attribute_t
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::adate ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & AttributeData,
+void set::noactions::adate ( tref Object, dunedaq::conffwk::attribute_t const & AttributeData,
                              T NewValueData,
                              bool NotEmit )
 {
@@ -249,7 +249,7 @@ void set::noactions::adate ( tref Object, dunedaq::oksdbinterfaces::attribute_t 
     }
 
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & error )
+  catch ( dunedaq::conffwk::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
@@ -258,7 +258,7 @@ void set::noactions::adate ( tref Object, dunedaq::oksdbinterfaces::attribute_t 
 
 //------------------------------------------------------------------------------------------
 template<typename T>
-void set::noactions::atime ( tref Object, dunedaq::oksdbinterfaces::attribute_t const & AttributeData,
+void set::noactions::atime ( tref Object, dunedaq::conffwk::attribute_t const & AttributeData,
                              T NewValueData,
                              bool NotEmit )
 {
@@ -276,7 +276,7 @@ void set::noactions::atime ( tref Object, dunedaq::oksdbinterfaces::attribute_t 
       confaccessor::ref().force_emit_object_changed ( "", Object );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & error )
+  catch ( dunedaq::conffwk::Exception const & error )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, error );
   }
