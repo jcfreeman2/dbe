@@ -3,6 +3,8 @@
 
 /// Including QT Headers
 #include <QGraphicsObject>
+#include <QFont>
+
 /// Including Oks Headers
 #include "oks/class.hpp"
 
@@ -37,6 +39,14 @@ private:
   QString ClassObjectName;
   QStringList ClassAttributes;
   QStringList ClassMethods;
+  QStringList m_class_relationhips;
+
+
+  QStringList m_class_indirect_attributes;
+  QStringList m_class_indirect_relationhips;
+  QStringList m_class_indirect_methods;
+  
+  QFont m_font;
   double LineOffsetX;
   double LineOffsetY;
   QList<SchemaGraphicArrow *> Arrows;

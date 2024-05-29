@@ -19,6 +19,8 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
     LineOffsetX ( 0 ),
     LineOffsetY ( 0 )
 {
+  m_font = QFont( "Helvetica [Cronyx]", 9 );
+
   setFlag ( ItemIsMovable );
   setFlag ( ItemSendsGeometryChanges, true );
   setFlag ( ItemSendsScenePositionChanges, true );
@@ -54,30 +56,102 @@ void dbse::SchemaGraphicObject::GetInfo()
   ClassAttributes.clear();
   ClassMethods.clear();
 
-  const std::list<OksAttribute *> * DirectAttributes = ClassInfo->direct_attributes();
-  const std::list<OksMethod *> * DirectMethods = ClassInfo->direct_methods();
+  std::list<OksAttribute *> direct_attributes = {};
+  if (ClassInfo->direct_attributes()) direct_attributes = *ClassInfo->direct_attributes();
 
-  if ( DirectAttributes != nullptr )
-  {
-    /// Getting All Attributes
-    for ( OksAttribute * Attribute : * ( DirectAttributes ) )
-    {
-      QString AttributeString (
-        QString::fromStdString ( Attribute->get_name() ) + " : "
-        + QString::fromStdString ( Attribute->get_type() ) );
-      ClassAttributes.append ( AttributeString );
-    }
+  std::list<OksMethod *> direct_methods = {};
+  if (ClassInfo->direct_methods()) direct_methods = *ClassInfo->direct_methods();
+
+  std::list<OksRelationship *> direct_relationships = {};
+  if (ClassInfo->direct_relationships()) direct_relationships = *ClassInfo->direct_relationships();
+
+  std::list<OksAttribute *> all_attributes = {};
+  if (ClassInfo->all_attributes()) all_attributes = *ClassInfo->all_attributes();
+
+  std::list<OksMethod *> all_methods = {};
+  if (ClassInfo->all_methods()) all_methods = *ClassInfo->all_methods();
+
+  std::list<OksRelationship *> all_relationships = {};
+  if (ClassInfo->all_relationships()) all_relationships = *ClassInfo->all_relationships();
+
+  // Prepare indirect relatonship list
+  std::list<OksAttribute *> indirect_attributes = all_attributes;
+  std::list<OksMethod *> indirect_methods = all_methods;
+  std::list<OksRelationship *> indirect_relationships = all_relationships;
+
+  for ( OksAttribute * attribute : direct_attributes ) {
+    indirect_attributes.remove(attribute);
   }
 
-  if ( DirectMethods != nullptr )
+  for ( OksMethod * method : direct_methods ) {
+    indirect_methods.remove(method);
+  } 
+
+  for ( OksRelationship * relationship : direct_relationships ) {
+    indirect_relationships.remove(relationship);
+  } 
+
+  std::map<OksRelationship::CardinalityConstraint, std::string> m = {
+    {OksRelationship::Zero, "0"},
+    {OksRelationship::One, "1"},
+    {OksRelationship::Many, "n"}
+  };
+
+  /// Getting All Attributes
+  for ( OksAttribute * Attribute : direct_attributes )
   {
-    /// Getting All Methods
-    for ( OksMethod * Method : * ( DirectMethods ) )
-    {
-      QString MethodString ( QString::fromStdString ( Method->get_name() ) + "()" );
-      ClassMethods.append ( MethodString );
-    }
+    QString AttributeString (
+      QString::fromStdString ( Attribute->get_name() ) + " : "
+      + QString::fromStdString ( Attribute->get_type() ) );
+    ClassAttributes.append ( AttributeString );
   }
+
+  /// Getting All Relationships
+  for ( OksRelationship * relationship : direct_relationships )
+  {
+    QString reltionship_string ( QString::fromStdString ( relationship->get_name() ) + " : " 
+    + QString::fromStdString ( relationship->get_type() ) + " - "
+    + QString::fromStdString ( m[ relationship->get_low_cardinality_constraint() ] ) + ":"
+    + QString::fromStdString ( m[ relationship->get_high_cardinality_constraint() ] )  );
+    m_class_relationhips.append ( reltionship_string );
+  }
+
+  /// Getting All Methods
+  for ( OksMethod * Method : direct_methods )
+  {
+    QString MethodString ( QString::fromStdString ( Method->get_name() ) + "()" );
+    ClassMethods.append ( MethodString );
+  }
+
+
+
+  /// Getting All Attributes
+  for ( OksAttribute * attribute : indirect_attributes )
+  {
+    QString attribute_string (
+      QString::fromStdString ( attribute->get_name() ) + " : "
+      + QString::fromStdString ( attribute->get_type() ) );
+    m_class_indirect_attributes.append ( attribute_string );
+  }
+
+  /// Getting All Relationships
+  for ( OksRelationship * relationship : indirect_relationships )
+  {
+    QString reltionship_string ( QString::fromStdString ( relationship->get_name() ) + " : " 
+    + QString::fromStdString ( relationship->get_type() ) + " - "
+    + QString::fromStdString ( m[ relationship->get_low_cardinality_constraint() ] ) + ":"
+    + QString::fromStdString ( m[ relationship->get_high_cardinality_constraint() ] )  );
+    m_class_indirect_relationhips.append ( reltionship_string );
+  }
+
+  /// Getting All Methods
+  for ( OksMethod * method : indirect_methods )
+  {
+    QString method_string ( QString::fromStdString ( method->get_name() ) + "()" );
+    m_class_indirect_methods.append ( method_string );
+  }
+
+
 }
 
 QRectF dbse::SchemaGraphicObject::boundingRect() const
@@ -86,8 +160,7 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
   double TotalBoundingHeight = 0;
   double TotalBoundingWidth = 0;
 
-  QFont Font ( "Helvetica [Cronyx]", 10 );
-  QFontMetrics FontMetrics ( Font );
+  QFontMetrics FontMetrics ( m_font );
 
   TotalBoundingHeight += SpaceX * 5;
   TotalBoundingHeight += FontMetrics.boundingRect ( ClassObjectName ).height();
@@ -102,7 +175,44 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( AttributeName ).width();
   }
 
+
+  for ( auto & AttributeName : m_class_indirect_attributes )
+  {
+    TotalBoundingHeight += FontMetrics.boundingRect ( AttributeName ).height();
+
+    if ( FontMetrics.boundingRect ( AttributeName ).width() > TotalBoundingWidth )
+      TotalBoundingWidth =
+        FontMetrics.boundingRect ( AttributeName ).width();
+  }
+
+  for ( auto & relationship_name : m_class_relationhips )
+  {
+    TotalBoundingHeight += FontMetrics.boundingRect ( relationship_name ).height();
+
+    if ( FontMetrics.boundingRect ( relationship_name ).width() > TotalBoundingWidth )
+      TotalBoundingWidth =
+        FontMetrics.boundingRect ( relationship_name ).width();
+  }
+
+  for ( auto & relationship_name : m_class_indirect_relationhips )
+  {
+    TotalBoundingHeight += FontMetrics.boundingRect ( relationship_name ).height();
+
+    if ( FontMetrics.boundingRect ( relationship_name ).width() > TotalBoundingWidth )
+      TotalBoundingWidth =
+        FontMetrics.boundingRect ( relationship_name ).width();
+  }
+
   for ( auto & MethodName : ClassMethods )
+  {
+    TotalBoundingHeight += FontMetrics.boundingRect ( MethodName ).height();
+
+    if ( FontMetrics.boundingRect ( MethodName ).width() > TotalBoundingWidth )
+      TotalBoundingWidth =
+        FontMetrics.boundingRect ( MethodName ).width();
+  }
+
+  for ( auto & MethodName : m_class_indirect_methods )
   {
     TotalBoundingHeight += FontMetrics.boundingRect ( MethodName ).height();
 
@@ -129,11 +239,10 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   Q_UNUSED ( widget )
   Q_UNUSED ( option )
 
-  double SpaceX = 1;
+  double SpaceX = 3;
   double SpaceY = 3;
 
-  QFont Font ( "Helvetica [Cronyx]", 10 );
-  painter->setFont ( Font );
+  painter->setFont ( m_font );
   painter->setPen ( QColor ( "blue" ) );
   painter->drawRect ( boundingRect() );
 
@@ -153,15 +262,55 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
     painter->drawText ( SpaceX, HeightOffset, AttributeName );
   }
 
+  painter->setPen ( QColor ( "black" ) );
+  for ( QString & AttributeName : m_class_indirect_attributes )
+  {
+    QRectF AttributeBoundingRect = FontMetrics.boundingRect ( AttributeName );
+    HeightOffset += AttributeBoundingRect.height();
+    painter->drawText ( SpaceX, HeightOffset, AttributeName );
+  }
+  painter->setPen ( QColor ( "blue" ) );
+
+
   HeightOffset += SpaceY;
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
 
+  for ( QString & relationship_name : m_class_relationhips )
+  {
+    QRectF relationship_bounding_rect = FontMetrics.boundingRect ( relationship_name );
+    HeightOffset += relationship_bounding_rect.height();
+    painter->drawText ( SpaceX, HeightOffset, relationship_name );
+  }
+
+  painter->setPen ( QColor ( "black" ) );
+  for ( QString & relationship_name : m_class_indirect_relationhips )
+  {
+    QRectF relationship_bounding_rect = FontMetrics.boundingRect ( relationship_name );
+    HeightOffset += relationship_bounding_rect.height();
+    painter->drawText ( SpaceX, HeightOffset, relationship_name );
+  }
+  painter->setPen ( QColor ( "blue" ) );
+
+
+
+  HeightOffset += SpaceY;
+  painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
+  
   for ( QString & MethodName : ClassMethods )
   {
     QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
     HeightOffset += AttributeBoundingRect.height();
     painter->drawText ( SpaceX, HeightOffset, MethodName );
   }
+
+  painter->setPen ( QColor ( "black" ) );
+  for ( QString & MethodName : m_class_indirect_methods )
+  {
+    QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
+    HeightOffset += AttributeBoundingRect.height();
+    painter->drawText ( SpaceX, HeightOffset, MethodName );
+  }
+  painter->setPen ( QColor ( "blue" ) );
 }
 
 void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicArrow * Arrow )

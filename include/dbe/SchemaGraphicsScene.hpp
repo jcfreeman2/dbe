@@ -33,6 +33,8 @@ protected:
 private slots:
   void AddClassSlot();
   void EditClassSlot();
+  void AddSuperClassesSlot();
+  void AddSubClassesSlot();
   void RemoveClassSlot();
   void RemoveArrowSlot();
   void DrawArrow ( QString ClassName, QString RelationshipType, QString RelationshipName );
@@ -42,6 +44,8 @@ private:
   QMenu * ContextMenu;
   QAction * AddClass;
   QAction * EditClass;
+  QAction * m_add_super_classes;
+  QAction * m_add_sub_classes;
   QAction * RemoveClass;
   QAction * RemoveArrow;
   SchemaGraphicObject * CurrentObject;

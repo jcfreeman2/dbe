@@ -42,6 +42,16 @@ void dbse::SchemaGraphicsScene::CreateActions()
   EditClass->setShortcutContext ( Qt::WidgetShortcut );
   connect ( EditClass, SIGNAL ( triggered() ), this, SLOT ( EditClassSlot() ) );
 
+  m_add_super_classes = new QAction ( "Add &superclasses to view", this );
+  m_add_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
+  m_add_super_classes->setShortcutContext ( Qt::WidgetShortcut );
+  connect ( m_add_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddSuperClassesSlot() ) );
+
+  m_add_sub_classes = new QAction ( "Add &subclasses to view", this );
+  m_add_sub_classes->setShortcut ( tr ( "Ctrl+S" ) );
+  m_add_sub_classes->setShortcutContext ( Qt::WidgetShortcut );
+  connect ( m_add_sub_classes, SIGNAL ( triggered() ), this, SLOT ( AddSubClassesSlot() ) );
+
   RemoveClass = new QAction ( "&Remove Class from view", this );
   RemoveClass->setShortcut ( tr ( "Ctrl+R" ) );
   RemoveClass->setShortcutContext ( Qt::WidgetShortcut );
@@ -104,6 +114,8 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     ContextMenu = new QMenu();
     ContextMenu->addAction ( AddClass );
     ContextMenu->addAction ( EditClass );
+    ContextMenu->addAction ( m_add_super_classes );
+    ContextMenu->addAction ( m_add_sub_classes );
     ContextMenu->addAction ( RemoveClass );
     ContextMenu->addAction ( RemoveArrow );
   }
@@ -114,6 +126,8 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     ContextMenu->actions().at ( 1 )->setVisible ( false );
     ContextMenu->actions().at ( 2 )->setVisible ( false );
     ContextMenu->actions().at ( 3 )->setVisible ( false );
+    ContextMenu->actions().at ( 4 )->setVisible ( false );
+    ContextMenu->actions().at ( 5 )->setVisible ( false );
   }
   else
   {
@@ -122,7 +136,9 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       ContextMenu->actions().at ( 0 )->setVisible ( true );
       ContextMenu->actions().at ( 1 )->setVisible ( true );
       ContextMenu->actions().at ( 2 )->setVisible ( true );
-      ContextMenu->actions().at ( 3 )->setVisible ( false );
+      ContextMenu->actions().at ( 3 )->setVisible ( true );
+      ContextMenu->actions().at ( 4 )->setVisible ( true );
+      ContextMenu->actions().at ( 5 )->setVisible ( false );
       CurrentObject =
         dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
     }
@@ -132,7 +148,9 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       ContextMenu->actions().at ( 0 )->setVisible ( false );
       ContextMenu->actions().at ( 1 )->setVisible ( false );
       ContextMenu->actions().at ( 2 )->setVisible ( false );
-      ContextMenu->actions().at ( 3 )->setVisible ( true );
+      ContextMenu->actions().at ( 3 )->setVisible ( false );
+      ContextMenu->actions().at ( 4 )->setVisible ( false );
+      ContextMenu->actions().at ( 5 )->setVisible ( true );
       CurrentArrow = dynamic_cast<SchemaGraphicArrow *> ( itemAt ( event->scenePos(),
                                                                    QTransform() ) );
     }
@@ -355,6 +373,50 @@ void dbse::SchemaGraphicsScene::EditClassSlot()
     Editor->show();
   }
 }
+
+void dbse::SchemaGraphicsScene::AddSuperClassesSlot() {
+
+  QString class_name = QString::fromStdString ( CurrentObject->GetClass()->get_name() );
+  OksClass * class_info = KernelWrapper::GetInstance().FindClass ( class_name.toStdString() );
+  
+  QStringList super_class_list;
+  QList<QPointF> positions;
+
+  const OksClass::FList* all_classes = class_info->all_super_classes();
+  if(all_classes != nullptr) {
+      for(const OksClass* cl : *all_classes) {
+          super_class_list.push_back(QString::fromStdString(cl->get_name()));
+          positions.push_back({0,0});
+      }
+  }
+
+
+  this->AddItemToScene ( super_class_list, positions );
+
+}
+
+
+void dbse::SchemaGraphicsScene::AddSubClassesSlot() {
+
+  QString class_name = QString::fromStdString ( CurrentObject->GetClass()->get_name() );
+  OksClass * class_info = KernelWrapper::GetInstance().FindClass ( class_name.toStdString() );
+  
+  QStringList sub_class_list;
+  QList<QPointF> positions;
+
+  const OksClass::FList* all_classes = class_info->all_sub_classes();
+  if(all_classes != nullptr) {
+      for(const OksClass* cl : *all_classes) {
+          sub_class_list.push_back(QString::fromStdString(cl->get_name()));
+          positions.push_back({0,0});
+      }
+  }
+
+
+  this->AddItemToScene ( sub_class_list, positions );
+
+}
+
 
 void dbse::SchemaGraphicsScene::RemoveClassSlot()
 {
