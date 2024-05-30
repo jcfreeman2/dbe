@@ -7,29 +7,29 @@
 /// Including C++ Headers
 #include <cmath>
 
-dbse::SchemaGraphicBrokenArrow::SchemaGraphicBrokenArrow ( SchemaGraphicObject * StartItem,
-                                               SchemaGraphicObject * EndItem, bool IsInheritance,
-                                               bool IsComposite, QString ArrowName,
-                                               QString ArrowCardinality, QGraphicsItem * parent )
+dbse::SchemaGraphicBrokenArrow::SchemaGraphicBrokenArrow ( SchemaGraphicObject * start_item,
+                                               SchemaGraphicObject * end_item, bool is_inheritance,
+                                               bool is_composite, QString arrow_name,
+                                               QString arrow_cardinality, QGraphicsItem * parent )
   : QGraphicsLineItem ( parent ),
-    Start ( StartItem ),
-    End ( EndItem ),
-    Inheritance ( IsInheritance ),
-    Composite ( IsComposite ),
-    Name ( ArrowName ),
-    Cardinality ( ArrowCardinality ),
-    Label ( nullptr ),
+    m_start_item ( start_item ),
+    m_end_item ( end_item ),
+    m_inheritance ( is_inheritance ),
+    m_composite ( is_composite ),
+    Name ( arrow_name ),
+    m_cardinality ( arrow_cardinality ),
+    m_label ( nullptr ),
     LastDegree ( 0 ),
     LastRotation ( 0 )
 {
   //setPen(QPen(Qt::black,2,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));
   setFlag ( ItemIsSelectable, true );
-  //LabelString = Name + " - " + Cardinality;
+  //LabelString = Name + " - " + m_cardinality;
 
-  if ( !Start->collidesWithItem ( End ) && !Inheritance )
+  if ( !m_start_item->collidesWithItem ( m_end_item ) && !m_inheritance )
   {
-    Label = new QGraphicsSimpleTextItem ( Name + " - " + Cardinality );
-    Label->setParentItem ( this );
+    m_label = new QGraphicsSimpleTextItem ( Name + " - " + m_cardinality );
+    m_label->setParentItem ( this );
   }
 
 }
@@ -52,36 +52,36 @@ QPainterPath dbse::SchemaGraphicBrokenArrow::shape() const
   QPainterPath path = QGraphicsLineItem::shape();
   path.addPolygon ( ArrowHead );
   path.addText ( line().p2() + QPoint ( 10, 10 ), QFont ( "Helvetica [Cronyx]", 10 ),
-                 Cardinality );
+                 m_cardinality );
   path.addText ( line().p1() + QPoint ( -10, -10 ), QFont ( "Helvetica [Cronyx]", 10 ),
-                 Cardinality );
+                 m_cardinality );
   return path;
 }
 
 void dbse::SchemaGraphicBrokenArrow::UpdatePosition()
 {
-  QLineF line ( mapFromItem ( Start, 0, 0 ), mapFromItem ( End, 0, 0 ) );
+  QLineF line ( mapFromItem ( m_start_item, 0, 0 ), mapFromItem ( m_end_item, 0, 0 ) );
   setLine ( line );
 }
 
 dbse::SchemaGraphicObject * dbse::SchemaGraphicBrokenArrow::GetStartItem() const
 {
-  return Start;
+  return m_start_item;
 }
 
 dbse::SchemaGraphicObject * dbse::SchemaGraphicBrokenArrow::GetEndItem() const
 {
-  return End;
+  return m_end_item;
 }
 
 bool dbse::SchemaGraphicBrokenArrow::GetInheritanceMode()
 {
-  return Inheritance;
+  return m_inheritance;
 }
 
 void dbse::SchemaGraphicBrokenArrow::RemoveArrow()
 {
-  if ( Inheritance )
+  if ( m_inheritance )
   {
     /// Remove Super class
   }
@@ -93,7 +93,7 @@ void dbse::SchemaGraphicBrokenArrow::RemoveArrow()
 
 void dbse::SchemaGraphicBrokenArrow::SetLabelScene ( SchemaGraphicsScene * Scene )
 {
-  Scene->addItem ( Label );
+  Scene->addItem ( m_label );
 }
 
 void dbse::SchemaGraphicBrokenArrow::paint ( QPainter * painter,
@@ -103,7 +103,7 @@ void dbse::SchemaGraphicBrokenArrow::paint ( QPainter * painter,
   Q_UNUSED ( option )
   Q_UNUSED ( widget )
 
-  if ( Start->collidesWithItem ( End ) )
+  if ( m_start_item->collidesWithItem ( m_end_item ) )
   {
     return;
   }
@@ -117,9 +117,9 @@ void dbse::SchemaGraphicBrokenArrow::paint ( QPainter * painter,
   painter->setPen ( myPen );
   painter->setBrush ( Qt::black );
 
-  QLineF centerLine ( Start->mapToScene ( Start->boundingRect().center() ),
-                      End->mapToScene ( End->boundingRect().center() ) );
-  QPolygonF startPolygon = QPolygonF ( Start->boundingRect() );
+  QLineF centerLine ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
+                      m_end_item->mapToScene ( m_end_item->boundingRect().center() ) );
+  QPolygonF startPolygon = QPolygonF ( m_start_item->boundingRect() );
   QPolygonF endPolygon = QPolygonF ( End->boundingRect() );
   QPointF p1 = endPolygon.first() + End->pos();
   QPointF p2;
@@ -180,49 +180,49 @@ void dbse::SchemaGraphicBrokenArrow::paint ( QPainter * painter,
   ArrowHead << line().p1() << arrowP1 << arrowP2;
 
   QFontMetrics Metrics ( Font );
-  Metrics.boundingRect ( Name + " - " + Cardinality );
+  Metrics.boundingRect ( Name + " - " + m_cardinality );
 
   painter->drawLine ( line() );
   qreal degree = ( angle * 180 ) / M_PI;
 
-  if ( Label )
+  if ( m_label )
   {
 
-    Label->setRotation ( -degree + LastDegree );
+    m_label->setRotation ( -degree + LastDegree );
 
     if ( degree >= 90 && degree < 270 )
     {
-      Label->setTransformOriginPoint ( Label->boundingRect().center() );
-      Label->setRotation ( -180 );
-      Label->setTransformOriginPoint ( 0, 0 );
+      m_label->setTransformOriginPoint ( m_label->boundingRect().center() );
+      m_label->setRotation ( -180 );
+      m_label->setTransformOriginPoint ( 0, 0 );
       LastRotation = 180;
-      Label->setPos ( line().p2() + QPointF ( -5 * cos ( angle ), 5 * sin ( angle ) ) );
+      m_label->setPos ( line().p2() + QPointF ( -5 * cos ( angle ), 5 * sin ( angle ) ) );
     }
     else
     {
-      Label->setTransformOriginPoint ( Label->boundingRect().center() );
-      Label->setRotation ( 360 );
-      Label->setTransformOriginPoint ( 0, 0 );
+      m_label->setTransformOriginPoint ( m_label->boundingRect().center() );
+      m_label->setRotation ( 360 );
+      m_label->setTransformOriginPoint ( 0, 0 );
       LastRotation = -180;
 
-      if ( Composite )
+      if ( m_composite )
       {
-        Label->setPos ( line().p1() + QPointF ( 20 * cos ( angle ), -20 * sin ( angle ) ) );
+        m_label->setPos ( line().p1() + QPointF ( 20 * cos ( angle ), -20 * sin ( angle ) ) );
       }
       else
       {
-        Label->setPos ( line().p1() + QPointF ( 5 * cos ( angle ), -5 * sin ( angle ) ) );
+        m_label->setPos ( line().p1() + QPointF ( 5 * cos ( angle ), -5 * sin ( angle ) ) );
       }
     }
 
     LastDegree = degree;
   }
 
-  if ( Inheritance )
+  if ( m_inheritance )
   {
     painter->drawPolygon ( ArrowHead );
   }
-  else if ( Composite )
+  else if ( m_composite )
   {
     /// Draw Rhombus
     ArrowHead.clear();

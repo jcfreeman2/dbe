@@ -26,20 +26,17 @@ public:
   void RemoveArrow();
   void SetLabelScene ( SchemaGraphicsScene * Scene );
 protected:
-  //void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
-  //void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
-  //void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
                QWidget * widget = 0 );
 private:
-  SchemaGraphicObject * Start;
-  SchemaGraphicObject * End;
+  SchemaGraphicObject * m_start_item;
+  SchemaGraphicObject * m_end_item;
   QPolygonF ArrowHead;
-  bool Inheritance;
-  bool Composite;
+  bool m_inheritance;
+  bool m_composite;
   QString Name;
   QString Cardinality;
-  QGraphicsSimpleTextItem * Label;
+  QGraphicsSimpleTextItem * m_label;
   double LastDegree;
   double LastRotation;
   //QString LabelString;
