@@ -44,7 +44,7 @@ private slots:
 private:
   QMap<QString, SchemaGraphicObject *> ItemMap;
   QGraphicsLineItem * line;
-  QMenu * ContextMenu;
+  QMenu * context_menu;
   QAction * AddClass;
   QAction * EditClass;
   QAction * m_toggle_indirect_infos;
