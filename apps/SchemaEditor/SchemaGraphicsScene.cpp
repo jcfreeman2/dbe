@@ -18,9 +18,10 @@ using namespace dunedaq::oks;
 dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
   : QGraphicsScene ( parent ),
     line ( nullptr ),
-    ContextMenu ( nullptr ),
+    context_menu ( nullptr ),
     CurrentObject ( nullptr ),
-    CurrentArrow ( nullptr )
+    CurrentArrow ( nullptr ),
+    m_indirects_visible(false)
 {
   CreateActions();
   setSceneRect ( QRectF ( 0, 0, 10000, 10000 ) );
@@ -32,41 +33,55 @@ dbse::SchemaGraphicsScene::~SchemaGraphicsScene()
 
 void dbse::SchemaGraphicsScene::CreateActions()
 {
+  // Add new class
   AddClass = new QAction ( "&Add new class", this );
   AddClass->setShortcut ( tr ( "Ctrl+A" ) );
   AddClass->setShortcutContext ( Qt::WidgetShortcut );
   connect ( AddClass, SIGNAL ( triggered() ), this, SLOT ( AddClassSlot() ) );
 
+  // Edit current class
   EditClass = new QAction ( "&Edit class", this );
   EditClass->setShortcut ( tr ( "Ctrl+E" ) );
   EditClass->setShortcutContext ( Qt::WidgetShortcut );
   connect ( EditClass, SIGNAL ( triggered() ), this, SLOT ( EditClassSlot() ) );
 
+  // Show superclasses of the current class
+  m_toggle_indirect_infos = new QAction ( "&Toggle indirect information", this );
+  m_toggle_indirect_infos->setShortcut ( tr ( "Ctrl+T" ) );
+  m_toggle_indirect_infos->setShortcutContext ( Qt::WidgetShortcut );
+  connect ( m_toggle_indirect_infos, SIGNAL ( triggered() ), this, SLOT ( ToggleIndirectInfos() ) );
+
+  // Show superclasses of the current class
   m_add_super_classes = new QAction ( "Add &superclasses to view", this );
   m_add_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
   m_add_super_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddSuperClassesSlot() ) );
 
+  // Show subclasses of the current clas
   m_add_sub_classes = new QAction ( "Add s&ubclasses to view", this );
   m_add_sub_classes->setShortcut ( tr ( "Ctrl+S" ) );
   m_add_sub_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_sub_classes, SIGNAL ( triggered() ), this, SLOT ( AddSubClassesSlot() ) );
 
+  // Show relationship classes of the current clas
   m_add_direct_relationship_classes = new QAction ( "Add &direct relationship classes to view", this );
   m_add_direct_relationship_classes->setShortcut ( tr ( "Ctrl+D" ) );
   m_add_direct_relationship_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_direct_relationship_classes, SIGNAL ( triggered() ), this, SLOT ( AddDirectRelationshipClassesSlot() ) );
 
+  // Show indirect relationship classes of the current clas
   m_add_all_relationship_classes = new QAction ( "Add a&ll relationship classes to view", this );
   m_add_all_relationship_classes->setShortcut ( tr ( "Ctrl+D" ) );
   m_add_all_relationship_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_all_relationship_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllRelationshipClassesSlot() ) );
 
+  // Remove class
   RemoveClass = new QAction ( "&Remove Class from view", this );
   RemoveClass->setShortcut ( tr ( "Ctrl+R" ) );
   RemoveClass->setShortcutContext ( Qt::WidgetShortcut );
   connect ( RemoveClass, SIGNAL ( triggered() ), this, SLOT ( RemoveClassSlot() ) );
 
+  // Remove arrow
   RemoveArrow = new QAction ( "&Remove Arrow", this );
   RemoveArrow->setShortcut ( tr ( "Ctrl+R" ) );
   RemoveArrow->setShortcutContext ( Qt::WidgetShortcut );
@@ -119,63 +134,73 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     return;
   }
 
-  if ( ContextMenu == nullptr )
+  if ( context_menu == nullptr )
   {
-    ContextMenu = new QMenu();
-    ContextMenu->addAction ( AddClass );
-    ContextMenu->addAction ( EditClass );
-    ContextMenu->addAction ( m_add_super_classes );
-    ContextMenu->addAction ( m_add_sub_classes );
-    ContextMenu->addAction ( m_add_sub_classes );
-    ContextMenu->addAction ( m_add_direct_relationship_classes );
-    ContextMenu->addAction ( m_add_all_relationship_classes );
-    ContextMenu->addAction ( RemoveClass );
-    ContextMenu->addAction ( RemoveArrow );
+    context_menu = new QMenu();
+    context_menu->addAction ( AddClass );
+    context_menu->addAction ( m_toggle_indirect_infos );
+    context_menu->addSeparator();
+    context_menu->addAction ( EditClass );
+    context_menu->addAction ( m_add_super_classes );
+    context_menu->addAction ( m_add_sub_classes );
+    context_menu->addAction ( m_add_sub_classes );
+    context_menu->addAction ( m_add_direct_relationship_classes );
+    context_menu->addAction ( m_add_all_relationship_classes );
+    context_menu->addAction ( RemoveClass );
+    context_menu->addAction ( RemoveArrow );
   }
 
   if ( !itemAt ( event->scenePos(), QTransform() ) )
   {
-    ContextMenu->actions().at ( 0 )->setVisible ( true );
-    ContextMenu->actions().at ( 1 )->setVisible ( false );
-    ContextMenu->actions().at ( 2 )->setVisible ( false );
-    ContextMenu->actions().at ( 3 )->setVisible ( false );
-    ContextMenu->actions().at ( 4 )->setVisible ( false );
-    ContextMenu->actions().at ( 5 )->setVisible ( false );
-    ContextMenu->actions().at ( 6 )->setVisible ( false );
-    ContextMenu->actions().at ( 7 )->setVisible ( false );
+    context_menu->actions().at ( 0 )->setVisible ( true );
+    context_menu->actions().at ( 1 )->setVisible ( true );
+    context_menu->actions().at ( 2 )->setVisible ( false );
+    context_menu->actions().at ( 3 )->setVisible ( false );
+    context_menu->actions().at ( 4 )->setVisible ( false );
+    context_menu->actions().at ( 5 )->setVisible ( false );
+    context_menu->actions().at ( 6 )->setVisible ( false );
+    context_menu->actions().at ( 7 )->setVisible ( false );
+    context_menu->actions().at ( 8 )->setVisible ( false );
+    context_menu->actions().at ( 9 )->setVisible ( false );
   }
   else
   {
     if ( dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) ) )
     {
-      ContextMenu->actions().at ( 0 )->setVisible ( true );
-      ContextMenu->actions().at ( 1 )->setVisible ( true );
-      ContextMenu->actions().at ( 2 )->setVisible ( true );
-      ContextMenu->actions().at ( 3 )->setVisible ( true );
-      ContextMenu->actions().at ( 4 )->setVisible ( true );
-      ContextMenu->actions().at ( 5 )->setVisible ( true );
-      ContextMenu->actions().at ( 6 )->setVisible ( true );
-      ContextMenu->actions().at ( 7 )->setVisible ( false );
+      context_menu->actions().at ( 0 )->setVisible ( true );
+      context_menu->actions().at ( 1 )->setVisible ( true );
+      context_menu->actions().at ( 2 )->setVisible ( true );
+      context_menu->actions().at ( 3 )->setVisible ( true );
+      context_menu->actions().at ( 4 )->setVisible ( true );
+      context_menu->actions().at ( 5 )->setVisible ( true );
+      context_menu->actions().at ( 6 )->setVisible ( true );
+      context_menu->actions().at ( 7 )->setVisible ( true );
+      context_menu->actions().at ( 8 )->setVisible ( true );
+      context_menu->actions().at ( 9 )->setVisible ( false );
+
       CurrentObject =
         dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
     }
     else if ( dynamic_cast<SchemaGraphicArrow *> ( itemAt ( event->scenePos(),
                                                             QTransform() ) ) )
     {
-      ContextMenu->actions().at ( 0 )->setVisible ( false );
-      ContextMenu->actions().at ( 1 )->setVisible ( false );
-      ContextMenu->actions().at ( 2 )->setVisible ( false );
-      ContextMenu->actions().at ( 3 )->setVisible ( false );
-      ContextMenu->actions().at ( 4 )->setVisible ( false );
-      ContextMenu->actions().at ( 5 )->setVisible ( false );
-      ContextMenu->actions().at ( 6 )->setVisible ( false );
-      ContextMenu->actions().at ( 7 )->setVisible ( true );
+      context_menu->actions().at ( 0 )->setVisible ( false );
+      context_menu->actions().at ( 1 )->setVisible ( false );
+      context_menu->actions().at ( 1 )->setVisible ( false );
+      context_menu->actions().at ( 2 )->setVisible ( false );
+      context_menu->actions().at ( 3 )->setVisible ( false );
+      context_menu->actions().at ( 4 )->setVisible ( false );
+      context_menu->actions().at ( 5 )->setVisible ( false );
+      context_menu->actions().at ( 6 )->setVisible ( false );
+      context_menu->actions().at ( 7 )->setVisible ( false );
+      context_menu->actions().at ( 8 )->setVisible ( false );
+      context_menu->actions().at ( 9 )->setVisible ( true );
       CurrentArrow = dynamic_cast<SchemaGraphicArrow *> ( itemAt ( event->scenePos(),
                                                                    QTransform() ) );
     }
   }
 
-  ContextMenu->exec ( event->screenPos() );
+  context_menu->exec ( event->screenPos() );
 }
 
 void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
@@ -187,6 +212,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
     {
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );
+      Object->set_indirects_visibility(m_indirects_visible);
       addItem ( Object );
       /// Updating item list
       ItemMap.insert ( ClassName, Object );
@@ -391,6 +417,17 @@ void dbse::SchemaGraphicsScene::EditClassSlot()
     SchemaClassEditor * Editor = new SchemaClassEditor ( CurrentObject->GetClass() );
     Editor->show();
   }
+}
+
+void dbse::SchemaGraphicsScene::ToggleIndirectInfos() {
+  m_indirects_visible = !m_indirects_visible;
+
+  for ( SchemaGraphicObject * item : ItemMap.values() ) {
+    item->set_indirects_visibility(m_indirects_visible);
+  }
+
+  this->update();
+
 }
 
 void dbse::SchemaGraphicsScene::AddSuperClassesSlot() {

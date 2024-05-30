@@ -33,6 +33,7 @@ protected:
 private slots:
   void AddClassSlot();
   void EditClassSlot();
+  void ToggleIndirectInfos();
   void AddSuperClassesSlot();
   void AddSubClassesSlot();
   void AddDirectRelationshipClassesSlot();
@@ -46,6 +47,7 @@ private:
   QMenu * ContextMenu;
   QAction * AddClass;
   QAction * EditClass;
+  QAction * m_toggle_indirect_infos;
   QAction * m_add_super_classes;
   QAction * m_add_sub_classes;
   QAction * m_add_direct_relationship_classes;
@@ -54,6 +56,8 @@ private:
   QAction * RemoveArrow;
   SchemaGraphicObject * CurrentObject;
   SchemaGraphicArrow * CurrentArrow;
+
+  bool m_indirects_visible;
 };
 
 }  // namespace dbse

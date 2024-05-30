@@ -16,6 +16,7 @@ using namespace dunedaq::oks;
 dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
                                                  QGraphicsObject * parent )
   : QGraphicsObject ( parent ),
+    m_indirects_visible(true),
     LineOffsetX ( 0 ),
     LineOffsetY ( 0 )
 {
@@ -31,7 +32,7 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
   connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassRemoved ( QString ) ), this,
             SLOT ( RemoveObject ( QString ) ) );
   /// Getting Class
-  ClassInfo = KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() );
+  m_class_info = KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() );
   ClassObjectName = ClassName;
   /// Getting class info
   GetInfo();
@@ -43,7 +44,7 @@ dbse::SchemaGraphicObject::~SchemaGraphicObject()
 
 OksClass * dbse::SchemaGraphicObject::GetClass() const
 {
-  return ClassInfo;
+  return m_class_info;
 }
 
 QString dbse::SchemaGraphicObject::GetClassName() const
@@ -53,26 +54,27 @@ QString dbse::SchemaGraphicObject::GetClassName() const
 
 void dbse::SchemaGraphicObject::GetInfo()
 {
-  ClassAttributes.clear();
-  ClassMethods.clear();
+  m_class_attributes.clear();
+  m_class_relationhips.clear();
+  m_class_methods.clear();
 
   std::list<OksAttribute *> direct_attributes = {};
-  if (ClassInfo->direct_attributes()) direct_attributes = *ClassInfo->direct_attributes();
+  if (m_class_info->direct_attributes()) direct_attributes = *m_class_info->direct_attributes();
 
   std::list<OksMethod *> direct_methods = {};
-  if (ClassInfo->direct_methods()) direct_methods = *ClassInfo->direct_methods();
+  if (m_class_info->direct_methods()) direct_methods = *m_class_info->direct_methods();
 
   std::list<OksRelationship *> direct_relationships = {};
-  if (ClassInfo->direct_relationships()) direct_relationships = *ClassInfo->direct_relationships();
+  if (m_class_info->direct_relationships()) direct_relationships = *m_class_info->direct_relationships();
 
   std::list<OksAttribute *> all_attributes = {};
-  if (ClassInfo->all_attributes()) all_attributes = *ClassInfo->all_attributes();
+  if (m_class_info->all_attributes()) all_attributes = *m_class_info->all_attributes();
 
   std::list<OksMethod *> all_methods = {};
-  if (ClassInfo->all_methods()) all_methods = *ClassInfo->all_methods();
+  if (m_class_info->all_methods()) all_methods = *m_class_info->all_methods();
 
   std::list<OksRelationship *> all_relationships = {};
-  if (ClassInfo->all_relationships()) all_relationships = *ClassInfo->all_relationships();
+  if (m_class_info->all_relationships()) all_relationships = *m_class_info->all_relationships();
 
   // Prepare indirect relatonship list
   std::list<OksAttribute *> indirect_attributes = all_attributes;
@@ -97,60 +99,60 @@ void dbse::SchemaGraphicObject::GetInfo()
     {OksRelationship::Many, "n"}
   };
 
-  /// Getting All Attributes
+  /// Getting direct Attributes
   for ( OksAttribute * Attribute : direct_attributes )
   {
     QString AttributeString (
       QString::fromStdString ( Attribute->get_name() ) + " : "
       + QString::fromStdString ( Attribute->get_type() ) );
-    ClassAttributes.append ( AttributeString );
+    m_class_attributes.append ( AttributeString );
   }
 
-  /// Getting All Relationships
+  /// Getting direct Relationships
   for ( OksRelationship * relationship : direct_relationships )
   {
-    QString reltionship_string ( QString::fromStdString ( relationship->get_name() ) + " : " 
+    QString relationship_string ( QString::fromStdString ( relationship->get_name() ) + " : " 
     + QString::fromStdString ( relationship->get_type() ) + " - "
     + QString::fromStdString ( m[ relationship->get_low_cardinality_constraint() ] ) + ":"
     + QString::fromStdString ( m[ relationship->get_high_cardinality_constraint() ] )  );
-    m_class_relationhips.append ( reltionship_string );
+    m_class_relationhips.append ( relationship_string );
   }
 
-  /// Getting All Methods
+  /// Getting direct Methods
   for ( OksMethod * Method : direct_methods )
   {
     QString MethodString ( QString::fromStdString ( Method->get_name() ) + "()" );
-    ClassMethods.append ( MethodString );
+    m_class_methods.append ( MethodString );
   }
 
+  if (m_indirects_visible) {
+    /// Getting indirect Attributes
+    for ( OksAttribute * attribute : indirect_attributes )
+    {
+      QString attribute_string (
+        QString::fromStdString ( attribute->get_name() ) + " : "
+        + QString::fromStdString ( attribute->get_type() ) );
+      m_class_indirect_attributes.append ( attribute_string );
+    }
 
+    /// Getting indirect Relationships
+    for ( OksRelationship * relationship : indirect_relationships )
+    {
+      QString relationship_string ( QString::fromStdString ( relationship->get_name() ) + " : " 
+      + QString::fromStdString ( relationship->get_type() ) + " - "
+      + QString::fromStdString ( m[ relationship->get_low_cardinality_constraint() ] ) + ":"
+      + QString::fromStdString ( m[ relationship->get_high_cardinality_constraint() ] )  );
+      m_class_indirect_relationhips.append ( relationship_string );
+    }
 
-  /// Getting All Attributes
-  for ( OksAttribute * attribute : indirect_attributes )
-  {
-    QString attribute_string (
-      QString::fromStdString ( attribute->get_name() ) + " : "
-      + QString::fromStdString ( attribute->get_type() ) );
-    m_class_indirect_attributes.append ( attribute_string );
+    /// Getting indirect Methods
+    for ( OksMethod * method : indirect_methods )
+    {
+      QString method_string ( QString::fromStdString ( method->get_name() ) + "()" );
+      m_class_indirect_methods.append ( method_string );
+    }
+
   }
-
-  /// Getting All Relationships
-  for ( OksRelationship * relationship : indirect_relationships )
-  {
-    QString reltionship_string ( QString::fromStdString ( relationship->get_name() ) + " : " 
-    + QString::fromStdString ( relationship->get_type() ) + " - "
-    + QString::fromStdString ( m[ relationship->get_low_cardinality_constraint() ] ) + ":"
-    + QString::fromStdString ( m[ relationship->get_high_cardinality_constraint() ] )  );
-    m_class_indirect_relationhips.append ( reltionship_string );
-  }
-
-  /// Getting All Methods
-  for ( OksMethod * method : indirect_methods )
-  {
-    QString method_string ( QString::fromStdString ( method->get_name() ) + "()" );
-    m_class_indirect_methods.append ( method_string );
-  }
-
 
 }
 
@@ -166,7 +168,7 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
   TotalBoundingHeight += FontMetrics.boundingRect ( ClassObjectName ).height();
   TotalBoundingWidth += FontMetrics.boundingRect ( ClassObjectName ).width();
 
-  for ( auto & AttributeName : ClassAttributes )
+  for ( auto & AttributeName : m_class_attributes )
   {
     TotalBoundingHeight += FontMetrics.boundingRect ( AttributeName ).height();
 
@@ -175,14 +177,15 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( AttributeName ).width();
   }
 
+  if (m_indirects_visible) {
+    for ( auto & AttributeName : m_class_indirect_attributes )
+    {
+      TotalBoundingHeight += FontMetrics.boundingRect ( AttributeName ).height();
 
-  for ( auto & AttributeName : m_class_indirect_attributes )
-  {
-    TotalBoundingHeight += FontMetrics.boundingRect ( AttributeName ).height();
-
-    if ( FontMetrics.boundingRect ( AttributeName ).width() > TotalBoundingWidth )
-      TotalBoundingWidth =
-        FontMetrics.boundingRect ( AttributeName ).width();
+      if ( FontMetrics.boundingRect ( AttributeName ).width() > TotalBoundingWidth )
+        TotalBoundingWidth =
+          FontMetrics.boundingRect ( AttributeName ).width();
+    }
   }
 
   for ( auto & relationship_name : m_class_relationhips )
@@ -194,16 +197,18 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( relationship_name ).width();
   }
 
-  for ( auto & relationship_name : m_class_indirect_relationhips )
-  {
-    TotalBoundingHeight += FontMetrics.boundingRect ( relationship_name ).height();
+  if (m_indirects_visible) {
+    for ( auto & relationship_name : m_class_indirect_relationhips )
+    {
+      TotalBoundingHeight += FontMetrics.boundingRect ( relationship_name ).height();
 
-    if ( FontMetrics.boundingRect ( relationship_name ).width() > TotalBoundingWidth )
-      TotalBoundingWidth =
-        FontMetrics.boundingRect ( relationship_name ).width();
+      if ( FontMetrics.boundingRect ( relationship_name ).width() > TotalBoundingWidth )
+        TotalBoundingWidth =
+          FontMetrics.boundingRect ( relationship_name ).width();
+    }
   }
 
-  for ( auto & MethodName : ClassMethods )
+  for ( auto & MethodName : m_class_methods )
   {
     TotalBoundingHeight += FontMetrics.boundingRect ( MethodName ).height();
 
@@ -212,13 +217,15 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( MethodName ).width();
   }
 
-  for ( auto & MethodName : m_class_indirect_methods )
-  {
-    TotalBoundingHeight += FontMetrics.boundingRect ( MethodName ).height();
+  if (m_indirects_visible) {
+    for ( auto & MethodName : m_class_indirect_methods )
+    {
+      TotalBoundingHeight += FontMetrics.boundingRect ( MethodName ).height();
 
-    if ( FontMetrics.boundingRect ( MethodName ).width() > TotalBoundingWidth )
-      TotalBoundingWidth =
-        FontMetrics.boundingRect ( MethodName ).width();
+      if ( FontMetrics.boundingRect ( MethodName ).width() > TotalBoundingWidth )
+        TotalBoundingWidth =
+          FontMetrics.boundingRect ( MethodName ).width();
+    }
   }
 
   TotalBoundingWidth += 15;
@@ -255,22 +262,23 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   painter->drawText ( ClassNamePosition, ClassNameBoundingRect.height(), ClassObjectName );
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
 
-  for ( QString & AttributeName : ClassAttributes )
+  for ( QString & AttributeName : m_class_attributes )
   {
     QRectF AttributeBoundingRect = FontMetrics.boundingRect ( AttributeName );
     HeightOffset += AttributeBoundingRect.height();
     painter->drawText ( SpaceX, HeightOffset, AttributeName );
   }
 
-  painter->setPen ( QColor ( "black" ) );
-  for ( QString & AttributeName : m_class_indirect_attributes )
-  {
-    QRectF AttributeBoundingRect = FontMetrics.boundingRect ( AttributeName );
-    HeightOffset += AttributeBoundingRect.height();
-    painter->drawText ( SpaceX, HeightOffset, AttributeName );
+  if (m_indirects_visible) {
+    painter->setPen ( QColor ( "black" ) );
+    for ( QString & AttributeName : m_class_indirect_attributes )
+    {
+      QRectF AttributeBoundingRect = FontMetrics.boundingRect ( AttributeName );
+      HeightOffset += AttributeBoundingRect.height();
+      painter->drawText ( SpaceX, HeightOffset, AttributeName );
+    }
+    painter->setPen ( QColor ( "blue" ) );
   }
-  painter->setPen ( QColor ( "blue" ) );
-
 
   HeightOffset += SpaceY;
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
@@ -282,35 +290,38 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
     painter->drawText ( SpaceX, HeightOffset, relationship_name );
   }
 
-  painter->setPen ( QColor ( "black" ) );
-  for ( QString & relationship_name : m_class_indirect_relationhips )
-  {
-    QRectF relationship_bounding_rect = FontMetrics.boundingRect ( relationship_name );
-    HeightOffset += relationship_bounding_rect.height();
-    painter->drawText ( SpaceX, HeightOffset, relationship_name );
+  if (m_indirects_visible) {
+    painter->setPen ( QColor ( "black" ) );
+    for ( QString & relationship_name : m_class_indirect_relationhips )
+    {
+      QRectF relationship_bounding_rect = FontMetrics.boundingRect ( relationship_name );
+      HeightOffset += relationship_bounding_rect.height();
+      painter->drawText ( SpaceX, HeightOffset, relationship_name );
+    }
+    painter->setPen ( QColor ( "blue" ) );
   }
-  painter->setPen ( QColor ( "blue" ) );
-
 
 
   HeightOffset += SpaceY;
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
   
-  for ( QString & MethodName : ClassMethods )
+  for ( QString & MethodName : m_class_methods )
   {
     QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
     HeightOffset += AttributeBoundingRect.height();
     painter->drawText ( SpaceX, HeightOffset, MethodName );
   }
 
-  painter->setPen ( QColor ( "black" ) );
-  for ( QString & MethodName : m_class_indirect_methods )
-  {
-    QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
-    HeightOffset += AttributeBoundingRect.height();
-    painter->drawText ( SpaceX, HeightOffset, MethodName );
+  if (m_indirects_visible) {
+    painter->setPen ( QColor ( "black" ) );
+    for ( QString & MethodName : m_class_indirect_methods )
+    {
+      QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
+      HeightOffset += AttributeBoundingRect.height();
+      painter->drawText ( SpaceX, HeightOffset, MethodName );
+    }
+    painter->setPen ( QColor ( "blue" ) );
   }
-  painter->setPen ( QColor ( "blue" ) );
 }
 
 void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicArrow * Arrow )
