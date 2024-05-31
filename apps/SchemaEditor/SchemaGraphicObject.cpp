@@ -7,7 +7,7 @@
 #include"oks/method.hpp"
 /// Including SchemaEditor
 #include "dbe/SchemaGraphicObject.hpp"
-#include "dbe/SchemaGraphicArrow.hpp"
+#include "dbe/SchemaGraphicBrokenArrow.hpp"
 #include "dbe/SchemaGraphicsScene.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 
@@ -324,12 +324,12 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   }
 }
 
-void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicArrow * Arrow )
+void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicBrokenArrow * Arrow )
 {
   Arrows.append ( Arrow );
 }
 
-void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicArrow * Arrow )
+void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicBrokenArrow * Arrow )
 {
   int index = Arrows.indexOf ( Arrow );
 
@@ -341,7 +341,7 @@ void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicArrow * Arrow )
 
 void dbse::SchemaGraphicObject::RemoveArrows()
 {
-  foreach ( SchemaGraphicArrow * arrow, Arrows )
+  foreach ( SchemaGraphicBrokenArrow * arrow, Arrows )
   {
     arrow->GetStartItem()->RemoveArrow ( arrow );
     arrow->GetEndItem()->RemoveArrow ( arrow );
@@ -356,7 +356,7 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
     return false;
   }
 
-  for ( SchemaGraphicArrow * Arrow : Arrows )
+  for ( SchemaGraphicBrokenArrow * Arrow : Arrows )
   {
     SchemaGraphicObject * ArrowSource = Arrow->GetStartItem();
     SchemaGraphicObject * ArrowDest = Arrow->GetEndItem();
@@ -373,7 +373,7 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
 QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,
                                                  const QVariant & value )
 {
-  if ( change == ItemPositionChange ) for ( SchemaGraphicArrow * arrow : Arrows )
+  if ( change == ItemPositionChange ) for ( SchemaGraphicBrokenArrow * arrow : Arrows )
     {
       arrow->UpdatePosition();
     }

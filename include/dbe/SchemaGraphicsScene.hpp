@@ -44,7 +44,7 @@ private slots:
 private:
   QMap<QString, SchemaGraphicObject *> ItemMap;
   QGraphicsLineItem * line;
-  QMenu * context_menu;
+  QMenu * m_context_menu;
   QAction * AddClass;
   QAction * EditClass;
   QAction * m_toggle_indirect_infos;
@@ -55,7 +55,7 @@ private:
   QAction * RemoveClass;
   QAction * RemoveArrow;
   SchemaGraphicObject * CurrentObject;
-  SchemaGraphicArrow * CurrentArrow;
+  SchemaGraphicBrokenArrow * m_current_arrow;
 
   bool m_indirects_visible;
 };

@@ -1,8 +1,8 @@
-#ifndef SCHEMABROKENGRAPHICARROW_H
-#define SCHEMABROKENGRAPHICARROW_H
+#ifndef SCHEMAGRAPHICBROKENARROW_H
+#define SCHEMAGRAPHICBROKENARROW_H
 
 /// Including QT Headers
-#include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
 /// Including Schema Editor
 #include "dbe/SchemaGraphicObject.hpp"
 #include "dbe/SchemaGraphicsScene.hpp"
@@ -10,13 +10,13 @@
 namespace dbse
 {
 
-class SchemaBrokenGraphicArrow: public QGraphicsLineItem
+class SchemaGraphicBrokenArrow: public QGraphicsPathItem
 {
 public:
-  SchemaBrokenGraphicArrow ( SchemaGraphicObject * StartItem, SchemaGraphicObject * EndItem,
+  SchemaGraphicBrokenArrow ( SchemaGraphicObject * StartItem, SchemaGraphicObject * EndItem,
                        bool IsInheritance, bool IsComposite, QString ArrowName,
                        QString ArrowCardinality, QGraphicsItem * parent = nullptr );
-  ~SchemaBrokenGraphicArrow();
+  ~SchemaGraphicBrokenArrow();
   QRectF boundingRect() const;
   QPainterPath shape() const;
   void UpdatePosition();
@@ -29,13 +29,20 @@ protected:
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
                QWidget * widget = 0 );
 private:
+
+  QPointF p1() const { return path().elementAt(0); }
+  QPointF p2() const { return path().elementAt(path().elementCount()-1); }
+  qreal dx() const { return p2().x() - p1().x(); } 
+  qreal dy() const { return p2().y() - p1().y(); } 
+
+
   SchemaGraphicObject * m_start_item;
   SchemaGraphicObject * m_end_item;
   QPolygonF ArrowHead;
   bool m_inheritance;
   bool m_composite;
-  QString Name;
-  QString Cardinality;
+  QString m_name;
+  QString m_cardinality;
   QGraphicsSimpleTextItem * m_label;
   double LastDegree;
   double LastRotation;
@@ -43,4 +50,4 @@ private:
 };
 
 }  // namespace dbse
-#endif // SCHEMABROKENGRAPHICARROW_H
+#endif // SCHEMAGRAPHICBROKENARROW_H

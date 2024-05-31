@@ -8,7 +8,7 @@
 /// Including Schema Editor
 #include "dbe/SchemaGraphicsScene.hpp"
 #include "dbe/SchemaGraphicObject.hpp"
-#include "dbe/SchemaGraphicArrow.hpp"
+#include "dbe/SchemaGraphicBrokenArrow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 #include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaRelationshipEditor.hpp"
@@ -18,9 +18,9 @@ using namespace dunedaq::oks;
 dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
   : QGraphicsScene ( parent ),
     line ( nullptr ),
-    context_menu ( nullptr ),
+    m_context_menu ( nullptr ),
     CurrentObject ( nullptr ),
-    CurrentArrow ( nullptr ),
+    m_current_arrow ( nullptr ),
     m_indirects_visible(false)
 {
   CreateActions();
@@ -134,73 +134,73 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     return;
   }
 
-  if ( context_menu == nullptr )
+  if ( m_context_menu == nullptr )
   {
-    context_menu = new QMenu();
-    context_menu->addAction ( AddClass );
-    context_menu->addAction ( m_toggle_indirect_infos );
-    context_menu->addSeparator();
-    context_menu->addAction ( EditClass );
-    context_menu->addAction ( m_add_super_classes );
-    context_menu->addAction ( m_add_sub_classes );
-    context_menu->addAction ( m_add_sub_classes );
-    context_menu->addAction ( m_add_direct_relationship_classes );
-    context_menu->addAction ( m_add_all_relationship_classes );
-    context_menu->addAction ( RemoveClass );
-    context_menu->addAction ( RemoveArrow );
+    m_context_menu = new QMenu();
+    m_context_menu->addAction ( AddClass );
+    m_context_menu->addAction ( m_toggle_indirect_infos );
+    m_context_menu->addSeparator();
+    m_context_menu->addAction ( EditClass );
+    m_context_menu->addAction ( m_add_super_classes );
+    m_context_menu->addAction ( m_add_sub_classes );
+    m_context_menu->addAction ( m_add_sub_classes );
+    m_context_menu->addAction ( m_add_direct_relationship_classes );
+    m_context_menu->addAction ( m_add_all_relationship_classes );
+    m_context_menu->addAction ( RemoveClass );
+    m_context_menu->addAction ( RemoveArrow );
   }
 
   if ( !itemAt ( event->scenePos(), QTransform() ) )
   {
-    context_menu->actions().at ( 0 )->setVisible ( true );
-    context_menu->actions().at ( 1 )->setVisible ( true );
-    context_menu->actions().at ( 2 )->setVisible ( false );
-    context_menu->actions().at ( 3 )->setVisible ( false );
-    context_menu->actions().at ( 4 )->setVisible ( false );
-    context_menu->actions().at ( 5 )->setVisible ( false );
-    context_menu->actions().at ( 6 )->setVisible ( false );
-    context_menu->actions().at ( 7 )->setVisible ( false );
-    context_menu->actions().at ( 8 )->setVisible ( false );
-    context_menu->actions().at ( 9 )->setVisible ( false );
+    m_context_menu->actions().at ( 0 )->setVisible ( true );
+    m_context_menu->actions().at ( 1 )->setVisible ( true );
+    m_context_menu->actions().at ( 2 )->setVisible ( false );
+    m_context_menu->actions().at ( 3 )->setVisible ( false );
+    m_context_menu->actions().at ( 4 )->setVisible ( false );
+    m_context_menu->actions().at ( 5 )->setVisible ( false );
+    m_context_menu->actions().at ( 6 )->setVisible ( false );
+    m_context_menu->actions().at ( 7 )->setVisible ( false );
+    m_context_menu->actions().at ( 8 )->setVisible ( false );
+    m_context_menu->actions().at ( 9 )->setVisible ( false );
   }
   else
   {
     if ( dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) ) )
     {
-      context_menu->actions().at ( 0 )->setVisible ( true );
-      context_menu->actions().at ( 1 )->setVisible ( true );
-      context_menu->actions().at ( 2 )->setVisible ( true );
-      context_menu->actions().at ( 3 )->setVisible ( true );
-      context_menu->actions().at ( 4 )->setVisible ( true );
-      context_menu->actions().at ( 5 )->setVisible ( true );
-      context_menu->actions().at ( 6 )->setVisible ( true );
-      context_menu->actions().at ( 7 )->setVisible ( true );
-      context_menu->actions().at ( 8 )->setVisible ( true );
-      context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 0 )->setVisible ( true );
+      m_context_menu->actions().at ( 1 )->setVisible ( true );
+      m_context_menu->actions().at ( 2 )->setVisible ( true );
+      m_context_menu->actions().at ( 3 )->setVisible ( true );
+      m_context_menu->actions().at ( 4 )->setVisible ( true );
+      m_context_menu->actions().at ( 5 )->setVisible ( true );
+      m_context_menu->actions().at ( 6 )->setVisible ( true );
+      m_context_menu->actions().at ( 7 )->setVisible ( true );
+      m_context_menu->actions().at ( 8 )->setVisible ( true );
+      m_context_menu->actions().at ( 9 )->setVisible ( false );
 
       CurrentObject =
         dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
     }
-    else if ( dynamic_cast<SchemaGraphicArrow *> ( itemAt ( event->scenePos(),
+    else if ( dynamic_cast<SchemaGraphicBrokenArrow *> ( itemAt ( event->scenePos(),
                                                             QTransform() ) ) )
     {
-      context_menu->actions().at ( 0 )->setVisible ( false );
-      context_menu->actions().at ( 1 )->setVisible ( false );
-      context_menu->actions().at ( 1 )->setVisible ( false );
-      context_menu->actions().at ( 2 )->setVisible ( false );
-      context_menu->actions().at ( 3 )->setVisible ( false );
-      context_menu->actions().at ( 4 )->setVisible ( false );
-      context_menu->actions().at ( 5 )->setVisible ( false );
-      context_menu->actions().at ( 6 )->setVisible ( false );
-      context_menu->actions().at ( 7 )->setVisible ( false );
-      context_menu->actions().at ( 8 )->setVisible ( false );
-      context_menu->actions().at ( 9 )->setVisible ( true );
-      CurrentArrow = dynamic_cast<SchemaGraphicArrow *> ( itemAt ( event->scenePos(),
+      m_context_menu->actions().at ( 0 )->setVisible ( false );
+      m_context_menu->actions().at ( 1 )->setVisible ( false );
+      m_context_menu->actions().at ( 1 )->setVisible ( false );
+      m_context_menu->actions().at ( 2 )->setVisible ( false );
+      m_context_menu->actions().at ( 3 )->setVisible ( false );
+      m_context_menu->actions().at ( 4 )->setVisible ( false );
+      m_context_menu->actions().at ( 5 )->setVisible ( false );
+      m_context_menu->actions().at ( 6 )->setVisible ( false );
+      m_context_menu->actions().at ( 7 )->setVisible ( false );
+      m_context_menu->actions().at ( 8 )->setVisible ( false );
+      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_current_arrow = dynamic_cast<SchemaGraphicBrokenArrow *> ( itemAt ( event->scenePos(),
                                                                    QTransform() ) );
     }
   }
 
-  context_menu->exec ( event->screenPos() );
+  m_context_menu->exec ( event->screenPos() );
 }
 
 void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
@@ -240,7 +240,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
         {
           QString SchemaCardinality =
             KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship );
-          SchemaGraphicArrow * NewArrow = new SchemaGraphicArrow (
+          SchemaGraphicBrokenArrow * NewArrow = new SchemaGraphicBrokenArrow (
             ItemMap[ClassName], ItemMap[RelationshipClassType], false,
             ClassRelationship->get_is_composite(),
             QString::fromStdString ( ClassRelationship->get_name() ), SchemaCardinality );
@@ -264,7 +264,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
         if ( ItemMap.contains ( SuperClassName ) && !ItemMap[ClassName]->HasArrow (
                ItemMap[SuperClassName] ) )
         {
-          SchemaGraphicArrow * NewArrow = new SchemaGraphicArrow ( ItemMap[ClassName],
+          SchemaGraphicBrokenArrow * NewArrow = new SchemaGraphicBrokenArrow ( ItemMap[ClassName],
                                                                    ItemMap[SuperClassName], true,
                                                                    false, "", "" );
           ItemMap[ClassName]->AddArrow ( NewArrow );
@@ -362,7 +362,7 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
       {
         startItem->GetClass()->add_super_class ( endItem->GetClassName().toStdString() );
         /// Create arrow
-        SchemaGraphicArrow * newArrow = new SchemaGraphicArrow ( startItem, endItem, Inheritance,
+        SchemaGraphicBrokenArrow * newArrow = new SchemaGraphicBrokenArrow ( startItem, endItem, Inheritance,
                                                                  true, "", "" );
         startItem->AddArrow ( newArrow );
         endItem->AddArrow ( newArrow );
@@ -527,10 +527,10 @@ void dbse::SchemaGraphicsScene::RemoveClassSlot()
 
 void dbse::SchemaGraphicsScene::RemoveArrowSlot()
 {
-  removeItem ( CurrentArrow );
-  CurrentArrow->GetStartItem()->RemoveArrow ( CurrentArrow );
-  CurrentArrow->GetEndItem()->RemoveArrow ( CurrentArrow );
-  CurrentArrow->RemoveArrow();
+  removeItem ( m_current_arrow );
+  m_current_arrow->GetStartItem()->RemoveArrow ( m_current_arrow );
+  m_current_arrow->GetEndItem()->RemoveArrow ( m_current_arrow );
+  m_current_arrow->RemoveArrow();
 }
 
 void dbse::SchemaGraphicsScene::DrawArrow ( QString ClassName, QString RelationshipType,
@@ -552,7 +552,7 @@ void dbse::SchemaGraphicsScene::DrawArrow ( QString ClassName, QString Relations
   {
     QString RelationshipCardinality =
       KernelWrapper::GetInstance().GetCardinalityStringRelationship ( SchemaRelationship );
-    SchemaGraphicArrow * newArrow = new SchemaGraphicArrow (
+    SchemaGraphicBrokenArrow * newArrow = new SchemaGraphicBrokenArrow (
       startItem, endItem, false, SchemaRelationship->get_is_composite(),
       QString::fromStdString ( SchemaRelationship->get_name() ), RelationshipCardinality );
     startItem->AddArrow ( newArrow );
