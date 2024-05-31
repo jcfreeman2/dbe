@@ -38,7 +38,7 @@ private:
 
   SchemaGraphicObject * m_start_item;
   SchemaGraphicObject * m_end_item;
-  QPolygonF ArrowHead;
+  QPolygonF m_arrow_head;
   bool m_inheritance;
   bool m_composite;
   QString m_name;

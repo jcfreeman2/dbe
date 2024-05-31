@@ -57,7 +57,7 @@ private:
   SchemaGraphicObject * CurrentObject;
   SchemaGraphicBrokenArrow * m_current_arrow;
 
-  bool m_indirects_visible;
+  bool m_inherited_properties_visible;
 };
 
 }  // namespace dbse

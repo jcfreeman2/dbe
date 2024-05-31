@@ -21,7 +21,7 @@ dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
     m_context_menu ( nullptr ),
     CurrentObject ( nullptr ),
     m_current_arrow ( nullptr ),
-    m_indirects_visible(false)
+    m_inherited_properties_visible(false)
 {
   CreateActions();
   setSceneRect ( QRectF ( 0, 0, 10000, 10000 ) );
@@ -46,7 +46,7 @@ void dbse::SchemaGraphicsScene::CreateActions()
   connect ( EditClass, SIGNAL ( triggered() ), this, SLOT ( EditClassSlot() ) );
 
   // Show superclasses of the current class
-  m_toggle_indirect_infos = new QAction ( "&Toggle indirect information", this );
+  m_toggle_indirect_infos = new QAction ( "&Toggle inherited properties", this );
   m_toggle_indirect_infos->setShortcut ( tr ( "Ctrl+T" ) );
   m_toggle_indirect_infos->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_toggle_indirect_infos, SIGNAL ( triggered() ), this, SLOT ( ToggleIndirectInfos() ) );
@@ -212,7 +212,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
     {
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );
-      Object->set_indirects_visibility(m_indirects_visible);
+      Object->set_inherited_properties_visibility(m_inherited_properties_visible);
       addItem ( Object );
       /// Updating item list
       ItemMap.insert ( ClassName, Object );
@@ -420,10 +420,10 @@ void dbse::SchemaGraphicsScene::EditClassSlot()
 }
 
 void dbse::SchemaGraphicsScene::ToggleIndirectInfos() {
-  m_indirects_visible = !m_indirects_visible;
+  m_inherited_properties_visible = !m_inherited_properties_visible;
 
   for ( SchemaGraphicObject * item : ItemMap.values() ) {
-    item->set_indirects_visibility(m_indirects_visible);
+    item->set_inherited_properties_visibility(m_inherited_properties_visible);
   }
 
   this->update();
