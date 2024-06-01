@@ -8,7 +8,7 @@
 /// Including Schema Editor
 #include "dbe/SchemaGraphicsScene.hpp"
 #include "dbe/SchemaGraphicObject.hpp"
-#include "dbe/SchemaGraphicBrokenArrow.hpp"
+#include "dbe/SchemaGraphicSegmentedArrow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 #include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaRelationshipEditor.hpp"
@@ -181,7 +181,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       CurrentObject =
         dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
     }
-    else if ( dynamic_cast<SchemaGraphicBrokenArrow *> ( itemAt ( event->scenePos(),
+    else if ( dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                             QTransform() ) ) )
     {
       m_context_menu->actions().at ( 0 )->setVisible ( false );
@@ -195,7 +195,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 7 )->setVisible ( false );
       m_context_menu->actions().at ( 8 )->setVisible ( false );
       m_context_menu->actions().at ( 9 )->setVisible ( true );
-      m_current_arrow = dynamic_cast<SchemaGraphicBrokenArrow *> ( itemAt ( event->scenePos(),
+      m_current_arrow = dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                                    QTransform() ) );
     }
   }
@@ -240,7 +240,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
         {
           QString SchemaCardinality =
             KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship );
-          SchemaGraphicBrokenArrow * NewArrow = new SchemaGraphicBrokenArrow (
+          SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
             ItemMap[ClassName], ItemMap[RelationshipClassType], false,
             ClassRelationship->get_is_composite(),
             QString::fromStdString ( ClassRelationship->get_name() ), SchemaCardinality );
@@ -264,7 +264,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
         if ( ItemMap.contains ( SuperClassName ) && !ItemMap[ClassName]->HasArrow (
                ItemMap[SuperClassName] ) )
         {
-          SchemaGraphicBrokenArrow * NewArrow = new SchemaGraphicBrokenArrow ( ItemMap[ClassName],
+          SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow ( ItemMap[ClassName],
                                                                    ItemMap[SuperClassName], true,
                                                                    false, "", "" );
           ItemMap[ClassName]->AddArrow ( NewArrow );
@@ -362,7 +362,7 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
       {
         startItem->GetClass()->add_super_class ( endItem->GetClassName().toStdString() );
         /// Create arrow
-        SchemaGraphicBrokenArrow * newArrow = new SchemaGraphicBrokenArrow ( startItem, endItem, Inheritance,
+        SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow ( startItem, endItem, Inheritance,
                                                                  true, "", "" );
         startItem->AddArrow ( newArrow );
         endItem->AddArrow ( newArrow );
@@ -552,7 +552,7 @@ void dbse::SchemaGraphicsScene::DrawArrow ( QString ClassName, QString Relations
   {
     QString RelationshipCardinality =
       KernelWrapper::GetInstance().GetCardinalityStringRelationship ( SchemaRelationship );
-    SchemaGraphicBrokenArrow * newArrow = new SchemaGraphicBrokenArrow (
+    SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow (
       startItem, endItem, false, SchemaRelationship->get_is_composite(),
       QString::fromStdString ( SchemaRelationship->get_name() ), RelationshipCardinality );
     startItem->AddArrow ( newArrow );

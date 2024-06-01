@@ -2,14 +2,14 @@
 #include <QPainter>
 #include <QPen>
 /// Including Schema Editor
-#include "dbe/SchemaGraphicBrokenArrow.hpp"
+#include "dbe/SchemaGraphicSegmentedArrow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 /// Including C++ Headers
 #include <cmath>
 
 namespace dbse {
 
-SchemaGraphicBrokenArrow::SchemaGraphicBrokenArrow ( SchemaGraphicObject * start_item,
+SchemaGraphicSegmentedArrow::SchemaGraphicSegmentedArrow ( SchemaGraphicObject * start_item,
                                                SchemaGraphicObject * end_item, bool is_inheritance,
                                                bool is_composite, QString arrow_name,
                                                QString arrow_cardinality, QGraphicsItem * parent )
@@ -36,11 +36,11 @@ SchemaGraphicBrokenArrow::SchemaGraphicBrokenArrow ( SchemaGraphicObject * start
 
 }
 
-SchemaGraphicBrokenArrow::~SchemaGraphicBrokenArrow()
+SchemaGraphicSegmentedArrow::~SchemaGraphicSegmentedArrow()
 {
 }
 
-QRectF SchemaGraphicBrokenArrow::boundingRect() const
+QRectF SchemaGraphicSegmentedArrow::boundingRect() const
 {
   if ( m_start_item->collidesWithItem ( m_end_item ) )
   {
@@ -58,7 +58,7 @@ QRectF SchemaGraphicBrokenArrow::boundingRect() const
            -extra, -extra, extra, extra );
 }
 
-QPainterPath SchemaGraphicBrokenArrow::shape() const
+QPainterPath SchemaGraphicSegmentedArrow::shape() const
 {
   QPainterPath path = QGraphicsPathItem::shape();
   path.addPolygon ( m_arrow_head );
@@ -69,7 +69,7 @@ QPainterPath SchemaGraphicBrokenArrow::shape() const
   return path;
 }
 
-void SchemaGraphicBrokenArrow::UpdatePosition()
+void SchemaGraphicSegmentedArrow::UpdatePosition()
 {
   QPainterPath path( mapFromItem ( m_start_item, 0, 0 ) );
   path.lineTo(mapFromItem ( m_end_item, 0, 0 ));
@@ -78,22 +78,22 @@ void SchemaGraphicBrokenArrow::UpdatePosition()
   // setLine ( line );
 }
 
-SchemaGraphicObject * SchemaGraphicBrokenArrow::GetStartItem() const
+SchemaGraphicObject * SchemaGraphicSegmentedArrow::GetStartItem() const
 {
   return m_start_item;
 }
 
-SchemaGraphicObject * SchemaGraphicBrokenArrow::GetEndItem() const
+SchemaGraphicObject * SchemaGraphicSegmentedArrow::GetEndItem() const
 {
   return m_end_item;
 }
 
-bool SchemaGraphicBrokenArrow::GetInheritanceMode()
+bool SchemaGraphicSegmentedArrow::GetInheritanceMode()
 {
   return m_inheritance;
 }
 
-void SchemaGraphicBrokenArrow::RemoveArrow()
+void SchemaGraphicSegmentedArrow::RemoveArrow()
 {
   if ( m_inheritance )
   {
@@ -105,12 +105,12 @@ void SchemaGraphicBrokenArrow::RemoveArrow()
   }
 }
 
-void SchemaGraphicBrokenArrow::SetLabelScene ( SchemaGraphicsScene * Scene )
+void SchemaGraphicSegmentedArrow::SetLabelScene ( SchemaGraphicsScene * Scene )
 {
   Scene->addItem ( m_label );
 }
 
-void SchemaGraphicBrokenArrow::paint ( QPainter * painter,
+void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
                                        const QStyleOptionGraphicsItem * option,
                                        QWidget * widget )
 {

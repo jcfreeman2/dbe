@@ -11,7 +11,7 @@
 namespace dbse
 {
 
-class SchemaGraphicBrokenArrow;
+class SchemaGraphicSegmentedArrow;
 
 class SchemaGraphicObject: public QGraphicsObject
 {
@@ -29,8 +29,8 @@ public:
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
                QWidget * widget );
   /// Arrow API
-  void AddArrow ( SchemaGraphicBrokenArrow * Arrow );
-  void RemoveArrow ( SchemaGraphicBrokenArrow * Arrow );
+  void AddArrow ( SchemaGraphicSegmentedArrow * Arrow );
+  void RemoveArrow ( SchemaGraphicSegmentedArrow * Arrow );
   void RemoveArrows();
   bool HasArrow ( SchemaGraphicObject * Dest ) const;
 protected:
@@ -50,7 +50,7 @@ private:
   QFont m_font;
   double LineOffsetX;
   double LineOffsetY;
-  QList<SchemaGraphicBrokenArrow *> Arrows;
+  QList<SchemaGraphicSegmentedArrow *> Arrows;
 private slots:
   void UpdateObject ( QString Name );
   void RemoveObject ( QString Name );

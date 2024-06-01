@@ -258,7 +258,7 @@ set(schema_core_src
                     SchemaEditor/SchemaAttributeEditor.cpp
                     SchemaEditor/SchemaCustomMethodImplementationModel.cpp
                     SchemaEditor/SchemaGraphicArrow.cpp
-                    SchemaEditor/SchemaGraphicBrokenArrow.cpp
+                    SchemaEditor/SchemaGraphicSegmentedArrow.cpp
                     SchemaEditor/SchemaMainWindow.cpp
                     SchemaEditor/SchemaClassEditor.cpp
                     SchemaEditor/SchemaCustomMethodModel.cpp

@@ -55,7 +55,7 @@ private:
   QAction * RemoveClass;
   QAction * RemoveArrow;
   SchemaGraphicObject * CurrentObject;
-  SchemaGraphicBrokenArrow * m_current_arrow;
+  SchemaGraphicSegmentedArrow * m_current_arrow;
 
   bool m_inherited_properties_visible;
 };

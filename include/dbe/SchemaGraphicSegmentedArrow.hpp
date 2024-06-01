@@ -1,5 +1,5 @@
-#ifndef SCHEMAGRAPHICBROKENARROW_H
-#define SCHEMAGRAPHICBROKENARROW_H
+#ifndef SchemaGraphicSegmentedArrow_H
+#define SchemaGraphicSegmentedArrow_H
 
 /// Including QT Headers
 #include <QGraphicsPathItem>
@@ -10,13 +10,13 @@
 namespace dbse
 {
 
-class SchemaGraphicBrokenArrow: public QGraphicsPathItem
+class SchemaGraphicSegmentedArrow: public QGraphicsPathItem
 {
 public:
-  SchemaGraphicBrokenArrow ( SchemaGraphicObject * StartItem, SchemaGraphicObject * EndItem,
+  SchemaGraphicSegmentedArrow ( SchemaGraphicObject * StartItem, SchemaGraphicObject * EndItem,
                        bool IsInheritance, bool IsComposite, QString ArrowName,
                        QString ArrowCardinality, QGraphicsItem * parent = nullptr );
-  ~SchemaGraphicBrokenArrow();
+  ~SchemaGraphicSegmentedArrow();
   QRectF boundingRect() const;
   QPainterPath shape() const;
   void UpdatePosition();
@@ -50,4 +50,4 @@ private:
 };
 
 }  // namespace dbse
-#endif // SCHEMAGRAPHICBROKENARROW_H
+#endif // SchemaGraphicSegmentedArrow_H
