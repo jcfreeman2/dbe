@@ -7,7 +7,7 @@
 #include"oks/method.hpp"
 /// Including SchemaEditor
 #include "dbe/SchemaGraphicObject.hpp"
-#include "dbe/SchemaGraphicArrow.hpp"
+#include "dbe/SchemaGraphicSegmentedArrow.hpp"
 #include "dbe/SchemaGraphicsScene.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 
@@ -16,7 +16,7 @@ using namespace dunedaq::oks;
 dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
                                                  QGraphicsObject * parent )
   : QGraphicsObject ( parent ),
-    m_indirects_visible(true),
+    m_inherited_properties_visible(true),
     LineOffsetX ( 0 ),
     LineOffsetY ( 0 )
 {
@@ -125,14 +125,14 @@ void dbse::SchemaGraphicObject::GetInfo()
     m_class_methods.append ( MethodString );
   }
 
-  if (m_indirects_visible) {
+  if (m_inherited_properties_visible) {
     /// Getting indirect Attributes
     for ( OksAttribute * attribute : indirect_attributes )
     {
       QString attribute_string (
         QString::fromStdString ( attribute->get_name() ) + " : "
         + QString::fromStdString ( attribute->get_type() ) );
-      m_class_indirect_attributes.append ( attribute_string );
+      m_class_inherited_attributes.append ( attribute_string );
     }
 
     /// Getting indirect Relationships
@@ -142,14 +142,14 @@ void dbse::SchemaGraphicObject::GetInfo()
       + QString::fromStdString ( relationship->get_type() ) + " - "
       + QString::fromStdString ( m[ relationship->get_low_cardinality_constraint() ] ) + ":"
       + QString::fromStdString ( m[ relationship->get_high_cardinality_constraint() ] )  );
-      m_class_indirect_relationhips.append ( relationship_string );
+      m_class_inherited_relationhips.append ( relationship_string );
     }
 
     /// Getting indirect Methods
     for ( OksMethod * method : indirect_methods )
     {
       QString method_string ( QString::fromStdString ( method->get_name() ) + "()" );
-      m_class_indirect_methods.append ( method_string );
+      m_class_inherited_methods.append ( method_string );
     }
 
   }
@@ -177,8 +177,8 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( AttributeName ).width();
   }
 
-  if (m_indirects_visible) {
-    for ( auto & AttributeName : m_class_indirect_attributes )
+  if (m_inherited_properties_visible) {
+    for ( auto & AttributeName : m_class_inherited_attributes )
     {
       TotalBoundingHeight += FontMetrics.boundingRect ( AttributeName ).height();
 
@@ -197,8 +197,8 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( relationship_name ).width();
   }
 
-  if (m_indirects_visible) {
-    for ( auto & relationship_name : m_class_indirect_relationhips )
+  if (m_inherited_properties_visible) {
+    for ( auto & relationship_name : m_class_inherited_relationhips )
     {
       TotalBoundingHeight += FontMetrics.boundingRect ( relationship_name ).height();
 
@@ -217,8 +217,8 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
         FontMetrics.boundingRect ( MethodName ).width();
   }
 
-  if (m_indirects_visible) {
-    for ( auto & MethodName : m_class_indirect_methods )
+  if (m_inherited_properties_visible) {
+    for ( auto & MethodName : m_class_inherited_methods )
     {
       TotalBoundingHeight += FontMetrics.boundingRect ( MethodName ).height();
 
@@ -269,9 +269,9 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
     painter->drawText ( SpaceX, HeightOffset, AttributeName );
   }
 
-  if (m_indirects_visible) {
+  if (m_inherited_properties_visible) {
     painter->setPen ( QColor ( "black" ) );
-    for ( QString & AttributeName : m_class_indirect_attributes )
+    for ( QString & AttributeName : m_class_inherited_attributes )
     {
       QRectF AttributeBoundingRect = FontMetrics.boundingRect ( AttributeName );
       HeightOffset += AttributeBoundingRect.height();
@@ -290,9 +290,9 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
     painter->drawText ( SpaceX, HeightOffset, relationship_name );
   }
 
-  if (m_indirects_visible) {
+  if (m_inherited_properties_visible) {
     painter->setPen ( QColor ( "black" ) );
-    for ( QString & relationship_name : m_class_indirect_relationhips )
+    for ( QString & relationship_name : m_class_inherited_relationhips )
     {
       QRectF relationship_bounding_rect = FontMetrics.boundingRect ( relationship_name );
       HeightOffset += relationship_bounding_rect.height();
@@ -312,9 +312,9 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
     painter->drawText ( SpaceX, HeightOffset, MethodName );
   }
 
-  if (m_indirects_visible) {
+  if (m_inherited_properties_visible) {
     painter->setPen ( QColor ( "black" ) );
-    for ( QString & MethodName : m_class_indirect_methods )
+    for ( QString & MethodName : m_class_inherited_methods )
     {
       QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
       HeightOffset += AttributeBoundingRect.height();
@@ -324,12 +324,12 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   }
 }
 
-void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicArrow * Arrow )
+void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicSegmentedArrow * Arrow )
 {
   Arrows.append ( Arrow );
 }
 
-void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicArrow * Arrow )
+void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicSegmentedArrow * Arrow )
 {
   int index = Arrows.indexOf ( Arrow );
 
@@ -341,7 +341,7 @@ void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicArrow * Arrow )
 
 void dbse::SchemaGraphicObject::RemoveArrows()
 {
-  foreach ( SchemaGraphicArrow * arrow, Arrows )
+  foreach ( SchemaGraphicSegmentedArrow * arrow, Arrows )
   {
     arrow->GetStartItem()->RemoveArrow ( arrow );
     arrow->GetEndItem()->RemoveArrow ( arrow );
@@ -356,7 +356,7 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
     return false;
   }
 
-  for ( SchemaGraphicArrow * Arrow : Arrows )
+  for ( SchemaGraphicSegmentedArrow * Arrow : Arrows )
   {
     SchemaGraphicObject * ArrowSource = Arrow->GetStartItem();
     SchemaGraphicObject * ArrowDest = Arrow->GetEndItem();
@@ -373,7 +373,7 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
 QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,
                                                  const QVariant & value )
 {
-  if ( change == ItemPositionChange ) for ( SchemaGraphicArrow * arrow : Arrows )
+  if ( change == ItemPositionChange ) for ( SchemaGraphicSegmentedArrow * arrow : Arrows )
     {
       arrow->UpdatePosition();
     }
