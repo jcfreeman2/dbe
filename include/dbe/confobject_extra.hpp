@@ -13,7 +13,7 @@
 #include "dbe/config_api_graph.hpp"
 #include "dbe/confobject_desc.hpp"
 
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 #include <string>
 
 namespace dbe
@@ -35,11 +35,11 @@ public:
    */
   static t_attrmap getattr ( typename C::t_confobject const & obj )
   {
-    dunedaq::oksdbinterfaces::class_t const & classt = dbe::config::api::info::onclass::definition (
+    dunedaq::conffwk::class_t const & classt = dbe::config::api::info::onclass::definition (
                                             obj.class_name(), false );
     t_attrmap attributes;
 
-    for ( dunedaq::oksdbinterfaces::attribute_t const & attr : classt.p_attributes )
+    for ( dunedaq::conffwk::attribute_t const & attr : classt.p_attributes )
     {
       typename t_attrmap::mapped_type values
       {
@@ -61,11 +61,11 @@ public:
    */
   static t_relmap getrel ( typename C::t_confobject const & obj )
   {
-    dunedaq::oksdbinterfaces::class_t const & classt = dbe::config::api::info::onclass::definition (
+    dunedaq::conffwk::class_t const & classt = dbe::config::api::info::onclass::definition (
                                             obj.class_name(), false );
     t_relmap relations;
 
-    for ( dunedaq::oksdbinterfaces::relationship_t const & link : classt.p_relationships )
+    for ( dunedaq::conffwk::relationship_t const & link : classt.p_relationships )
     {
       if ( C::filter ( link ) )
       {
@@ -106,7 +106,7 @@ struct config_object_aggregates:
   {
   }
 
-  static bool filter ( dunedaq::oksdbinterfaces::relationship_t const & l )
+  static bool filter ( dunedaq::conffwk::relationship_t const & l )
   {
     return l.p_is_aggregation;
   }

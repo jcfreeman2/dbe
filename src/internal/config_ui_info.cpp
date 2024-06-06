@@ -19,7 +19,7 @@
 #include <map>
 #include <vector>
 
-using namespace dunedaq::oksdbinterfaces;
+using namespace dunedaq::conffwk;
 
 dbe::ui::config::info::info ( std::vector<std::string> const & full_file_name )
   : this_full_filenames ( full_file_name )
@@ -76,7 +76,7 @@ void dbe::ui::config::info::parse()
 {
   for ( std::string const & fname : this_full_filenames )
   {
-    std::string Implementation = "oksconfig:" + fname;
+    std::string Implementation = "oksconflibs:" + fname;
 
     try
     {
@@ -98,7 +98,7 @@ void dbe::ui::config::info::parse()
         parse_window ( ConfigFile, awindow );
       }
     }
-    catch ( dunedaq::oksdbinterfaces::Exception const & ex )
+    catch ( dunedaq::conffwk::Exception const & ex )
     {
       ERROR ( "Configuration database load did not succeed",
               dbe::config::errors::parse ( ex ).c_str() );
@@ -112,12 +112,12 @@ void dbe::ui::config::info::parse_graphical ( std::shared_ptr<Configuration> Con
   GraphicalClass GraphicalClassObject;
 
   GraphicalClassObject.GraphicalUID = QString ( Object.UID().c_str() );
-  dunedaq::oksdbinterfaces::class_t cinfo = ConfigFile->get_class_info ( Object.class_name(), false );
+  dunedaq::conffwk::class_t cinfo = ConfigFile->get_class_info ( Object.class_name(), false );
 
-  std::vector<dunedaq::oksdbinterfaces::attribute_t> const & attributes = cinfo.p_attributes;
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> const & relations = cinfo.p_relationships;
+  std::vector<dunedaq::conffwk::attribute_t> const & attributes = cinfo.p_attributes;
+  std::vector<dunedaq::conffwk::relationship_t> const & relations = cinfo.p_relationships;
 
-  for ( dunedaq::oksdbinterfaces::attribute_t const & attr : attributes )
+  for ( dunedaq::conffwk::attribute_t const & attr : attributes )
   {
     QStringList data = dbe::config::api::get::direct::attribute<QStringList> ( Object, attr );
 
@@ -166,7 +166,7 @@ void dbe::ui::config::info::parse_graphical ( std::shared_ptr<Configuration> Con
     }
   }
 
-  for ( dunedaq::oksdbinterfaces::relationship_t const & relation : relations )
+  for ( dunedaq::conffwk::relationship_t const & relation : relations )
   {
     QStringList data;
     std::vector<ConfigObject> neighboring
@@ -187,15 +187,15 @@ void dbe::ui::config::info::parse_graphical ( std::shared_ptr<Configuration> Con
 
     for ( ConfigObject & RelObject : neighboring )
     {
-      dunedaq::oksdbinterfaces::class_t RelClassInfo = ConfigFile->get_class_info ( RelObject.class_name(),
+      dunedaq::conffwk::class_t RelClassInfo = ConfigFile->get_class_info ( RelObject.class_name(),
                                                                        false );
-      std::vector<dunedaq::oksdbinterfaces::attribute_t> AttributeRelList = RelClassInfo.p_attributes;
+      std::vector<dunedaq::conffwk::attribute_t> AttributeRelList = RelClassInfo.p_attributes;
 
       if ( RelObject.class_name() == "Dual Relationship" )
       {
         DualRelationship DRel;
 
-        for ( dunedaq::oksdbinterfaces::attribute_t & Attribute : AttributeRelList )
+        for ( dunedaq::conffwk::attribute_t & Attribute : AttributeRelList )
         {
           data = dbe::config::api::get::direct::attribute<QStringList> ( RelObject,
                                                                          Attribute );
@@ -216,7 +216,7 @@ void dbe::ui::config::info::parse_graphical ( std::shared_ptr<Configuration> Con
       {
         InitAttributeFromEnv IRel;
 
-        for ( dunedaq::oksdbinterfaces::attribute_t & Attribute : AttributeRelList )
+        for ( dunedaq::conffwk::attribute_t & Attribute : AttributeRelList )
         {
           data = dbe::config::api::get::direct::attribute<QStringList> ( RelObject,
                                                                          Attribute );
@@ -245,11 +245,11 @@ void dbe::ui::config::info::parse_window ( std::shared_ptr<Configuration> databa
                                            ConfigObject & object )
 {
   Window WindowObject;
-  dunedaq::oksdbinterfaces::class_t ClassInfo = database->get_class_info ( object.class_name(), false );
-  std::vector<dunedaq::oksdbinterfaces::attribute_t> const & attributes = ClassInfo.p_attributes;
-  std::vector<dunedaq::oksdbinterfaces::relationship_t> const & relations = ClassInfo.p_relationships;
+  dunedaq::conffwk::class_t ClassInfo = database->get_class_info ( object.class_name(), false );
+  std::vector<dunedaq::conffwk::attribute_t> const & attributes = ClassInfo.p_attributes;
+  std::vector<dunedaq::conffwk::relationship_t> const & relations = ClassInfo.p_relationships;
 
-  for ( dunedaq::oksdbinterfaces::attribute_t const & attribute : attributes )
+  for ( dunedaq::conffwk::attribute_t const & attribute : attributes )
   {
     if ( attribute.p_name == "Title" )
     {
@@ -259,7 +259,7 @@ void dbe::ui::config::info::parse_window ( std::shared_ptr<Configuration> databa
     }
   }
 
-  for ( dunedaq::oksdbinterfaces::relationship_t const & relation : relations )
+  for ( dunedaq::conffwk::relationship_t const & relation : relations )
   {
     std::vector<ConfigObject> linkedobjects;
 
@@ -282,16 +282,16 @@ void dbe::ui::config::info::parse_window ( std::shared_ptr<Configuration> databa
 
     for ( ConfigObject & neighbor : linkedobjects )
     {
-      dunedaq::oksdbinterfaces::class_t classinfo = database->get_class_info ( neighbor.class_name(),
+      dunedaq::conffwk::class_t classinfo = database->get_class_info ( neighbor.class_name(),
                                                                   false );
-      std::vector<dunedaq::oksdbinterfaces::attribute_t> const & AttributeRelList = classinfo
+      std::vector<dunedaq::conffwk::attribute_t> const & AttributeRelList = classinfo
                                                                        .p_attributes;
-      std::vector<dunedaq::oksdbinterfaces::relationship_t> const & RelationshipRelList = classinfo
+      std::vector<dunedaq::conffwk::relationship_t> const & RelationshipRelList = classinfo
                                                                              .p_relationships;
 
       if ( neighbor.class_name() != "Window Separator" )
       {
-        for ( dunedaq::oksdbinterfaces::attribute_t const & Attribute : AttributeRelList )
+        for ( dunedaq::conffwk::attribute_t const & Attribute : AttributeRelList )
         {
           if ( Attribute.p_name == "Shown with children" )
           {
@@ -309,7 +309,7 @@ void dbe::ui::config::info::parse_window ( std::shared_ptr<Configuration> databa
           }
         }
 
-        for ( dunedaq::oksdbinterfaces::relationship_t const & RelationshipRel : RelationshipRelList )
+        for ( dunedaq::conffwk::relationship_t const & RelationshipRel : RelationshipRelList )
         {
           QStringList RelDataList;
           std::vector<ConfigObject> neighboring_nodes;

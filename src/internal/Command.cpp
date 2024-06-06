@@ -7,7 +7,7 @@
 #include "dbe/dbcontroller.hpp"
 #include "dbe/messenger.hpp"
 
-#include "oksdbinterfaces/Configuration.hpp"
+#include "conffwk/Configuration.hpp"
 
 #include <QFileInfo>
 
@@ -15,7 +15,7 @@
 
 //------------------------------------------------------------------------------------------
 dbe::actions::object::changerefs::changerefs (
-  tref object, dunedaq::oksdbinterfaces::relationship_t const & relation,
+  tref object, dunedaq::conffwk::relationship_t const & relation,
   std::vector<std::string> const & object_names_tolink, QUuid const & src,
   QUndoCommand * parent )
   : onobject ( object, parent, src ),
@@ -40,7 +40,7 @@ dbe::actions::object::changerefs::changerefs (
       }
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     failed();
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
@@ -66,7 +66,7 @@ void dbe::actions::object::changerefs::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, config::errors::parse ( e ) );
   }
@@ -94,7 +94,7 @@ void dbe::actions::object::changerefs::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     failed();
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
@@ -134,7 +134,7 @@ void dbe::actions::file::add::undo()
       confaccessor::ref().removefile ( m_db_file, m_include_file );
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     failed();
     throw daq::dbe::DatabaseChangeNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
@@ -154,7 +154,7 @@ void dbe::actions::file::add::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::DatabaseChangeNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -185,7 +185,7 @@ void dbe::actions::file::remove::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::DatabaseChangeNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -202,7 +202,7 @@ void dbe::actions::file::remove::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::DatabaseChangeNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -239,7 +239,7 @@ void dbe::actions::object::create::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -262,7 +262,7 @@ void dbe::actions::object::create::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -300,7 +300,7 @@ void dbe::actions::object::remove::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -331,7 +331,7 @@ void dbe::actions::object::remove::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -381,7 +381,7 @@ void dbe::actions::object::rename::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -416,7 +416,7 @@ void dbe::actions::object::rename::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -462,7 +462,7 @@ void dbe::actions::object::move::redo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }
@@ -487,7 +487,7 @@ void dbe::actions::object::move::undo()
       toggle();
     }
   }
-  catch ( dunedaq::oksdbinterfaces::Exception const & e )
+  catch ( dunedaq::conffwk::Exception const & e )
   {
     throw daq::dbe::ObjectChangeWasNotSuccessful ( ERS_HERE, dbe::config::errors::parse ( e ) );
   }

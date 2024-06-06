@@ -10,8 +10,8 @@
 
 #include "dbe/dbcontroller.hpp"
 
-#include "oksdbinterfaces/ConfigObject.hpp"
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/ConfigObject.hpp"
+#include "conffwk/Schema.hpp"
 
 #include <QUndoCommand>
 #include <QUuid>
@@ -131,13 +131,13 @@ class changerefs:
   public onobject
 {
 public:
-  changerefs ( tref object, dunedaq::oksdbinterfaces::relationship_t const & relation,
+  changerefs ( tref object, dunedaq::conffwk::relationship_t const & relation,
                std::vector<std::string> const & object_names_tolink, QUuid const & src = 0,
                QUndoCommand * Parent = nullptr );
   void redo();
   void undo();
 private:
-  dunedaq::oksdbinterfaces::relationship_t this_relation;
+  dunedaq::conffwk::relationship_t this_relation;
   std::vector<tref> this_current_neighbors;
   std::vector<tref> this_target_neighbors;
 };

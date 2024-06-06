@@ -96,7 +96,7 @@ Qt::ItemFlags dbe::models::tree::flags ( type_index const & index ) const
 
   if ( ClassNode * classnode = dynamic_cast<ClassNode *> ( node ) )
   {
-    dunedaq::oksdbinterfaces::class_t classinfo = classnode->GetClassInfo();
+    dunedaq::conffwk::class_t classinfo = classnode->GetClassInfo();
 
     if ( classinfo.p_abstract )
     {
@@ -331,7 +331,7 @@ dbe::tref dbe::models::tree::getobject ( const QModelIndex & index ) const
 
 }
 
-dunedaq::oksdbinterfaces::class_t dbe::models::tree::getclass ( type_index const & index ) const
+dunedaq::conffwk::class_t dbe::models::tree::getclass ( type_index const & index ) const
 {
   treenode * Item = getnode ( index );
 
@@ -362,7 +362,7 @@ dunedaq::oksdbinterfaces::class_t dbe::models::tree::getclass ( type_index const
     }
   }
 
-  return dunedaq::oksdbinterfaces::class_t();
+  return dunedaq::conffwk::class_t();
 }
 
 QAbstractItemModel * dbe::models::tree::ReturnSourceModel() const

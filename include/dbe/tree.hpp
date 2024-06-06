@@ -4,7 +4,7 @@
 /// Including QT Headers
 #include <QAbstractItemModel>
 /// Including TDAq
-#include "oksdbinterfaces/ConfigObject.hpp"
+#include "conffwk/ConfigObject.hpp"
 /// Including DBE
 #include "dbe/TreeModelInterface.hpp"
 #include "dbe/model_common_interface.hpp"

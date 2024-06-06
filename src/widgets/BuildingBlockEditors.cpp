@@ -29,8 +29,8 @@ editor_data_state::~editor_data_state() = default;
 
 
 template<>
-editor_data<dunedaq::oksdbinterfaces::relationship_t>::editor_data (
-  dunedaq::oksdbinterfaces::relationship_t const & virtue )
+editor_data<dunedaq::conffwk::relationship_t>::editor_data (
+  dunedaq::conffwk::relationship_t const & virtue )
   :
   editor_data_state ( true, false, true ),
   this_virtue ( virtue )
@@ -127,15 +127,15 @@ relation::relation ( t_virtue const & relation, QWidget * parent,
 
   // if it is X_ and many then set multivalue
 
-  if ( ( Virtue.p_cardinality == dunedaq::oksdbinterfaces::zero_or_many ) or ( Virtue.p_cardinality
-                                                                  == dunedaq::oksdbinterfaces::one_or_many ) )
+  if ( ( Virtue.p_cardinality == dunedaq::conffwk::zero_or_many ) or ( Virtue.p_cardinality
+                                                                  == dunedaq::conffwk::one_or_many ) )
   {
     IsMultiValue = true;
   }
 
   // Check if this relation can be left unset
-  if ( ( Virtue.p_cardinality == dunedaq::oksdbinterfaces::one_or_many ) or ( Virtue.p_cardinality
-                                                                 == dunedaq::oksdbinterfaces::only_one ) )
+  if ( ( Virtue.p_cardinality == dunedaq::conffwk::one_or_many ) or ( Virtue.p_cardinality
+                                                                 == dunedaq::conffwk::only_one ) )
   {
     p_base_data_editor->set_not_null ( true );
     p_base_data_editor->set_valid ( false );
@@ -422,7 +422,7 @@ void relation::buildtooltip()
     QString ( "Relationship Name:            %1 \n" ).arg ( Virtue.p_name.c_str() ) + QString (
       "             Type:            %1 \n" ).arg ( Virtue.p_type.c_str() )
     + QString ( "             Cardinality:     %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::relationship_t::card2str ( Virtue.p_cardinality ) )
+      dunedaq::conffwk::relationship_t::card2str ( Virtue.p_cardinality ) )
     + QString ( "             Is Aggregation:  %1 \n" ).arg ( Virtue.p_is_aggregation )
     + QString ( "             Description:     %1 \n" ).arg ( Virtue.p_description.c_str() ) );
 }
@@ -1050,10 +1050,10 @@ void stringattr::buildtooltip()
   setToolTip (
     QString ( "Attribute Name:           %1 \n" ).arg ( Virtue.p_name.c_str() ) + QString (
       "          Type:           %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::type2str ( Virtue.p_type ) )
+      dunedaq::conffwk::attribute_t::type2str ( Virtue.p_type ) )
     + QString ( "          Range:          %1 \n" ).arg ( Virtue.p_range.c_str() )
     + QString ( "          Format:         %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::format2str ( Virtue.p_int_format ) )
+      dunedaq::conffwk::attribute_t::format2str ( Virtue.p_int_format ) )
     + QString ( "          Not Null:       %1 \n" ).arg ( Virtue.p_is_not_null )
     + QString ( "          Is Multi Value: %1 \n" ).arg ( Virtue.p_is_multi_value )
     + QString ( "          Default Value:  %1 \n" ).arg ( Virtue.p_default_value.c_str() )
@@ -1219,22 +1219,22 @@ numericattr::numericattr ( t_virtue const & attr, QWidget * parent,
     LineEdit->SetNullCheck ( false );
   }
 
-  if ( ! ( Virtue.p_type == dunedaq::oksdbinterfaces::float_type
-           || Virtue.p_type == dunedaq::oksdbinterfaces::double_type ) )
+  if ( ! ( Virtue.p_type == dunedaq::conffwk::float_type
+           || Virtue.p_type == dunedaq::conffwk::double_type ) )
   {
-    if ( Virtue.p_int_format == dunedaq::oksdbinterfaces::oct_int_format )
+    if ( Virtue.p_int_format == dunedaq::conffwk::oct_int_format )
     {
       FormatBox->setCurrentIndex ( 2 );
       this_base = 8;
       this_native_base = 8;
     }
-    else if ( Virtue.p_int_format == dunedaq::oksdbinterfaces::dec_int_format )
+    else if ( Virtue.p_int_format == dunedaq::conffwk::dec_int_format )
     {
       FormatBox->setCurrentIndex ( 0 );
       this_base = 10;
       this_native_base = 10;
     }
-    else if ( Virtue.p_int_format == dunedaq::oksdbinterfaces::hex_int_format )
+    else if ( Virtue.p_int_format == dunedaq::conffwk::hex_int_format )
     {
       FormatBox->setCurrentIndex ( 1 );
       this_base = 16;
@@ -1314,10 +1314,10 @@ void numericattr::buildtooltip()
   setToolTip (
     QString ( "Attribute Name:           %1 \n" ).arg ( Virtue.p_name.c_str() ) + QString (
       "          Type:           %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::type2str ( Virtue.p_type ) )
+      dunedaq::conffwk::attribute_t::type2str ( Virtue.p_type ) )
     + QString ( "          Range:          %1 \n" ).arg ( Virtue.p_range.c_str() )
     + QString ( "          Format:         %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::format2str ( Virtue.p_int_format ) )
+      dunedaq::conffwk::attribute_t::format2str ( Virtue.p_int_format ) )
     + QString ( "          Not Null:       %1 \n" ).arg ( Virtue.p_is_not_null )
     + QString ( "          Is Multi Value: %1 \n" ).arg ( Virtue.p_is_multi_value )
     + QString ( "          Default Value:  %1 \n" ).arg ( Virtue.p_default_value.c_str() )
@@ -1409,10 +1409,10 @@ bool numericattr::ValidateIntegerValue ( QString const & text )
         return true;
       };
 
-      if ( input.p_type == dunedaq::oksdbinterfaces::u8_type
-           or input.p_type == dunedaq::oksdbinterfaces::u16_type
-           or input.p_type == dunedaq::oksdbinterfaces::u32_type
-           or input.p_type == dunedaq::oksdbinterfaces::u64_type )
+      if ( input.p_type == dunedaq::conffwk::u8_type
+           or input.p_type == dunedaq::conffwk::u16_type
+           or input.p_type == dunedaq::conffwk::u32_type
+           or input.p_type == dunedaq::conffwk::u64_type )
       {
         NewULongLong = text.toULongLong ( &convert_to_defined_base, this_base );
 
@@ -1424,22 +1424,22 @@ bool numericattr::ValidateIntegerValue ( QString const & text )
         qulonglong min_u;
         qulonglong max_u;
 
-        if ( input.p_type == dunedaq::oksdbinterfaces::u8_type )
+        if ( input.p_type == dunedaq::conffwk::u8_type )
         {
           min_u = 0;
           max_u = UCHAR_MAX;
         }
-        else if ( input.p_type == dunedaq::oksdbinterfaces::u16_type )
+        else if ( input.p_type == dunedaq::conffwk::u16_type )
         {
           min_u = 0;
           max_u = USHRT_MAX;
         }
-        else if ( input.p_type == dunedaq::oksdbinterfaces::u32_type )
+        else if ( input.p_type == dunedaq::conffwk::u32_type )
         {
           min_u = 0;
           max_u = ULONG_MAX;
         }
-        else if ( input.p_type == dunedaq::oksdbinterfaces::u64_type )
+        else if ( input.p_type == dunedaq::conffwk::u64_type )
         {
           min_u = 0;
           max_u = ULONG_LONG_MAX;
@@ -1468,22 +1468,22 @@ bool numericattr::ValidateIntegerValue ( QString const & text )
         qlonglong min_s;
         qlonglong max_s;
 
-        if ( input.p_type == dunedaq::oksdbinterfaces::s8_type )
+        if ( input.p_type == dunedaq::conffwk::s8_type )
         {
           min_s = SCHAR_MIN;
           max_s = SCHAR_MAX;
         }
-        else if ( input.p_type == dunedaq::oksdbinterfaces::s16_type )
+        else if ( input.p_type == dunedaq::conffwk::s16_type )
         {
           min_s = SHRT_MIN;
           max_s = SHRT_MAX;
         }
-        else if ( input.p_type == dunedaq::oksdbinterfaces::s32_type )
+        else if ( input.p_type == dunedaq::conffwk::s32_type )
         {
           min_s = LONG_MIN;
           max_s = LONG_MAX;
         }
-        else if ( input.p_type == dunedaq::oksdbinterfaces::s64_type )
+        else if ( input.p_type == dunedaq::conffwk::s64_type )
         {
           min_s = - ( LONG_LONG_MAX ) - 1;
           max_s = LONG_LONG_MAX;
@@ -1588,7 +1588,7 @@ bool numericattr::ValidateFloatValue ( QString const & Value )
 
   t_virtue const & Virtue = this_base_data_editor->get();
 
-  if(Virtue.p_type == dunedaq::oksdbinterfaces::float_type) {
+  if(Virtue.p_type == dunedaq::conffwk::float_type) {
       bool ok;
       Value.toFloat(&ok);
 
@@ -1634,10 +1634,10 @@ void numericattr::AddToList()
           QString cnvrtd;
 
           t_virtue const & virtue = this_base_data_editor->get();
-          bool Unsigned = ( virtue.p_type == dunedaq::oksdbinterfaces::u8_type
-                              || virtue.p_type == dunedaq::oksdbinterfaces::u16_type
-                              || virtue.p_type == dunedaq::oksdbinterfaces::u32_type
-                              || virtue.p_type == dunedaq::oksdbinterfaces::u64_type );
+          bool Unsigned = ( virtue.p_type == dunedaq::conffwk::u8_type
+                              || virtue.p_type == dunedaq::conffwk::u16_type
+                              || virtue.p_type == dunedaq::conffwk::u32_type
+                              || virtue.p_type == dunedaq::conffwk::u64_type );
 
           if(Unsigned == true) {
               cnvrtd.setNum(LineEdit->text().toULongLong(0, this_base), this_native_base);
@@ -1682,8 +1682,8 @@ void numericattr::AddToList()
   QString input = LineEdit->text();
 
   t_virtue const & virtue = this_base_data_editor->get();
-  if ( ( virtue.p_type == dunedaq::oksdbinterfaces::float_type
-           or virtue.p_type == dunedaq::oksdbinterfaces::double_type ))
+  if ( ( virtue.p_type == dunedaq::conffwk::float_type
+           or virtue.p_type == dunedaq::conffwk::double_type ))
   {
       if (not ValidateFloatValue ( input )) {
           isValid = false;
@@ -1760,9 +1760,9 @@ void numericattr::ChangeFormat ( int i )
   QString ConvertedString;
   t_virtue const & Virtue = this_base_data_editor->get();
 
-  bool Unsigned = ( Virtue.p_type == dunedaq::oksdbinterfaces::u8_type
-                    || Virtue.p_type == dunedaq::oksdbinterfaces::u16_type || Virtue.p_type == dunedaq::oksdbinterfaces::u32_type
-                    || Virtue.p_type == dunedaq::oksdbinterfaces::u64_type );
+  bool Unsigned = ( Virtue.p_type == dunedaq::conffwk::u8_type
+                    || Virtue.p_type == dunedaq::conffwk::u16_type || Virtue.p_type == dunedaq::conffwk::u32_type
+                    || Virtue.p_type == dunedaq::conffwk::u64_type );
   bool OkConversion = false;
 
   //if(DecButton->isChecked())
@@ -1897,7 +1897,7 @@ combo::combo ( t_virtue const & attr, QWidget * parent,
 
   t_virtue const & Virtue = m_base_data_editor->get();
 
-  if ( Virtue.p_type == dunedaq::oksdbinterfaces::class_type )
+  if ( Virtue.p_type == dunedaq::conffwk::class_type )
   {
     Combo->setEditable ( true );
   }
@@ -1959,20 +1959,20 @@ void combo::SetEditor()
 {
   t_virtue const & virt = m_base_data_editor->get();
 
-  if ( virt.p_type == dunedaq::oksdbinterfaces::bool_type )
+  if ( virt.p_type == dunedaq::conffwk::bool_type )
   {
     QStringList tmp
     { "true", "false" };
     SetValidatorData ( tmp );
   }
-  else if ( virt.p_type == dunedaq::oksdbinterfaces::enum_type )
+  else if ( virt.p_type == dunedaq::conffwk::enum_type )
   {
     QString rangename = virt.p_range.c_str();
     QStringList range = rangename.split ( "," );
     range.sort();
     SetValidatorData ( range );
   }
-  else if ( virt.p_type == dunedaq::oksdbinterfaces::class_type )
+  else if ( virt.p_type == dunedaq::conffwk::class_type )
   {
     QStringList classes ( dbe::config::api::info::onclass::allnames<QStringList>() );
     classes.sort();
@@ -2129,9 +2129,9 @@ multiattr::multiattr ( t_virtue const & attr, QWidget * parent,
   {
   // Bool and enums have the same widget
 
-  case dunedaq::oksdbinterfaces::bool_type:
-  case dunedaq::oksdbinterfaces::class_type:
-  case dunedaq::oksdbinterfaces::enum_type:
+  case dunedaq::conffwk::bool_type:
+  case dunedaq::conffwk::class_type:
+  case dunedaq::conffwk::enum_type:
   {
     combo * Combo = new combo ( attr, this );
     MainLayout->addWidget ( Combo );
@@ -2144,16 +2144,16 @@ multiattr::multiattr ( t_virtue const & attr, QWidget * parent,
 
   // All numeric types are treated as uint64
 
-  case dunedaq::oksdbinterfaces::double_type:
-  case dunedaq::oksdbinterfaces::float_type:
-  case dunedaq::oksdbinterfaces::s8_type:
-  case dunedaq::oksdbinterfaces::s16_type:
-  case dunedaq::oksdbinterfaces::s32_type:
-  case dunedaq::oksdbinterfaces::s64_type:
-  case dunedaq::oksdbinterfaces::u8_type:
-  case dunedaq::oksdbinterfaces::u16_type:
-  case dunedaq::oksdbinterfaces::u32_type:
-  case dunedaq::oksdbinterfaces::u64_type:
+  case dunedaq::conffwk::double_type:
+  case dunedaq::conffwk::float_type:
+  case dunedaq::conffwk::s8_type:
+  case dunedaq::conffwk::s16_type:
+  case dunedaq::conffwk::s32_type:
+  case dunedaq::conffwk::s64_type:
+  case dunedaq::conffwk::u8_type:
+  case dunedaq::conffwk::u16_type:
+  case dunedaq::conffwk::u32_type:
+  case dunedaq::conffwk::u64_type:
   {
     numericattr * Numeric = new numericattr ( Virtue, this );
     MainLayout->addWidget ( Numeric );
@@ -2174,9 +2174,9 @@ multiattr::multiattr ( t_virtue const & attr, QWidget * parent,
 
   // Types below are all treated as string types
 
-  case dunedaq::oksdbinterfaces::date_type:
-  case dunedaq::oksdbinterfaces::time_type:
-  case dunedaq::oksdbinterfaces::string_type:
+  case dunedaq::conffwk::date_type:
+  case dunedaq::conffwk::time_type:
+  case dunedaq::conffwk::string_type:
   {
     stringattr * String = new stringattr ( Virtue, this );
     String->SetMultiCheck ( true );
@@ -2274,10 +2274,10 @@ void multiattr::buildtooltip()
   setToolTip (
     QString ( "Attribute Name:           %1 \n" ).arg ( Virtue.p_name.c_str() ) + QString (
       "          Type:           %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::type2str ( Virtue.p_type ) )
+      dunedaq::conffwk::attribute_t::type2str ( Virtue.p_type ) )
     + QString ( "          Range:          %1 \n" ).arg ( Virtue.p_range.c_str() )
     + QString ( "          Format:         %1 \n" ).arg (
-      dunedaq::oksdbinterfaces::attribute_t::format2str ( Virtue.p_int_format ) )
+      dunedaq::conffwk::attribute_t::format2str ( Virtue.p_int_format ) )
     + QString ( "          Not Null:       %1 \n" ).arg ( Virtue.p_is_not_null )
     + QString ( "          Is Multi Value: %1 \n" ).arg ( Virtue.p_is_multi_value )
     + QString ( "          Default Value:  %1 \n" ).arg ( Virtue.p_default_value.c_str() )

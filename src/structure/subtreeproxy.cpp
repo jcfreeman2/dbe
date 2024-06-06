@@ -139,7 +139,7 @@ dbe::treenode * dbe::models::subtree_proxy::getnode ( const QModelIndex & index 
   return nullptr;
 }
 
-dunedaq::oksdbinterfaces::class_t dbe::models::subtree_proxy::getclass ( const QModelIndex & index )
+dunedaq::conffwk::class_t dbe::models::subtree_proxy::getclass ( const QModelIndex & index )
 const
 {
   QModelIndex sourceParent = mapToSource ( index );
@@ -150,7 +150,7 @@ const
     return my->getclass ( sourceParent );
   }
 
-  return dunedaq::oksdbinterfaces::class_t();
+  return dunedaq::conffwk::class_t();
 }
 
 QAbstractItemModel * dbe::models::subtree_proxy::ReturnSourceModel() const

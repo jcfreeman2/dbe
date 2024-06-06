@@ -4,7 +4,7 @@
 /// Including DBE
 #include <QStringList>
 /// Including config headers
-#include "oksdbinterfaces/Schema.hpp"
+#include "conffwk/Schema.hpp"
 
 namespace dbe
 {
@@ -23,24 +23,24 @@ protected:
 class TableAttributeNode: public TableNode
 {
 public:
-  TableAttributeNode ( dunedaq::oksdbinterfaces::attribute_t Attribute, const QStringList & NodeData );
+  TableAttributeNode ( dunedaq::conffwk::attribute_t Attribute, const QStringList & NodeData );
   ~TableAttributeNode();
   QStringList GetData() const;
-  dunedaq::oksdbinterfaces::attribute_t GetAttribute() const;
+  dunedaq::conffwk::attribute_t GetAttribute() const;
 private:
-  dunedaq::oksdbinterfaces::attribute_t AttributeData;
+  dunedaq::conffwk::attribute_t AttributeData;
 };
 
 class TableRelationshipNode: public TableNode
 {
 public:
-  TableRelationshipNode ( dunedaq::oksdbinterfaces::relationship_t Relationship,
+  TableRelationshipNode ( dunedaq::conffwk::relationship_t Relationship,
                           const QStringList & NodeData );
   ~TableRelationshipNode();
   QStringList GetData() const;
-  dunedaq::oksdbinterfaces::relationship_t GetRelationship() const;
+  dunedaq::conffwk::relationship_t GetRelationship() const;
 private:
-  dunedaq::oksdbinterfaces::relationship_t RelationshipData;
+  dunedaq::conffwk::relationship_t RelationshipData;
 };
 
 }  // namespace dbe

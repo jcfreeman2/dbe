@@ -174,7 +174,7 @@ void dbe::CustomTreeView::slot_create_object()
 
   if ( common_model && treeindex.isValid() )
   {
-    dunedaq::oksdbinterfaces::class_t classinfo = common_model->getclass ( treeindex );
+    dunedaq::conffwk::class_t classinfo = common_model->getclass ( treeindex );
 
     if ( dynamic_cast<models::treeselection *> ( model() ) )
     {
