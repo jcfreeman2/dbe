@@ -80,7 +80,7 @@ public:
   template <typename T>
   static const T* get_underlying_object(const std::string obj_uid); 
 
-  static dunedaq::oksdbinterfaces::Configuration* get_underlying_configuration();
+  static dunedaq::conffwk::Configuration* get_underlying_configuration();
   
   /**
    * Get a list of all classes defined in the database

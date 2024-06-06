@@ -35,7 +35,7 @@ namespace info
     return dbaccessor::dbptr()->get<T>(obj_uid);
   }
 
-  inline dunedaq::oksdbinterfaces::Configuration* onclass::get_underlying_configuration() {
+  inline dunedaq::conffwk::Configuration* onclass::get_underlying_configuration() {
     assert(dbaccessor::dbptr().get() != nullptr);
     return dbaccessor::dbptr().get();
   }
