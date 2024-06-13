@@ -24,7 +24,6 @@ public:
   SchemaGraphicObject * GetEndItem() const;
   bool GetInheritanceMode();
   void RemoveArrow();
-  void SetLabelScene ( SchemaGraphicsScene * Scene );
 protected:
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
                QWidget * widget = 0 );
@@ -43,7 +42,9 @@ private:
   bool m_composite;
   QString m_name;
   QString m_cardinality;
-  QGraphicsSimpleTextItem * m_label;
+  QColor m_default_color;
+  QFont m_label_font;
+
   double LastDegree;
   double LastRotation;
   //QString LabelString;

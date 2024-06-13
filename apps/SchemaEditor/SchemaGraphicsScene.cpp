@@ -224,10 +224,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
       if ( !KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() ) ) {
           std::cout << "ERROR: class " << ClassName.toStdString()  << " not found" << std::endl;
           continue;
-      } else {
-        auto k = KernelWrapper::GetInstance().FindClass ( ClassName.toStdString());
-        std::cout << "Adding class " << ClassName.toStdString() << " " << (void*)k << std::endl;
-      }
+      } 
 
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );

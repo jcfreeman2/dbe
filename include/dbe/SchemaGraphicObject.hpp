@@ -4,6 +4,8 @@
 /// Including QT Headers
 #include <QGraphicsObject>
 #include <QFont>
+#include <QColor>
+#include <QPen>
 
 /// Including Oks Headers
 #include "oks/class.hpp"
@@ -37,7 +39,7 @@ protected:
   QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
 private:
   dunedaq::oks::OksClass * m_class_info;
-  QString ClassObjectName;
+  QString m_class_object_name;
   QStringList m_class_attributes;
   QStringList m_class_methods;
   QStringList m_class_relationhips;
@@ -48,6 +50,11 @@ private:
 
   bool m_inherited_properties_visible;  
   QFont m_font;
+  QFont m_bold_font;
+  QColor m_default_color;
+  QColor m_highlight_color;
+  QColor m_opaque_color;
+
   double LineOffsetX;
   double LineOffsetY;
   QList<SchemaGraphicSegmentedArrow *> Arrows;

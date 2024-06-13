@@ -20,19 +20,13 @@ SchemaGraphicSegmentedArrow::SchemaGraphicSegmentedArrow ( SchemaGraphicObject *
     m_composite ( is_composite ),
     m_name ( arrow_name ),
     m_cardinality ( arrow_cardinality ),
-    m_label ( nullptr ),
     LastDegree ( 0 ),
     LastRotation ( 0 )
 {
   //setPen(QPen(Qt::black,2,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));
   setFlag ( ItemIsSelectable, true );
-  //LabelString = m_name + " - " + m_cardinality;
-
-  // if ( !m_start_item->collidesWithItem ( m_end_item ) && !m_inheritance )
-  // {
-  //   m_label = new QGraphicsSimpleTextItem ( m_name + " - " + m_cardinality );
-  //   m_label->setParentItem ( this );
-  // }
+  m_default_color = QColor ( 0x1e1b18 );
+  m_label_font = QFont( "Helvetica [Cronyx]", 10);
 
 }
 
@@ -44,11 +38,7 @@ QRectF SchemaGraphicSegmentedArrow::boundingRect() const
 {
   if ( m_start_item->collidesWithItem ( m_end_item ) )
   {
-    if ( m_label ) {
-      return m_label->boundingRect();
-    } else {
-      return QRectF();
-    }
+    return QRectF();
   }
 
   qreal extra = ( pen().width() + 20 ) / 2.0 + 10;
@@ -105,11 +95,6 @@ void SchemaGraphicSegmentedArrow::RemoveArrow()
   }
 }
 
-void SchemaGraphicSegmentedArrow::SetLabelScene ( SchemaGraphicsScene * Scene )
-{
-  Scene->addItem ( m_label );
-}
-
 void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
                                        const QStyleOptionGraphicsItem * option,
                                        QWidget * widget )
@@ -122,14 +107,16 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
     return;
   }
 
-  QPen myPen = pen();
-  myPen.setColor ( Qt::black );
+  const QPen line_pen = QPen(m_default_color, 1);
+  const QPen arrow_pen = QPen(m_default_color, 2);
 
   QFont Font ( "Helvetica [Cronyx]", 10 );
-  qreal arrowSize = 10;
+  qreal arrowSize = 15;
   painter->setFont ( Font );
-  painter->setPen ( myPen );
+  painter->setPen ( line_pen );
   painter->setBrush ( {} );
+  painter->setRenderHint(QPainter::Antialiasing);
+
 
   QLineF centerLine ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
                       m_end_item->mapToScene ( m_end_item->boundingRect().center() ) );
@@ -215,47 +202,14 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
 
   painter->drawPath ( this->path());
    
-  // qreal degree = ( angle * 180 ) / M_PI;
-
-  // if ( m_label )
-  // {
-
-  //   m_label->setRotation ( -degree + LastDegree );
-
-  //   if ( degree >= 90 && degree < 270 )
-  //   {
-  //     m_label->setTransformOriginPoint ( m_label->boundingRect().center() );
-  //     m_label->setRotation ( -180 );
-  //     m_label->setTransformOriginPoint ( 0, 0 );
-  //     LastRotation = 180;
-  //     m_label->setPos ( this->p2() + QPointF ( -5 * cos ( angle ), 5 * sin ( angle ) ) );
-  //   }
-  //   else
-  //   {
-  //     m_label->setTransformOriginPoint ( m_label->boundingRect().center() );
-  //     m_label->setRotation ( 360 );
-  //     m_label->setTransformOriginPoint ( 0, 0 );
-  //     LastRotation = -180;
-
-  //     if ( m_composite )
-  //     {
-  //       m_label->setPos ( this->p1() + QPointF ( 20 * cos ( angle ), -20 * sin ( angle ) ) );
-  //     }
-  //     else
-  //     {
-  //       m_label->setPos ( this->p1() + QPointF ( 5 * cos ( angle ), -5 * sin ( angle ) ) );
-  //     }
-  //   }
-
-  //   LastDegree = degree;
-  // }
+  painter->setPen ( arrow_pen );
   if ( !m_inheritance ) {
     painter->drawText(direct_line.center(), QString(m_name + " - " + m_cardinality));
   }
 
   if ( m_inheritance )
   {
-    painter->setBrush ( Qt::black );
+    painter->setBrush ( Qt::white );
     painter->drawPolygon ( m_arrow_head );
   }
   else if ( m_composite )
