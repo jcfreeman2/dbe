@@ -27,6 +27,7 @@ SchemaGraphicSegmentedArrow::SchemaGraphicSegmentedArrow ( SchemaGraphicObject *
   setFlag ( ItemIsSelectable, true );
   m_default_color = QColor ( 0x1e1b18 );
   m_label_font = QFont( "Helvetica [Cronyx]", 10);
+  m_arrow_size = 20;
 
 }
 
@@ -51,7 +52,7 @@ QRectF SchemaGraphicSegmentedArrow::boundingRect() const
 QPainterPath SchemaGraphicSegmentedArrow::shape() const
 {
   QPainterPath path = QGraphicsPathItem::shape();
-  path.addPolygon ( m_arrow_head );
+  // path.addPolygon ( m_arrow_head );
   path.addText ( p2() + QPoint ( 10, 10 ), QFont ( "Helvetica [Cronyx]", 10 ),
                  m_cardinality );
   path.addText ( p1() + QPoint ( -10, -10 ), QFont ( "Helvetica [Cronyx]", 10 ),
@@ -95,6 +96,56 @@ void SchemaGraphicSegmentedArrow::RemoveArrow()
   }
 }
 
+QPolygonF SchemaGraphicSegmentedArrow::make_arrow_head(qreal rotation) const {
+
+  // if (path().elementCount()<2) {
+  //   return QPolygonF();
+  // }
+
+  // QLineF segment(path().elementAt(0), path().elementAt(1));
+
+  // QPointF tip = path().elementAt(0);
+  // qreal rotation = 0;
+
+  // // Vertical line
+  // if (segment.dx() > 0) {
+  //   int sign = (segment.dy() > 0) - (segment.dy() < 0);
+  // }
+  // // Horizontal line 
+  // else if (segment.dy() > 0) {
+
+  // } else {
+  //   return QPolygonF();
+  // }
+
+  float opening_angle = atan2(1, 0.5);
+  qreal size = m_arrow_size;
+  QPointF a1 = QPointF ( sin ( rotation + opening_angle ) * size, cos ( rotation + opening_angle ) * size );
+  QPointF a2 = QPointF ( sin ( rotation + M_PI - opening_angle ) * size, cos ( rotation + M_PI - opening_angle ) * size );
+
+  QPolygonF arrow;
+  arrow << QPointF(0,0) << a1 << a2;
+  return arrow;
+}
+
+QPolygonF SchemaGraphicSegmentedArrow::make_rhombus(qreal rotation) const {
+
+  float opening_angle = M_PI / 3;
+  qreal size = 0.6*m_arrow_size;
+
+  QPointF a1 = QPointF ( sin ( rotation + opening_angle ) * size, cos ( rotation + opening_angle ) * size );
+  QPointF a2 = QPointF ( sin ( rotation + M_PI - opening_angle ) * size, cos ( rotation + M_PI - opening_angle ) * size );
+
+  QPointF m = QPointF ( ( a1.x() + a2.x() ) / 2, ( a1.y() + a2.y() ) / 2 );
+  QPointF a3 = QPointF ( 2 * m.x(), 2 * m.y() );
+  
+  QPolygonF rhombus;
+  rhombus << QPointF(0,0) << a1 << a3 << a2;
+  return rhombus;
+}
+
+
+
 void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
                                        const QStyleOptionGraphicsItem * option,
                                        QWidget * widget )
@@ -108,7 +159,7 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   }
 
   const QPen line_pen = QPen(m_default_color, 1);
-  const QPen arrow_pen = QPen(m_default_color, 2);
+  const QPen arrow_pen = QPen(m_default_color, 1);
 
   QFont Font ( "Helvetica [Cronyx]", 10 );
   qreal arrowSize = 15;
@@ -185,17 +236,17 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
 
   angle = int(angle/ M_PI_2+0.5)*M_PI_2;
 
-  QPointF arrowP1 = this->p1()
-                    + QPointF ( sin ( angle + M_PI / 3 ) * arrowSize, cos ( angle + M_PI / 3 ) * arrowSize );
-  QPointF arrowP2 = this->p1()
-                    + QPointF ( sin ( angle + M_PI - M_PI / 3 ) * arrowSize,
-                                cos ( angle + M_PI - M_PI / 3 ) * arrowSize );
-  QPointF middlePoint = QPointF ( ( arrowP1.x() + arrowP2.x() ) / 2,
-                                  ( arrowP1.y() + arrowP2.y() ) / 2 );
-  QPointF arrowP3 = QPointF ( this->p1().x() - 2 * ( this->p1().x() - middlePoint.x() ),
-                              this->p1().y() - 2 * ( this->p1().y() - middlePoint.y() ) );
-  m_arrow_head.clear();
-  m_arrow_head << this->p1() << arrowP1 << arrowP2;
+  // QPointF arrowP1 = this->p1()
+  //                   + QPointF ( sin ( angle + M_PI / 3 ) * arrowSize, cos ( angle + M_PI / 3 ) * arrowSize );
+  // QPointF arrowP2 = this->p1()
+  //                   + QPointF ( sin ( angle + M_PI - M_PI / 3 ) * arrowSize,
+  //                               cos ( angle + M_PI - M_PI / 3 ) * arrowSize );
+  // QPointF middlePoint = QPointF ( ( arrowP1.x() + arrowP2.x() ) / 2,
+  //                                 ( arrowP1.y() + arrowP2.y() ) / 2 );
+  // QPointF arrowP3 = QPointF ( this->p1().x() - 2 * ( this->p1().x() - middlePoint.x() ),
+  //                             this->p1().y() - 2 * ( this->p1().y() - middlePoint.y() ) );
+  // m_arrow_head.clear();
+  // m_arrow_head << this->p1() << arrowP1 << arrowP2;
 
   QFontMetrics Metrics ( Font );
   Metrics.boundingRect ( m_name + " - " + m_cardinality );
@@ -210,21 +261,18 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   if ( m_inheritance )
   {
     painter->setBrush ( Qt::white );
-    painter->drawPolygon ( m_arrow_head );
+    painter->drawPolygon ( this->make_arrow_head(angle).translated(this->p1()));
   }
   else if ( m_composite )
   {
     /// Draw Rhombus
-    m_arrow_head.clear();
-    m_arrow_head << this->p1() << arrowP1 << arrowP3 << arrowP2;
     painter->setBrush ( Qt::black );
-    painter->drawPolygon ( m_arrow_head );
+    painter->drawPolygon ( this->make_rhombus(angle+M_PI).translated(this->p2()));
+
   } else {
     /// Draw Rhombus
-    m_arrow_head.clear();
-    m_arrow_head << this->p1() << arrowP1 << arrowP3 << arrowP2;
     painter->setBrush ( Qt::white );
-    painter->drawPolygon ( m_arrow_head );
+    painter->drawPolygon ( this->make_rhombus(angle+M_PI).translated(this->p2()));
   }
 }
 

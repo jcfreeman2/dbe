@@ -104,11 +104,11 @@ void dbse::SchemaGraphicObject::GetInfo()
   };
 
   /// Getting direct Attributes
-  for ( OksAttribute * Attribute : direct_attributes )
+  for ( OksAttribute * attribute : direct_attributes )
   {
     QString AttributeString (
-      QString::fromStdString ( Attribute->get_name() ) + " : "
-      + QString::fromStdString ( Attribute->get_type() ) );
+      QString::fromStdString ( attribute->get_name() ) + " : "
+      + QString::fromStdString ( attribute->get_type() ) + (attribute->get_is_multi_values() ? "[]" : "") );
     m_class_attributes.append ( AttributeString );
   }
 
@@ -338,22 +338,22 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
 
 void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicSegmentedArrow * Arrow )
 {
-  Arrows.append ( Arrow );
+  m_arrows.append ( Arrow );
 }
 
 void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicSegmentedArrow * Arrow )
 {
-  int index = Arrows.indexOf ( Arrow );
+  int index = m_arrows.indexOf ( Arrow );
 
   if ( index != -1 )
   {
-    Arrows.removeAt ( index );
+    m_arrows.removeAt ( index );
   }
 }
 
 void dbse::SchemaGraphicObject::RemoveArrows()
 {
-  foreach ( SchemaGraphicSegmentedArrow * arrow, Arrows )
+  foreach ( SchemaGraphicSegmentedArrow * arrow, m_arrows )
   {
     arrow->GetStartItem()->RemoveArrow ( arrow );
     arrow->GetEndItem()->RemoveArrow ( arrow );
@@ -363,12 +363,12 @@ void dbse::SchemaGraphicObject::RemoveArrows()
 
 bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
 {
-  if ( Arrows.isEmpty() )
+  if ( m_arrows.isEmpty() )
   {
     return false;
   }
 
-  for ( SchemaGraphicSegmentedArrow * Arrow : Arrows )
+  for ( SchemaGraphicSegmentedArrow * Arrow : m_arrows )
   {
     SchemaGraphicObject * ArrowSource = Arrow->GetStartItem();
     SchemaGraphicObject * ArrowDest = Arrow->GetEndItem();
@@ -385,7 +385,7 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
 QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,
                                                  const QVariant & value )
 {
-  if ( change == ItemPositionChange ) for ( SchemaGraphicSegmentedArrow * arrow : Arrows )
+  if ( change == ItemPositionChange ) for ( SchemaGraphicSegmentedArrow * arrow : m_arrows )
     {
       arrow->UpdatePosition();
     }

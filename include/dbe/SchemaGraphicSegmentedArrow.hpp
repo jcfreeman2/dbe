@@ -34,16 +34,19 @@ private:
   qreal dx() const { return p2().x() - p1().x(); } 
   qreal dy() const { return p2().y() - p1().y(); } 
 
+  QPolygonF make_arrow_head(qreal angle) const;
+  QPolygonF make_rhombus(qreal angle) const;
 
   SchemaGraphicObject * m_start_item;
   SchemaGraphicObject * m_end_item;
-  QPolygonF m_arrow_head;
+  // QPolygonF m_arrow_head;
   bool m_inheritance;
   bool m_composite;
   QString m_name;
   QString m_cardinality;
   QColor m_default_color;
   QFont m_label_font;
+  qreal m_arrow_size;
 
   double LastDegree;
   double LastRotation;

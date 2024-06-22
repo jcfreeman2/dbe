@@ -57,7 +57,7 @@ private:
 
   double LineOffsetX;
   double LineOffsetY;
-  QList<SchemaGraphicSegmentedArrow *> Arrows;
+  QList<SchemaGraphicSegmentedArrow *> m_arrows;
 private slots:
   void UpdateObject ( QString Name );
   void RemoveObject ( QString Name );
