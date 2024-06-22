@@ -382,10 +382,22 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
   return false;
 }
 
+void dbse::SchemaGraphicObject::set_inherited_properties_visibility( bool visible ) {
+  
+  m_inherited_properties_visible = visible; 
+  for ( SchemaGraphicSegmentedArrow * arrow : m_arrows )
+    {
+      arrow->UpdatePosition();
+    }
+}
+
+
+
 QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,
                                                  const QVariant & value )
 {
-  if ( change == ItemPositionChange ) for ( SchemaGraphicSegmentedArrow * arrow : m_arrows )
+  if ( change == ItemPositionChange ) 
+    for ( SchemaGraphicSegmentedArrow * arrow : m_arrows )
     {
       arrow->UpdatePosition();
     }

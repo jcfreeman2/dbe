@@ -39,7 +39,9 @@ private:
 
   SchemaGraphicObject * m_start_item;
   SchemaGraphicObject * m_end_item;
-  // QPolygonF m_arrow_head;
+  QPolygonF m_marker;
+  QPointF m_rel_label_pos;
+  QPointF m_rel_cardinality_pos;
   bool m_inheritance;
   bool m_composite;
   QString m_name;

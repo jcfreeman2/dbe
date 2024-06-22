@@ -52,7 +52,7 @@ QRectF SchemaGraphicSegmentedArrow::boundingRect() const
 QPainterPath SchemaGraphicSegmentedArrow::shape() const
 {
   QPainterPath path = QGraphicsPathItem::shape();
-  // path.addPolygon ( m_arrow_head );
+  path.addPolygon ( m_marker );
   path.addText ( p2() + QPoint ( 10, 10 ), QFont ( "Helvetica [Cronyx]", 10 ),
                  m_cardinality );
   path.addText ( p1() + QPoint ( -10, -10 ), QFont ( "Helvetica [Cronyx]", 10 ),
@@ -62,113 +62,6 @@ QPainterPath SchemaGraphicSegmentedArrow::shape() const
 
 void SchemaGraphicSegmentedArrow::UpdatePosition()
 {
-  QPainterPath path( mapFromItem ( m_start_item, 0, 0 ) );
-  path.lineTo(mapFromItem ( m_end_item, 0, 0 ));
-  setPath(path);
-  // QLineF line ( mapFromItem ( m_start_item, 0, 0 ), mapFromItem ( m_end_item, 0, 0 ) );
-  // setLine ( line );
-}
-
-SchemaGraphicObject * SchemaGraphicSegmentedArrow::GetStartItem() const
-{
-  return m_start_item;
-}
-
-SchemaGraphicObject * SchemaGraphicSegmentedArrow::GetEndItem() const
-{
-  return m_end_item;
-}
-
-bool SchemaGraphicSegmentedArrow::GetInheritanceMode()
-{
-  return m_inheritance;
-}
-
-void SchemaGraphicSegmentedArrow::RemoveArrow()
-{
-  if ( m_inheritance )
-  {
-    /// Remove Super class
-  }
-  else
-  {
-    /// Remove relationship
-  }
-}
-
-QPolygonF SchemaGraphicSegmentedArrow::make_arrow_head(qreal rotation) const {
-
-  // if (path().elementCount()<2) {
-  //   return QPolygonF();
-  // }
-
-  // QLineF segment(path().elementAt(0), path().elementAt(1));
-
-  // QPointF tip = path().elementAt(0);
-  // qreal rotation = 0;
-
-  // // Vertical line
-  // if (segment.dx() > 0) {
-  //   int sign = (segment.dy() > 0) - (segment.dy() < 0);
-  // }
-  // // Horizontal line 
-  // else if (segment.dy() > 0) {
-
-  // } else {
-  //   return QPolygonF();
-  // }
-
-  float opening_angle = atan2(1, 0.5);
-  qreal size = m_arrow_size;
-  QPointF a1 = QPointF ( sin ( rotation + opening_angle ) * size, cos ( rotation + opening_angle ) * size );
-  QPointF a2 = QPointF ( sin ( rotation + M_PI - opening_angle ) * size, cos ( rotation + M_PI - opening_angle ) * size );
-
-  QPolygonF arrow;
-  arrow << QPointF(0,0) << a1 << a2;
-  return arrow;
-}
-
-QPolygonF SchemaGraphicSegmentedArrow::make_rhombus(qreal rotation) const {
-
-  float opening_angle = M_PI / 3;
-  qreal size = 0.6*m_arrow_size;
-
-  QPointF a1 = QPointF ( sin ( rotation + opening_angle ) * size, cos ( rotation + opening_angle ) * size );
-  QPointF a2 = QPointF ( sin ( rotation + M_PI - opening_angle ) * size, cos ( rotation + M_PI - opening_angle ) * size );
-
-  QPointF m = QPointF ( ( a1.x() + a2.x() ) / 2, ( a1.y() + a2.y() ) / 2 );
-  QPointF a3 = QPointF ( 2 * m.x(), 2 * m.y() );
-  
-  QPolygonF rhombus;
-  rhombus << QPointF(0,0) << a1 << a3 << a2;
-  return rhombus;
-}
-
-
-
-void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
-                                       const QStyleOptionGraphicsItem * option,
-                                       QWidget * widget )
-{
-  Q_UNUSED ( option )
-  Q_UNUSED ( widget )
-
-  if ( m_start_item->collidesWithItem ( m_end_item ) )
-  {
-    return;
-  }
-
-  const QPen line_pen = QPen(m_default_color, 1);
-  const QPen arrow_pen = QPen(m_default_color, 1);
-
-  QFont Font ( "Helvetica [Cronyx]", 10 );
-  qreal arrowSize = 15;
-  painter->setFont ( Font );
-  painter->setPen ( line_pen );
-  painter->setBrush ( {} );
-  painter->setRenderHint(QPainter::Antialiasing);
-
-
   QLineF centerLine ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
                       m_end_item->mapToScene ( m_end_item->boundingRect().center() ) );
   QPolygonF startPolygon = QPolygonF ( m_start_item->boundingRect() );
@@ -226,8 +119,6 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   path.lineTo( intersectPointStart );
   setPath(path);
 
-
-
   double angle = ::acos ( this->dx() / this->path().length() );
   if ( this->dy() >= 0 )
   {
@@ -236,17 +127,98 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
 
   angle = int(angle/ M_PI_2+0.5)*M_PI_2;
 
-  // QPointF arrowP1 = this->p1()
-  //                   + QPointF ( sin ( angle + M_PI / 3 ) * arrowSize, cos ( angle + M_PI / 3 ) * arrowSize );
-  // QPointF arrowP2 = this->p1()
-  //                   + QPointF ( sin ( angle + M_PI - M_PI / 3 ) * arrowSize,
-  //                               cos ( angle + M_PI - M_PI / 3 ) * arrowSize );
-  // QPointF middlePoint = QPointF ( ( arrowP1.x() + arrowP2.x() ) / 2,
-  //                                 ( arrowP1.y() + arrowP2.y() ) / 2 );
-  // QPointF arrowP3 = QPointF ( this->p1().x() - 2 * ( this->p1().x() - middlePoint.x() ),
-  //                             this->p1().y() - 2 * ( this->p1().y() - middlePoint.y() ) );
-  // m_arrow_head.clear();
-  // m_arrow_head << this->p1() << arrowP1 << arrowP2;
+  m_rel_label_pos = direct_line.center();
+
+  if ( m_inheritance )
+  {
+    m_marker = this->make_arrow_head(angle).translated(this->p1());
+  }
+  else if ( m_composite )
+  {
+    m_marker = this->make_rhombus(angle+M_PI).translated(this->p2());
+  } else {
+    m_marker =  this->make_rhombus(angle+M_PI).translated(this->p2());
+  }
+}
+
+SchemaGraphicObject * SchemaGraphicSegmentedArrow::GetStartItem() const
+{
+  return m_start_item;
+}
+
+SchemaGraphicObject * SchemaGraphicSegmentedArrow::GetEndItem() const
+{
+  return m_end_item;
+}
+
+bool SchemaGraphicSegmentedArrow::GetInheritanceMode()
+{
+  return m_inheritance;
+}
+
+void SchemaGraphicSegmentedArrow::RemoveArrow()
+{
+  if ( m_inheritance )
+  {
+    /// Remove Super class
+  }
+  else
+  {
+    /// Remove relationship
+  }
+}
+
+QPolygonF SchemaGraphicSegmentedArrow::make_arrow_head(qreal rotation) const {
+
+  float opening_angle = atan2(1, 0.5);
+  qreal size = m_arrow_size;
+  QPointF a1 = QPointF ( sin ( rotation + opening_angle ) * size, cos ( rotation + opening_angle ) * size );
+  QPointF a2 = QPointF ( sin ( rotation + M_PI - opening_angle ) * size, cos ( rotation + M_PI - opening_angle ) * size );
+
+  QPolygonF arrow;
+  arrow << QPointF(0,0) << a1 << a2;
+  return arrow;
+}
+
+QPolygonF SchemaGraphicSegmentedArrow::make_rhombus(qreal rotation) const {
+
+  float opening_angle = M_PI / 3;
+  qreal size = 0.6*m_arrow_size;
+
+  QPointF a1 = QPointF ( sin ( rotation + opening_angle ) * size, cos ( rotation + opening_angle ) * size );
+  QPointF a2 = QPointF ( sin ( rotation + M_PI - opening_angle ) * size, cos ( rotation + M_PI - opening_angle ) * size );
+
+  QPointF m = QPointF ( ( a1.x() + a2.x() ) / 2, ( a1.y() + a2.y() ) / 2 );
+  QPointF a3 = QPointF ( 2 * m.x(), 2 * m.y() );
+  
+  QPolygonF rhombus;
+  rhombus << QPointF(0,0) << a1 << a3 << a2;
+  return rhombus;
+}
+
+
+
+void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
+                                       const QStyleOptionGraphicsItem * option,
+                                       QWidget * widget )
+{
+  Q_UNUSED ( option )
+  Q_UNUSED ( widget )
+
+  if ( m_start_item->collidesWithItem ( m_end_item ) )
+  {
+    return;
+  }
+
+  const QPen line_pen = QPen(m_default_color, 1);
+  const QPen arrow_pen = QPen(m_default_color, 1);
+
+  QFont Font ( "Helvetica [Cronyx]", 10 );
+  qreal arrowSize = 15;
+  painter->setFont ( Font );
+  painter->setPen ( line_pen );
+  painter->setBrush ( {} );
+  painter->setRenderHint(QPainter::Antialiasing);
 
   QFontMetrics Metrics ( Font );
   Metrics.boundingRect ( m_name + " - " + m_cardinality );
@@ -255,25 +227,25 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
    
   painter->setPen ( arrow_pen );
   if ( !m_inheritance ) {
-    painter->drawText(direct_line.center(), QString(m_name + " - " + m_cardinality));
+    painter->drawText(m_rel_label_pos, QString(m_name + " - " + m_cardinality));
   }
 
   if ( m_inheritance )
   {
     painter->setBrush ( Qt::white );
-    painter->drawPolygon ( this->make_arrow_head(angle).translated(this->p1()));
   }
   else if ( m_composite )
   {
     /// Draw Rhombus
     painter->setBrush ( Qt::black );
-    painter->drawPolygon ( this->make_rhombus(angle+M_PI).translated(this->p2()));
+
 
   } else {
     /// Draw Rhombus
     painter->setBrush ( Qt::white );
-    painter->drawPolygon ( this->make_rhombus(angle+M_PI).translated(this->p2()));
   }
+    painter->drawPolygon ( m_marker );
+
 }
 
 } // namespace dbse

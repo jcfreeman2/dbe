@@ -25,7 +25,7 @@ public:
   QString GetClassName() const;
   void GetInfo();
   /// Graphic API
-  void set_inherited_properties_visibility( bool visible ) { m_inherited_properties_visible = visible; }
+  void set_inherited_properties_visibility( bool visible );
   QRectF boundingRect() const;
   QPainterPath shape() const;
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
