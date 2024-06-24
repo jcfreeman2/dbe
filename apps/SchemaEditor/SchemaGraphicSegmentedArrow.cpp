@@ -48,6 +48,7 @@ QRectF SchemaGraphicSegmentedArrow::boundingRect() const
                            p2().y() - p1().y() ) ).normalized().adjusted (
            -extra, -extra, extra, extra );
   br = br.united(m_rel_label_br);
+  br = br.united(m_rel_cardinality_br);
   return br;
 }
 
@@ -55,6 +56,7 @@ QPainterPath SchemaGraphicSegmentedArrow::shape() const
 {
   QPainterPath path = QGraphicsPathItem::shape();
   path.addRect(m_rel_label_br);
+  path.addRect(m_rel_cardinality_br);
   path.addPolygon ( m_marker );
   // path.addText ( p2() + QPoint ( 10, 10 ), QFont ( "Helvetica [Cronyx]", 10 ),
                 //  m_cardinality );
@@ -116,14 +118,21 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
     p1 = p2;
   }
 
-  // QLineF direct_line(intersect_point_end, intersect_point_start);
   QLineF direct_line(intersect_point_start, intersect_point_end);
-  // QFontMetrics Metrics ( m_label_font );
   auto label_br = QRectF(QFontMetrics ( m_label_font ).boundingRect ( m_name ));
   // Center rectangle on origin
   label_br.translate(-label_br.width()/2, label_br.height()/2);
+
+
+  auto cardinality_br = QRectF(QFontMetrics ( m_label_font ).boundingRect ( m_cardinality ));
+  // Center rectangle on origin
+  cardinality_br.translate(-cardinality_br.width()/2, cardinality_br.height()/2);
+
+
   qreal label_x_padding = 5;
   qreal label_y_padding = 5;
+  qreal card_x_padding = 10;
+  qreal card_y_padding = 5;
 
 
   QPainterPath path( intersect_point_start );
@@ -140,6 +149,13 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
         (direct_line.dx() < 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
         (direct_line.dy() > 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
+    );
+    // Place cardinality
+    cardinality_br.translate( intersect_point_start
+      + QPointF(
+        (direct_line.dx() < 0 ? 1 : -1) * (card_x_padding+cardinality_br.width()/2), 
+        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding)
+      )
     );
 
   } else if ((intersect_norm_start.dy() == 0) && (intersect_norm_end.dy() == 0)) {
@@ -159,14 +175,12 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
         (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
     );
-
-    // // Place the label bounding rectacle
-    // if (direct_line.dy() > 0) {
-    //   label_br.translate( direct_line.center() - QPointF(label_br.width()+label_x_padding, label_y_padding));
-    // } else {
-    //   label_br.translate( direct_line.center() - QPointF(label_br.width()+label_x_padding, +label_br.top()-label_y_padding));
-    // }
-    // label_br.translate(direct_line.center());
+    cardinality_br.translate( intersect_point_start
+      + QPointF(
+        (direct_line.dx() > 0 ? 1 : -1) * (card_x_padding+cardinality_br.width()/2), 
+        (direct_line.dy() < 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding)
+      )
+    );
 
   } else if (intersect_norm_start.dx() == 0) {
     // Two segments, starting vertically, ending horizontally
@@ -180,9 +194,14 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
         (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
     );
+    cardinality_br.translate( intersect_point_start
+      + QPointF(
+        (direct_line.dx() < 0 ? 1 : -1) * (card_x_padding+cardinality_br.width()/2), 
+        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding)
+      )
+    );
 
   } else if (intersect_norm_start.dy() == 0) {
-    // std::cout << "DDD Horizontal 2 segments" << std::endl;
     QPointF wp1 = QPointF(direct_line.x2(), direct_line.y1());
 
     label_br.translate( wp1 
@@ -191,15 +210,20 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
         (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
     );
+    cardinality_br.translate( intersect_point_start
+      + QPointF(
+        (direct_line.dx() < 0 ? 1 : -1) * (card_x_padding+cardinality_br.width()/2), 
+        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding)
+      )
+    );
+
   }
 
   path.lineTo( intersect_point_end );
   setPath(path);
   
   m_rel_label_br = label_br;
-
-  // m_rel_label_pos = direct_line.center();
-  m_rel_label_pos = path.pointAtPercent(0.5);
+  m_rel_cardinality_br = cardinality_br;
 
   if ( m_inheritance )
   {
@@ -296,11 +320,7 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   painter->setPen ( arrow_pen );
   if ( !m_inheritance ) {
     painter->drawText(m_rel_label_br, Qt::AlignTop | Qt::AlignLeft, QString(m_name));
-    // painter->setPen ( Qt::red );
-    // painter->drawPoint(m_rel_label_br.topLeft());
-    // painter->drawEllipse(m_rel_label_br.topLeft(), 5, 5);
-    // painter->setPen ( line_pen );
-
+    painter->drawText(m_rel_cardinality_br, Qt::AlignTop | Qt::AlignLeft, QString(m_cardinality));
   }
 
   if ( m_inheritance )
@@ -319,13 +339,13 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   }
   painter->drawPolygon ( m_marker );
 
-  painter->setPen ( Qt::green );
-  painter->setBrush ( Qt::green );
+  // painter->setPen ( Qt::green );
+  // painter->setBrush ( Qt::green );
 
-  painter->drawEllipse(this->p1(), 5, 5);
-  painter->setPen ( Qt::blue );
-  painter->setBrush ( Qt::blue );
-  painter->drawEllipse(this->p2(), 5, 5);
+  // painter->drawEllipse(this->p1(), 5, 5);
+  // painter->setPen ( Qt::blue );
+  // painter->setBrush ( Qt::blue );
+  // painter->drawEllipse(this->p2(), 5, 5);
 
 
 }
