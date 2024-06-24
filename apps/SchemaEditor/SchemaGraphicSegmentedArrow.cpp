@@ -136,9 +136,9 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
     // Place the label
     label_br.translate( wp2 
-      - QPointF(
-        (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
-        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+      + QPointF(
+        (direct_line.dx() < 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+        (direct_line.dy() > 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
     );
 
@@ -154,9 +154,9 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
     // Place the label
     label_br.translate( wp2 
-      - QPointF(
-        (direct_line.dx() < 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
-        (direct_line.dy() > 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+      + QPointF(
+        (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
     );
 
@@ -174,19 +174,25 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
     path.lineTo(wp1);
 
-    // label_br.translate( wp1 
-    //   - QPointF(
-    //     (direct_line.dx() < 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
-    //     (direct_line.dy() > 0 ? 1 : -1) * (label_br.height()+label_y_padding)
-    //     )
-    // );
+    label_br.translate( wp1 
+      + QPointF(
+        (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+        )
+    );
 
   } else if (intersect_norm_start.dy() == 0) {
     // std::cout << "DDD Horizontal 2 segments" << std::endl;
-    path.lineTo(QPointF(direct_line.x2(), direct_line.y1()));
+    QPointF wp1 = QPointF(direct_line.x2(), direct_line.y1());
 
-    label_br.translate( QPointF(direct_line.y1(), direct_line.x2()));
+    label_br.translate( wp1 
+      + QPointF(
+        (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+        )
+    );
   }
+
   path.lineTo( intersect_point_end );
   setPath(path);
   
