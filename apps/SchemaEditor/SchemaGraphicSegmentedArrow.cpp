@@ -43,101 +43,167 @@ QRectF SchemaGraphicSegmentedArrow::boundingRect() const
   }
 
   qreal extra = ( pen().width() + 20 ) / 2.0 + 10;
-  return QRectF ( p1(),
+  auto br =  QRectF ( p1(),
                   QSizeF ( p2().x() - p1().x(),
                            p2().y() - p1().y() ) ).normalized().adjusted (
            -extra, -extra, extra, extra );
+  br = br.united(m_rel_label_br);
+  return br;
 }
 
 QPainterPath SchemaGraphicSegmentedArrow::shape() const
 {
   QPainterPath path = QGraphicsPathItem::shape();
+  path.addRect(m_rel_label_br);
   path.addPolygon ( m_marker );
-  path.addText ( p2() + QPoint ( 10, 10 ), QFont ( "Helvetica [Cronyx]", 10 ),
-                 m_cardinality );
-  path.addText ( p1() + QPoint ( -10, -10 ), QFont ( "Helvetica [Cronyx]", 10 ),
-                 m_cardinality );
+  // path.addText ( p2() + QPoint ( 10, 10 ), QFont ( "Helvetica [Cronyx]", 10 ),
+                //  m_cardinality );
+  // path.addText ( p1() + QPoint ( -10, -10 ), QFont ( "Helvetica [Cronyx]", 10 ),
+                //  m_cardinality );
   return path;
 }
 
 void SchemaGraphicSegmentedArrow::UpdatePosition()
 {
-  QLineF centerLine ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
+  std::vector<QLineF> norms = { 
+    {0.,0., 0., 1.}, // up
+    {0.,0., 1., 0.}, // right
+    {0.,0., 0, -1.}, // down
+    {0.,0., -1., 0.}, // left
+  };
+
+
+  QLineF center_line ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
                       m_end_item->mapToScene ( m_end_item->boundingRect().center() ) );
-  QPolygonF startPolygon = QPolygonF ( m_start_item->boundingRect() );
-  QPolygonF endPolygon = QPolygonF ( m_end_item->boundingRect() );
-  QPointF p1 = endPolygon.first() + m_end_item->pos();
-  QPointF p2;
-  QPointF intersectPointStart;
-  QPointF intersectPointEnd;
-  QLineF polyLine;
+  QPolygonF start_polygon = QPolygonF ( m_start_item->boundingRect() );
+  QPolygonF end_polygon = QPolygonF ( m_end_item->boundingRect() );
+  QPointF intersect_point_start, intersect_point_end;
+  QLineF intersect_norm_start, intersect_norm_end;
 
-  for ( int i = 1; i < endPolygon.count(); ++i )
+  // Iterate on the sides starting from top-left
+  QPointF p1 = end_polygon.first() + m_end_item->pos(), p2;
+  for ( int i = 1; i < end_polygon.count(); ++i )
   {
-    p2 = endPolygon.at ( i ) + m_end_item->pos();
-    polyLine = QLineF ( p1, p2 );
-    QLineF::IntersectType intersectType = polyLine.intersects ( centerLine, &intersectPointEnd );
 
-    if ( intersectType == QLineF::BoundedIntersection )
-    {
-      break;
+    p2 = end_polygon.at ( i ) + m_end_item->pos();
+    QLineF item_side = QLineF ( p1, p2 );
+    // std::cout << "END " << m_end_item->GetClassName().toStdString() << " : i=" << i << 
+    //   " (" << item_side.x1() << ", " << item_side.y1() << ") ->" << 
+    //   " (" << item_side.x2() << ", " << item_side.y2() << ")" << std::endl;
+    QLineF::IntersectType intersect_type = item_side.intersects ( center_line, &intersect_point_end );
 
-    }
-
-    p1 = p2;
-  }
-
-  p1 = startPolygon.first() + m_start_item->pos();
-
-  for ( int i = 1; i < startPolygon.count(); ++i )
-  {
-    p2 = startPolygon.at ( i ) + m_start_item->pos();
-    polyLine = QLineF ( p1, p2 );
-    QLineF::IntersectType intersectType = polyLine.intersects ( centerLine,
-                                                               &intersectPointStart );
-
-    if ( intersectType == QLineF::BoundedIntersection )
-    {
+    if ( intersect_type == QLineF::BoundedIntersection ) {
+      intersect_norm_end = norms[i-1];
       break;
     }
 
     p1 = p2;
   }
 
-  QLineF direct_line(intersectPointEnd, intersectPointStart);
+  p1 = start_polygon.first() + m_start_item->pos();
+  for ( int i = 1; i < start_polygon.count(); ++i )
+  {
+    p2 = start_polygon.at ( i ) + m_start_item->pos();
+    QLineF item_side = QLineF ( p1, p2 );
+    QLineF::IntersectType intersect_type = item_side.intersects ( center_line,
+                                                               &intersect_point_start );
 
-  QPainterPath path( intersectPointEnd );
+    if ( intersect_type == QLineF::BoundedIntersection ) {
+      intersect_norm_start = norms[i-1];
+      break;
+    }
 
-  // approximate
-  if ( abs(direct_line.dx()) < abs(direct_line.dy()) ) {
-    path.lineTo(QPointF(direct_line.x1(), direct_line.center().y()));
-    path.lineTo(QPointF(direct_line.x2(), direct_line.center().y()));
-  } else {
-    path.lineTo(QPointF(direct_line.center().x(), direct_line.y1()));
-    path.lineTo(QPointF(direct_line.center().x(), direct_line.y2()));
+    p1 = p2;
   }
-  path.lineTo( intersectPointStart );
+
+  // QLineF direct_line(intersect_point_end, intersect_point_start);
+  QLineF direct_line(intersect_point_start, intersect_point_end);
+  // QFontMetrics Metrics ( m_label_font );
+  auto label_br = QRectF(QFontMetrics ( m_label_font ).boundingRect ( m_name ));
+  // Center rectangle on origin
+  label_br.translate(-label_br.width()/2, label_br.height()/2);
+  qreal label_x_padding = 5;
+  qreal label_y_padding = 5;
+
+
+  QPainterPath path( intersect_point_start );
+  if ((intersect_norm_start.dx() == 0) && (intersect_norm_end.dx() == 0)) {
+    // Three segments, starting and ending vertically
+    QPointF wp1 = QPointF(direct_line.x1(), direct_line.center().y());
+    QPointF wp2 = QPointF(direct_line.x2(), direct_line.center().y());
+    path.lineTo(wp1);
+    path.lineTo(wp2);
+
+    // Place the label
+    label_br.translate( wp2 
+      - QPointF(
+        (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+        )
+    );
+
+  } else if ((intersect_norm_start.dy() == 0) && (intersect_norm_end.dy() == 0)) {
+    // Three segments, starting and ending horizontally
+    QPointF wp1 = QPointF(direct_line.center().x(), direct_line.y1());
+
+    QPointF wp2 = QPointF(direct_line.center().x(), direct_line.y2());
+
+    path.lineTo(wp1);
+    path.lineTo(wp2);
+
+
+    // Place the label
+    label_br.translate( wp2 
+      - QPointF(
+        (direct_line.dx() < 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+        (direct_line.dy() > 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+        )
+    );
+
+    // // Place the label bounding rectacle
+    // if (direct_line.dy() > 0) {
+    //   label_br.translate( direct_line.center() - QPointF(label_br.width()+label_x_padding, label_y_padding));
+    // } else {
+    //   label_br.translate( direct_line.center() - QPointF(label_br.width()+label_x_padding, +label_br.top()-label_y_padding));
+    // }
+    // label_br.translate(direct_line.center());
+
+  } else if (intersect_norm_start.dx() == 0) {
+    // Two segments, starting vertically, ending horizontally
+    QPointF wp1 = QPointF(direct_line.x1(), direct_line.y2());
+
+    path.lineTo(wp1);
+
+    // label_br.translate( wp1 
+    //   - QPointF(
+    //     (direct_line.dx() < 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
+    //     (direct_line.dy() > 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+    //     )
+    // );
+
+  } else if (intersect_norm_start.dy() == 0) {
+    // std::cout << "DDD Horizontal 2 segments" << std::endl;
+    path.lineTo(QPointF(direct_line.x2(), direct_line.y1()));
+
+    label_br.translate( QPointF(direct_line.y1(), direct_line.x2()));
+  }
+  path.lineTo( intersect_point_end );
   setPath(path);
+  
+  m_rel_label_br = label_br;
 
-  double angle = ::acos ( this->dx() / this->path().length() );
-  if ( this->dy() >= 0 )
-  {
-    angle = ( M_PI * 2 ) - angle;
-  }
-
-  angle = int(angle/ M_PI_2+0.5)*M_PI_2;
-
-  m_rel_label_pos = direct_line.center();
+  // m_rel_label_pos = direct_line.center();
+  m_rel_label_pos = path.pointAtPercent(0.5);
 
   if ( m_inheritance )
   {
-    m_marker = this->make_arrow_head(angle).translated(this->p1());
+    m_marker = this->make_arrow_head(-intersect_norm_end.angle()/180*M_PI).translated(this->p2());
   }
   else if ( m_composite )
   {
-    m_marker = this->make_rhombus(angle+M_PI).translated(this->p2());
+    m_marker = this->make_rhombus(-intersect_norm_start.angle()/180*M_PI).translated(this->p1());
   } else {
-    m_marker =  this->make_rhombus(angle+M_PI).translated(this->p2());
+    m_marker =  this->make_rhombus(-intersect_norm_start.angle()/180*M_PI).translated(this->p1());
   }
 }
 
@@ -213,21 +279,22 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   const QPen line_pen = QPen(m_default_color, 1);
   const QPen arrow_pen = QPen(m_default_color, 1);
 
-  QFont Font ( "Helvetica [Cronyx]", 10 );
-  qreal arrowSize = 15;
-  painter->setFont ( Font );
+  painter->setFont ( m_label_font );
   painter->setPen ( line_pen );
   painter->setBrush ( {} );
   painter->setRenderHint(QPainter::Antialiasing);
 
-  QFontMetrics Metrics ( Font );
-  Metrics.boundingRect ( m_name + " - " + m_cardinality );
 
   painter->drawPath ( this->path());
    
   painter->setPen ( arrow_pen );
   if ( !m_inheritance ) {
-    painter->drawText(m_rel_label_pos, QString(m_name + " - " + m_cardinality));
+    painter->drawText(m_rel_label_br, Qt::AlignTop | Qt::AlignLeft, QString(m_name));
+    // painter->setPen ( Qt::red );
+    // painter->drawPoint(m_rel_label_br.topLeft());
+    // painter->drawEllipse(m_rel_label_br.topLeft(), 5, 5);
+    // painter->setPen ( line_pen );
+
   }
 
   if ( m_inheritance )
@@ -244,7 +311,16 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
     /// Draw Rhombus
     painter->setBrush ( Qt::white );
   }
-    painter->drawPolygon ( m_marker );
+  painter->drawPolygon ( m_marker );
+
+  painter->setPen ( Qt::green );
+  painter->setBrush ( Qt::green );
+
+  painter->drawEllipse(this->p1(), 5, 5);
+  painter->setPen ( Qt::blue );
+  painter->setBrush ( Qt::blue );
+  painter->drawEllipse(this->p2(), 5, 5);
+
 
 }
 

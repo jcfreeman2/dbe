@@ -40,6 +40,7 @@ private:
   SchemaGraphicObject * m_start_item;
   SchemaGraphicObject * m_end_item;
   QPolygonF m_marker;
+  QRectF m_rel_label_br;
   QPointF m_rel_label_pos;
   QPointF m_rel_cardinality_pos;
   bool m_inheritance;
