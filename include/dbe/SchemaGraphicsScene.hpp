@@ -34,8 +34,9 @@ private slots:
   void AddClassSlot();
   void EditClassSlot();
   void ToggleIndirectInfos();
-  void AddSuperClassesSlot();
-  void AddSubClassesSlot();
+  void AddDirectSuperClassesSlot();
+  void AddAllSuperClassesSlot();
+  void AddAllSubClassesSlot();
   void AddDirectRelationshipClassesSlot();
   void AddAllRelationshipClassesSlot();
   void RemoveClassSlot();
@@ -48,9 +49,10 @@ private:
   QAction * AddClass;
   QAction * EditClass;
   QAction * m_toggle_indirect_infos;
-  QAction * m_add_super_classes;
-  QAction * m_add_sub_classes;
+  QAction * m_add_direct_super_classes;
   QAction * m_add_direct_relationship_classes;
+  QAction * m_add_all_super_classes;
+  QAction * m_add_all_sub_classes;
   QAction * m_add_all_relationship_classes;
   QAction * RemoveClass;
   QAction * RemoveArrow;

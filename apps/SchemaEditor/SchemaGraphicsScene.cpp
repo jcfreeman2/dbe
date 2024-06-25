@@ -52,22 +52,28 @@ void dbse::SchemaGraphicsScene::CreateActions()
   connect ( m_toggle_indirect_infos, SIGNAL ( triggered() ), this, SLOT ( ToggleIndirectInfos() ) );
 
   // Show superclasses of the current class
-  m_add_super_classes = new QAction ( "Add &superclasses to view", this );
-  m_add_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
-  m_add_super_classes->setShortcutContext ( Qt::WidgetShortcut );
-  connect ( m_add_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddSuperClassesSlot() ) );
-
-  // Show subclasses of the current clas
-  m_add_sub_classes = new QAction ( "Add s&ubclasses to view", this );
-  m_add_sub_classes->setShortcut ( tr ( "Ctrl+S" ) );
-  m_add_sub_classes->setShortcutContext ( Qt::WidgetShortcut );
-  connect ( m_add_sub_classes, SIGNAL ( triggered() ), this, SLOT ( AddSubClassesSlot() ) );
+  m_add_direct_super_classes = new QAction ( "Add direct &superclasses to view", this );
+  m_add_direct_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
+  m_add_direct_super_classes->setShortcutContext ( Qt::WidgetShortcut );
+  connect ( m_add_direct_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddDirectSuperClassesSlot() ) );
 
   // Show relationship classes of the current clas
   m_add_direct_relationship_classes = new QAction ( "Add &direct relationship classes to view", this );
   m_add_direct_relationship_classes->setShortcut ( tr ( "Ctrl+D" ) );
   m_add_direct_relationship_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_direct_relationship_classes, SIGNAL ( triggered() ), this, SLOT ( AddDirectRelationshipClassesSlot() ) );
+  
+  // Show superclasses of the current class
+  m_add_all_super_classes = new QAction ( "Add all &superclasses to view", this );
+  m_add_all_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
+  m_add_all_super_classes->setShortcutContext ( Qt::WidgetShortcut );
+  connect ( m_add_all_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllSuperClassesSlot() ) );
+
+  // Show subclasses of the current clas
+  m_add_all_sub_classes = new QAction ( "Add all s&ubclasses to view", this );
+  m_add_all_sub_classes->setShortcut ( tr ( "Ctrl+S" ) );
+  m_add_all_sub_classes->setShortcutContext ( Qt::WidgetShortcut );
+  connect ( m_add_all_sub_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllSubClassesSlot() ) );
 
   // Show indirect relationship classes of the current clas
   m_add_all_relationship_classes = new QAction ( "Add a&ll relationship classes to view", this );
@@ -141,10 +147,11 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu->addAction ( m_toggle_indirect_infos );
     m_context_menu->addSeparator();
     m_context_menu->addAction ( EditClass );
-    m_context_menu->addAction ( m_add_super_classes );
-    m_context_menu->addAction ( m_add_sub_classes );
-    m_context_menu->addAction ( m_add_sub_classes );
+    m_context_menu->addAction ( m_add_direct_super_classes );
     m_context_menu->addAction ( m_add_direct_relationship_classes );
+    m_context_menu->addAction ( m_add_all_super_classes );
+    m_context_menu->addAction ( m_add_all_sub_classes );
+    m_context_menu->addAction ( m_add_all_sub_classes );
     m_context_menu->addAction ( m_add_all_relationship_classes );
     m_context_menu->addAction ( RemoveClass );
     m_context_menu->addAction ( RemoveArrow );
@@ -162,6 +169,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu->actions().at ( 7 )->setVisible ( false );
     m_context_menu->actions().at ( 8 )->setVisible ( false );
     m_context_menu->actions().at ( 9 )->setVisible ( false );
+    m_context_menu->actions().at ( 10 )->setVisible ( false );
   }
   else
   {
@@ -176,7 +184,8 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 6 )->setVisible ( true );
       m_context_menu->actions().at ( 7 )->setVisible ( true );
       m_context_menu->actions().at ( 8 )->setVisible ( true );
-      m_context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_context_menu->actions().at ( 10 )->setVisible ( false );
 
       CurrentObject =
         dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
@@ -194,7 +203,8 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 6 )->setVisible ( false );
       m_context_menu->actions().at ( 7 )->setVisible ( false );
       m_context_menu->actions().at ( 8 )->setVisible ( false );
-      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 10 )->setVisible ( true );
       m_current_arrow = dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                                    QTransform() ) );
     }
@@ -210,6 +220,12 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
   {
     if ( !ItemMap.contains ( ClassName ) )
     {
+
+      if ( !KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() ) ) {
+          std::cout << "ERROR: class " << ClassName.toStdString()  << " not found" << std::endl;
+          continue;
+      } 
+
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );
       Object->set_inherited_properties_visibility(m_inherited_properties_visible);
@@ -430,7 +446,27 @@ void dbse::SchemaGraphicsScene::ToggleIndirectInfos() {
 
 }
 
-void dbse::SchemaGraphicsScene::AddSuperClassesSlot() {
+void dbse::SchemaGraphicsScene::AddDirectSuperClassesSlot() {
+
+  QString class_name = QString::fromStdString ( CurrentObject->GetClass()->get_name() );
+  OksClass * class_info = KernelWrapper::GetInstance().FindClass ( class_name.toStdString() );
+  
+  QStringList super_class_list;
+  QList<QPointF> positions;
+
+  const std::list<std::string *>* direct_classes = class_info->direct_super_classes();
+  if(direct_classes != nullptr) {
+      for(std::string * cl_name : *direct_classes) {
+          super_class_list.push_back(QString::fromStdString(*cl_name));
+          positions.push_back({0,0});
+      }
+  }
+
+  this->AddItemToScene ( super_class_list, positions );
+
+}
+
+void dbse::SchemaGraphicsScene::AddAllSuperClassesSlot() {
 
   QString class_name = QString::fromStdString ( CurrentObject->GetClass()->get_name() );
   OksClass * class_info = KernelWrapper::GetInstance().FindClass ( class_name.toStdString() );
@@ -451,8 +487,7 @@ void dbse::SchemaGraphicsScene::AddSuperClassesSlot() {
 
 }
 
-
-void dbse::SchemaGraphicsScene::AddSubClassesSlot() {
+void dbse::SchemaGraphicsScene::AddAllSubClassesSlot() {
 
   QString class_name = QString::fromStdString ( CurrentObject->GetClass()->get_name() );
   OksClass * class_info = KernelWrapper::GetInstance().FindClass ( class_name.toStdString() );
