@@ -29,8 +29,8 @@ protected:
                QWidget * widget = 0 );
 private:
 
-  QPointF p1() const { return path().elementAt(0); }
-  QPointF p2() const { return path().elementAt(path().elementCount()-1); }
+  QPointF p1() const { return path().elementCount() > 0 ? path().elementAt(0) : QPointF(); }
+  QPointF p2() const { return path().elementCount() > 0 ? path().elementAt(path().elementCount()-1) : QPointF(); }
   qreal dx() const { return p2().x() - p1().x(); } 
   qreal dy() const { return p2().y() - p1().y(); } 
 

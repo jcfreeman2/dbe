@@ -67,6 +67,14 @@ QPainterPath SchemaGraphicSegmentedArrow::shape() const
 
 void SchemaGraphicSegmentedArrow::UpdatePosition()
 {
+
+
+
+  if ( m_start_item->collidesWithItem ( m_end_item ) ) {
+    // this->setPath(QPainterPath());
+    // m_marker = QPolygonF();
+    return;
+  }
   std::vector<QLineF> norms = { 
     {0.,0., 0., 1.}, // up
     {0.,0., 1., 0.}, // right
@@ -89,9 +97,6 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
     p2 = end_polygon.at ( i ) + m_end_item->pos();
     QLineF item_side = QLineF ( p1, p2 );
-    // std::cout << "END " << m_end_item->GetClassName().toStdString() << " : i=" << i << 
-    //   " (" << item_side.x1() << ", " << item_side.y1() << ") ->" << 
-    //   " (" << item_side.x2() << ", " << item_side.y2() << ")" << std::endl;
     QLineF::IntersectType intersect_type = item_side.intersects ( center_line, &intersect_point_end );
 
     if ( intersect_type == QLineF::BoundedIntersection ) {
@@ -136,6 +141,7 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
 
   QPainterPath path( intersect_point_start );
+
   if ((intersect_norm_start.dx() == 0) && (intersect_norm_end.dx() == 0)) {
     // Three segments, starting and ending vertically
     QPointF wp1 = QPointF(direct_line.x1(), direct_line.center().y());
@@ -203,6 +209,8 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   } else if (intersect_norm_start.dy() == 0) {
     QPointF wp1 = QPointF(direct_line.x2(), direct_line.y1());
+
+    path.lineTo(wp1);
 
     label_br.translate( wp1 
       + QPointF(
