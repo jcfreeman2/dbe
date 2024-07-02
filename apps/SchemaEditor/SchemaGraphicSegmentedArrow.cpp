@@ -347,15 +347,6 @@ void SchemaGraphicSegmentedArrow::paint ( QPainter * painter,
   }
   painter->drawPolygon ( m_marker );
 
-  // painter->setPen ( Qt::green );
-  // painter->setBrush ( Qt::green );
-
-  // painter->drawEllipse(this->p1(), 5, 5);
-  // painter->setPen ( Qt::blue );
-  // painter->setBrush ( Qt::blue );
-  // painter->drawEllipse(this->p2(), 5, 5);
-
-
 }
 
 } // namespace dbse
