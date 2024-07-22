@@ -17,7 +17,7 @@
 #include "dbe/confaccessor.hpp"
 
 #include "logging/Logging.hpp"
-#include "appdal/appdalIssues.hpp"
+#include "appmodel/appmodelIssues.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -88,9 +88,6 @@ int main ( int argc, char * argv[] )
       display_help_message();
       return EXIT_FAILURE;
     }
-
-    // Initialize access to configuration backend
-    dbe::confaccessor::init();
     
     dbe::GraphBuilder graphbuilder(oksfilename);
 
@@ -113,7 +110,7 @@ int main ( int argc, char * argv[] )
     errmsgstr << "Incorrect command line argument: " << e.what();
     ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
 
-  } catch (dunedaq::appdal::BadConf& exc) {
+  } catch (dunedaq::appmodel::BadConf& exc) {
     std::stringstream errmsgstr;
     errmsgstr << "Caught BadConf exception: " << exc;
     ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));

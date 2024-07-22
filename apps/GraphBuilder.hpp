@@ -1,10 +1,9 @@
 #ifndef DBE_APPS_GRAPHBUILDER_HPP_
 #define DBE_APPS_GRAPHBUILDER_HPP_
 
-#include "dbe/config_reference.hpp"
-#include "dbe/config_api.hpp"
+#include "conffwk/ConfigObject.hpp"
 
-#include "coredal/Session.hpp"
+#include "confmodel/Session.hpp"
 #include "ers/ers.hpp"
 
 #include "boost/graph/graph_traits.hpp"
@@ -19,6 +18,8 @@ namespace dbe {
   class GraphBuilder {
 
   public:
+
+    using ConfigObject = dunedaq::conffwk::ConfigObject;
 
     enum class TopGraphLevel {
       kSession = 0,
@@ -80,20 +81,23 @@ namespace dbe {
 
   private:
 
-    void add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx, bool add_edges);
+    void add_connected_objects(ConfigObject& starting_obj, const Vertex_t& starting_vtx, bool add_edges);
     void find_candidate_objects(const TopGraphLevel level);
+    std::vector<dunedaq::conffwk::ConfigObject> find_connected_objects(ConfigObject& starting_obj);
 
     const std::string m_oksfilename;
+    dunedaq::conffwk::Configuration* m_confdb {nullptr};
+
     std::map<TopGraphLevel, std::vector<std::string>> m_included_classes;
 
     std::vector<std::string> m_ignored_application_uids;
-    std::vector<tref> m_all_objects;
-    std::vector<tref> m_candidate_objects;
-    std::vector<tref> m_passed_objects;
+    std::vector<ConfigObject> m_all_objects;
+    std::vector<ConfigObject> m_candidate_objects;
+    std::vector<ConfigObject> m_passed_objects;
     
     Graph_t m_graph;
 
-    dunedaq::coredal::Session* m_session {nullptr};
+    dunedaq::confmodel::Session* m_session {nullptr};
   };
 
   void write_graph(const GraphBuilder::Graph_t& graph, const std::string& outputfilename = "");

@@ -11,7 +11,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(oks REQUIRED)
 find_package(conffwk REQUIRED)
 find_package(logging REQUIRED)
-find_package(appdal REQUIRED)
+find_package(appmodel REQUIRED)
 
 find_package( Qt5 REQUIRED COMPONENTS Widgets Gui Core PrintSupport)
 
@@ -301,7 +301,7 @@ qt5_add_resources(qrc_SchemaResource icons/SchemaResource.qrc OPTIONS -name Sche
 
 daq_add_application(schemaeditor SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource} LINK_LIBRARIES ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
 
-daq_add_application(create_config_plot create_config_plot.cxx GraphBuilder.cpp LINK_LIBRARIES dbe oks::oks ${dbe_common_boost_libs} appdal::appdal )
+daq_add_application(create_config_plot create_config_plot.cxx GraphBuilder.cpp LINK_LIBRARIES dbe oks::oks ${dbe_common_boost_libs} appmodel::appmodel )
 
 daq_add_unit_test(confaccessor_test LINK_LIBRARIES dbe)
 daq_add_unit_test(config_api_set_test LINK_LIBRARIES dbe)

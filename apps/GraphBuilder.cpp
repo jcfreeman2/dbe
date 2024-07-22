@@ -1,30 +1,31 @@
 
 #include "GraphBuilder.hpp"
 
-#include "dbe/config_reference.hpp"
-#include "dbe/config_api.hpp"
+#include "conffwk/Configuration.hpp"
+#include "conffwk/Schema.hpp"
 
 #include "ers/ers.hpp"
 
-#include "coredal/Session.hpp"
-#include "coredal/Connection.hpp"
-#include "coredal/DaqModule.hpp"
+#include "confmodel/Session.hpp"
+#include "confmodel/Connection.hpp"
+#include "confmodel/DaqModule.hpp"
 
-#include "appdal/DFApplication.hpp"
-#include "appdal/DFOApplication.hpp"
-#include "appdal/ReadoutApplication.hpp"
-#include "appdal/SmartDaqApplication.hpp"
-#include "appdal/TriggerApplication.hpp"
-#include "appdal/MLTApplication.hpp"
-#include "appdal/TPStreamWriterApplication.hpp"
+#include "appmodel/DFApplication.hpp"
+#include "appmodel/DFOApplication.hpp"
+#include "appmodel/ReadoutApplication.hpp"
+#include "appmodel/SmartDaqApplication.hpp"
+#include "appmodel/TriggerApplication.hpp"
+#include "appmodel/MLTApplication.hpp"
+#include "appmodel/TPStreamWriterApplication.hpp"
 
-#include "appdal/appdalIssues.hpp"
+#include "appmodel/appmodelIssues.hpp"
 
 
 #include "boost/graph/graphviz.hpp"
 
 #include <QFileInfo>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -36,39 +37,30 @@
 namespace dbe {
 
   GraphBuilder::GraphBuilder(const std::string& oksfilename) :
-    m_oksfilename(oksfilename),
+    m_oksfilename { oksfilename },
     m_included_classes {  // Classes which match the first token in the list are the roots in the graph
       { TopGraphLevel::kSession, {"Session", "Segment", "Application"} },
       { TopGraphLevel::kSegment, {"Segment", "Application"} },
       { TopGraphLevel::kApplication, {"Application"} },
       { TopGraphLevel::kModule, {"Module", ""} }
     },
-    m_session(nullptr)
+    m_session { nullptr }
   {
 
     // Open the database represented by the OKS XML file
 
-    QFileInfo database_file(QString::fromStdString(m_oksfilename));
-
-    if (database_file.exists()) {
-      QString path_to_database = QString(database_file.absoluteFilePath());
-
-      confaccessor::setdbinfo( path_to_database, dbe::dbinfo::oks);
-	
-      if (confaccessor::load()) {
-	TLOG () << "Database initialized from \"" << m_oksfilename << "\"";
-      } else {
-	throw dbe::GeneralGraphToolError(ERS_HERE, "Could not load database. Check environment variable DUNEDAQ_DB_PATH");
-      }
-    } else {
-      std::stringstream errmsg;
-      errmsg << "Cannot open database. File error for file \"" << m_oksfilename << "\"";
-      throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
+    try {
+      m_confdb = new dunedaq::conffwk::Configuration("oksconflibs:" + oksfilename);
+    } catch (dunedaq::conffwk::Generic& exc) {
+      TLOG() << "Failed to load OKS database: " << exc << "\n";
+      throw exc;
     }
 
     // Get the session in the database. Currently (May-13-2024) can handle one and only one session
+    std::vector<ConfigObject> session_objects;
 
-    auto session_objects = config::api::info::onclass::objects<false>("Session", false);
+    m_confdb->get("Session", session_objects);
+
     if (session_objects.size() != 1) {
       std::stringstream errmsg;
       errmsg << "Did not find one and only one Session instance in \"" << m_oksfilename << "\" and its includes";
@@ -77,49 +69,79 @@ namespace dbe {
 
     // We need the session object to check if an application has been disabled
 
-    // Note the "const_cast" is needed since "get_underlying_object"
+    // Note the "const_cast" is needed since "m_confdb->get"
     // returns a const pointer, but since m_session is a member needed
     // by multiple functions and can't be determined until after we've
     // opened the database and found the session, we need to change
     // its initial value here. Once this is done, it shouldn't be
     // changed again.
-    
-    m_session = const_cast<dunedaq::coredal::Session*>(config::api::info::onclass::get_underlying_object<dunedaq::coredal::Session>(session_objects[0].UID()));
-    
+
+    m_session = const_cast<dunedaq::confmodel::Session*>(
+							 m_confdb->get<dunedaq::confmodel::Session>(session_objects[0].UID()));
+  
     if (m_session == nullptr) {
       std::stringstream errmsg;
       errmsg << "Unable to get session with UID \"" << session_objects[0].UID() << "\"";
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    std::vector<std::string> all_classnames =
-      { config::api::info::onclass::allnames<std::vector<std::string>>() };
+    std::vector<ConfigObject> every_object;
+    std::vector<ConfigObject> all_class_objects;
 
-    for (const auto& classname : all_classnames) {
+    using classmap = dunedaq::conffwk::fmap<dunedaq::conffwk::fset>;
 
-      auto all_class_objects = config::api::info::onclass::objects<false>(classname, false);
-      for (const auto& obj : all_class_objects) {
-	m_all_objects.emplace_back( obj ); 
-      }
+    classmap classrepresentors = m_confdb->superclasses();
+    std::vector<std::string> classnames;
+
+    std::transform(classrepresentors.begin(),
+		   classrepresentors.end(),
+		   std::back_inserter(classnames),
+		   [](const classmap::value_type& classrepresentor) {
+		     //return classrepresentor.first->c_str();
+		     return *classrepresentor.first;
+		   });
+
+    std::sort(classnames.begin(), classnames.end());
+
+    for (auto& classname : classnames) {
+
+      every_object.clear();
+      all_class_objects.clear();
+      TLOG_DEBUG(GENERAL_DEBUG_LVL) << "CLASS NAME IS " << classname << ": ";
+
+      m_confdb->get(classname, every_object);
+
+      std::copy_if(every_object.begin(),
+		   every_object.end(),
+		   std::back_inserter(all_class_objects),
+		   [&classname](const ConfigObject& obj) {
+		     if (obj.class_name() == classname)  {
+		       TLOG_DEBUG(GENERAL_DEBUG_LVL) << obj.UID() << " ";
+		       return true;
+		     } else {
+		       return false;
+		     }
+		     return obj.class_name() == classname;
+		   });
+      TLOG_DEBUG(GENERAL_DEBUG_LVL) << std::endl;
+
+      std::copy(all_class_objects.begin(), all_class_objects.end(), std::back_inserter(m_all_objects));
 
       if (classname.find("Application") != std::string::npos ) {
-
 	for (const auto& appobj : all_class_objects) {
 
-	  // May-14-2024: The following code is based on what's found in appdal's generate_modules_test.cxx
-	  
-	  auto daqapp = config::api::info::onclass::get_underlying_object<dunedaq::appdal::SmartDaqApplication>(appobj.UID());
-	  
-	  if (daqapp != nullptr) {
+	  auto daqapp = m_confdb->get<dunedaq::appmodel::SmartDaqApplication>(appobj.UID());
 
-	    auto res = daqapp->cast<dunedaq::coredal::ResourceBase>();
+	  if (daqapp != nullptr) {
+	    //TLOG() << appobj.UID() << " is of class " << daqapp->class_name() << "\n";
+
+	    auto res = daqapp->cast<dunedaq::confmodel::ResourceBase>();
 	    
-	    if (res != nullptr && res->disabled(*m_session)) {
+	    if (res && res->disabled(*m_session)) {
 	      m_ignored_application_uids.push_back( appobj.UID() );
 	      TLOG() << "Skipping disabled application " << appobj.UID() << "@" << daqapp->class_name();
 	      continue;
-	    } 
-
+	    }
 	  } else {
 	    TLOG() << "daqapp for " << appobj.UID() << "@" << appobj.class_name() << " came up empty";
 	    m_ignored_application_uids.push_back( appobj.UID() );
@@ -129,12 +151,13 @@ namespace dbe {
     }
   }
 
+
   void GraphBuilder::construct_graph(const TopGraphLevel level) {
 
     find_candidate_objects(level);
 
     std::string cname;
-    for (const auto& obj: m_candidate_objects) {
+    for (auto& obj: m_candidate_objects) {
       cname = obj.class_name();
 
       // The idea in the if-statement is the first element of the
@@ -156,7 +179,7 @@ namespace dbe {
     find_candidate_objects(level);
     
     bool found = false;
-    for (const auto& obj: m_candidate_objects) {
+    for (auto& obj: m_candidate_objects) {
       if (obj.UID() == obj_uid) {
 	found = true;
 	m_passed_objects.emplace_back(obj);
@@ -165,10 +188,9 @@ namespace dbe {
       
 	if (obj.class_name().find("Application")) {
 
-	  auto daqapp = config::api::info::onclass::get_underlying_configuration()->get<dunedaq::appdal::SmartDaqApplication>(obj.UID());
+	  auto daqapp = m_confdb->get<dunedaq::appmodel::SmartDaqApplication>(obj.UID());
 	  if (daqapp) {
-	    auto modules = daqapp->generate_modules(
-					       config::api::info::onclass::get_underlying_configuration(), m_oksfilename, m_session);
+	    auto modules = daqapp->generate_modules(m_confdb, m_oksfilename, m_session);
 
 	    // This map will exist until it's determined how to check a Graph_t for an already-existing vertex
 	    std::map<VertexLabel, Vertex_t> io_vertices;
@@ -235,14 +257,35 @@ namespace dbe {
       TLOG() << "Candidate " << obj.UID() << "@" << obj.class_name();
     }
   }
-    
-  void GraphBuilder::add_connected_objects(const tref& starting_obj, const Vertex_t& starting_vtx, bool add_edges) {
+
+  std::vector<dunedaq::conffwk::ConfigObject>
+  GraphBuilder::find_connected_objects(ConfigObject& starting_obj) {
+
+    std::vector<ConfigObject> connected_objects;
+
+    dunedaq::conffwk::class_t classdef = m_confdb->get_class_info( starting_obj.class_name(), false );
+
+    for (const dunedaq::conffwk::relationship_t& relationship : classdef.p_relationships) {
+      if (relationship.p_cardinality == dunedaq::conffwk::only_one ||
+	  relationship.p_cardinality == dunedaq::conffwk::zero_or_one) {
+	ConfigObject connected_obj;
+	starting_obj.get(relationship.p_name, connected_obj);
+	connected_objects.push_back(connected_obj);
+      } else {
+	std::vector<ConfigObject> connected_objects_in_relationship;
+	starting_obj.get(relationship.p_name, connected_objects_in_relationship);
+	connected_objects.insert(connected_objects.end(), connected_objects_in_relationship.begin(), connected_objects_in_relationship.end());
+      }
+    }
+
+    return connected_objects;
+  }
+
+  void GraphBuilder::add_connected_objects(ConfigObject& starting_obj, const Vertex_t& starting_vtx, bool add_edges) {
 
     VertexLabel starting_vtx_label(starting_obj.UID(), starting_obj.class_name());
-    
-    std::vector<tref> connected_objs = config::api::graph::linked::by::object<tref> ( starting_obj ); 
 
-    for (const auto& connected_obj: connected_objs) {
+    for (auto& connected_obj: find_connected_objects(starting_obj)) {
 
       if (std::find(m_candidate_objects.begin(), m_candidate_objects.end(), connected_obj) != m_candidate_objects.end()) {  // If it's in the candidate list
 	if (std::find(m_passed_objects.begin(), m_passed_objects.end(), connected_obj) == m_passed_objects.end()) { // And it hasn't already been added to the "passed" list
@@ -281,6 +324,7 @@ namespace dbe {
         boost::write_graphviz(std::cout, graph, boost::make_label_writer(boost::get(&GraphBuilder::VertexLabel::displaylabel, graph)));
     }
   };
+
   
 } // namespace dbe
 
