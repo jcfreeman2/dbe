@@ -66,8 +66,7 @@ jobs:
           export REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
           cd $GITHUB_WORKSPACE/dev-${{ matrix.os_name }}
           source env.sh || true
-          test $REPO == "dbe" && spack load dbe || true
-          spack unload $REPO || true
+          test $REPO == "dbe" && spack load dbe
           cp -pr $GITHUB_WORKSPACE/DUNE-DAQ/$REPO $GITHUB_WORKSPACE/dev-${{ matrix.os_name }}/sourcecode
           dbt-build # --unittest # --lint
 
