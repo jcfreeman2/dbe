@@ -20,7 +20,11 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
     LineOffsetX ( 0 ),
     LineOffsetY ( 0 )
 {
-  m_font = QFont( "Helvetica [Cronyx]", 9 );
+  m_font = QFont( "Helvetica [Cronyx]", 9);
+  m_bold_font = QFont( "Helvetica [Cronyx]", 9, QFont::DemiBold);
+  m_default_color = QColor ( 0x1e1b18 );
+  m_highlight_color = QColor ( 0x14aaff );
+  m_opaque_color = QColor ( 0x5d5b59 );
 
   setFlag ( ItemIsMovable );
   setFlag ( ItemSendsGeometryChanges, true );
@@ -33,7 +37,7 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
             SLOT ( RemoveObject ( QString ) ) );
   /// Getting Class
   m_class_info = KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() );
-  ClassObjectName = ClassName;
+  m_class_object_name = ClassName;
   /// Getting class info
   GetInfo();
 }
@@ -49,7 +53,7 @@ OksClass * dbse::SchemaGraphicObject::GetClass() const
 
 QString dbse::SchemaGraphicObject::GetClassName() const
 {
-  return ClassObjectName;
+  return m_class_object_name;
 }
 
 void dbse::SchemaGraphicObject::GetInfo()
@@ -100,11 +104,11 @@ void dbse::SchemaGraphicObject::GetInfo()
   };
 
   /// Getting direct Attributes
-  for ( OksAttribute * Attribute : direct_attributes )
+  for ( OksAttribute * attribute : direct_attributes )
   {
     QString AttributeString (
-      QString::fromStdString ( Attribute->get_name() ) + " : "
-      + QString::fromStdString ( Attribute->get_type() ) );
+      QString::fromStdString ( attribute->get_name() ) + " : "
+      + QString::fromStdString ( attribute->get_type() ) + (attribute->get_is_multi_values() ? "[]" : "") );
     m_class_attributes.append ( AttributeString );
   }
 
@@ -165,8 +169,8 @@ QRectF dbse::SchemaGraphicObject::boundingRect() const
   QFontMetrics FontMetrics ( m_font );
 
   TotalBoundingHeight += SpaceX * 5;
-  TotalBoundingHeight += FontMetrics.boundingRect ( ClassObjectName ).height();
-  TotalBoundingWidth += FontMetrics.boundingRect ( ClassObjectName ).width();
+  TotalBoundingHeight += FontMetrics.boundingRect ( m_class_object_name ).height();
+  TotalBoundingWidth += FontMetrics.boundingRect ( m_class_object_name ).width();
 
   for ( auto & AttributeName : m_class_attributes )
   {
@@ -249,17 +253,23 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   double SpaceX = 3;
   double SpaceY = 3;
 
+  const QPen bounding_box_pen = QPen(m_default_color, 2.5);
+  const QPen inner_line_pen = QPen(m_default_color, 1.5);
+
   painter->setFont ( m_font );
-  painter->setPen ( QColor ( "blue" ) );
+  painter->setPen ( bounding_box_pen );
   painter->drawRect ( boundingRect() );
+  // painter->setPen ( m_default_color );
 
   QFontMetrics FontMetrics = painter->fontMetrics();
-  QRectF ClassNameBoundingRect = FontMetrics.boundingRect ( ClassObjectName );
+  QRectF ClassNameBoundingRect = FontMetrics.boundingRect ( m_class_object_name );
   QRectF ObjectBoundingRect = boundingRect();
 
   double HeightOffset = ClassNameBoundingRect.height() + SpaceY;
   int ClassNamePosition = ( ObjectBoundingRect.width() - ClassNameBoundingRect.width() ) / 2;
-  painter->drawText ( ClassNamePosition, ClassNameBoundingRect.height(), ClassObjectName );
+  painter->setFont ( m_font );
+  painter->drawText ( ClassNamePosition, ClassNameBoundingRect.height(), m_class_object_name );
+  painter->setFont ( m_font );
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
 
   for ( QString & AttributeName : m_class_attributes )
@@ -270,17 +280,18 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   }
 
   if (m_inherited_properties_visible) {
-    painter->setPen ( QColor ( "black" ) );
+    painter->setPen ( m_opaque_color );
     for ( QString & AttributeName : m_class_inherited_attributes )
     {
       QRectF AttributeBoundingRect = FontMetrics.boundingRect ( AttributeName );
       HeightOffset += AttributeBoundingRect.height();
       painter->drawText ( SpaceX, HeightOffset, AttributeName );
     }
-    painter->setPen ( QColor ( "blue" ) );
+    painter->setPen ( m_default_color );
   }
 
   HeightOffset += SpaceY;
+  painter->setPen ( inner_line_pen );
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
 
   for ( QString & relationship_name : m_class_relationhips )
@@ -291,18 +302,19 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   }
 
   if (m_inherited_properties_visible) {
-    painter->setPen ( QColor ( "black" ) );
+    painter->setPen ( m_opaque_color );
     for ( QString & relationship_name : m_class_inherited_relationhips )
     {
       QRectF relationship_bounding_rect = FontMetrics.boundingRect ( relationship_name );
       HeightOffset += relationship_bounding_rect.height();
       painter->drawText ( SpaceX, HeightOffset, relationship_name );
     }
-    painter->setPen ( QColor ( "blue" ) );
+    painter->setPen ( m_default_color );
   }
 
 
   HeightOffset += SpaceY;
+  painter->setPen ( inner_line_pen );
   painter->drawLine ( 0, HeightOffset, ObjectBoundingRect.width(), HeightOffset );
   
   for ( QString & MethodName : m_class_methods )
@@ -313,35 +325,35 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   }
 
   if (m_inherited_properties_visible) {
-    painter->setPen ( QColor ( "black" ) );
+    painter->setPen ( m_opaque_color );
     for ( QString & MethodName : m_class_inherited_methods )
     {
       QRectF AttributeBoundingRect = FontMetrics.boundingRect ( MethodName );
       HeightOffset += AttributeBoundingRect.height();
       painter->drawText ( SpaceX, HeightOffset, MethodName );
     }
-    painter->setPen ( QColor ( "blue" ) );
+    painter->setPen ( m_default_color );
   }
 }
 
 void dbse::SchemaGraphicObject::AddArrow ( SchemaGraphicSegmentedArrow * Arrow )
 {
-  Arrows.append ( Arrow );
+  m_arrows.append ( Arrow );
 }
 
 void dbse::SchemaGraphicObject::RemoveArrow ( SchemaGraphicSegmentedArrow * Arrow )
 {
-  int index = Arrows.indexOf ( Arrow );
+  int index = m_arrows.indexOf ( Arrow );
 
   if ( index != -1 )
   {
-    Arrows.removeAt ( index );
+    m_arrows.removeAt ( index );
   }
 }
 
 void dbse::SchemaGraphicObject::RemoveArrows()
 {
-  foreach ( SchemaGraphicSegmentedArrow * arrow, Arrows )
+  foreach ( SchemaGraphicSegmentedArrow * arrow, m_arrows )
   {
     arrow->GetStartItem()->RemoveArrow ( arrow );
     arrow->GetEndItem()->RemoveArrow ( arrow );
@@ -351,12 +363,12 @@ void dbse::SchemaGraphicObject::RemoveArrows()
 
 bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
 {
-  if ( Arrows.isEmpty() )
+  if ( m_arrows.isEmpty() )
   {
     return false;
   }
 
-  for ( SchemaGraphicSegmentedArrow * Arrow : Arrows )
+  for ( SchemaGraphicSegmentedArrow * Arrow : m_arrows )
   {
     SchemaGraphicObject * ArrowSource = Arrow->GetStartItem();
     SchemaGraphicObject * ArrowDest = Arrow->GetEndItem();
@@ -370,10 +382,22 @@ bool dbse::SchemaGraphicObject::HasArrow ( SchemaGraphicObject * Dest ) const
   return false;
 }
 
+void dbse::SchemaGraphicObject::set_inherited_properties_visibility( bool visible ) {
+  
+  m_inherited_properties_visible = visible; 
+  for ( SchemaGraphicSegmentedArrow * arrow : m_arrows )
+    {
+      arrow->UpdatePosition();
+    }
+}
+
+
+
 QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,
                                                  const QVariant & value )
 {
-  if ( change == ItemPositionChange ) for ( SchemaGraphicSegmentedArrow * arrow : Arrows )
+  if ( change == ItemPositionChange ) 
+    for ( SchemaGraphicSegmentedArrow * arrow : m_arrows )
     {
       arrow->UpdatePosition();
     }
@@ -383,7 +407,7 @@ QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,
 
 void dbse::SchemaGraphicObject::UpdateObject ( QString Name )
 {
-  if ( Name != ClassObjectName )
+  if ( Name != m_class_object_name )
   {
     return;
   }
@@ -403,7 +427,7 @@ void dbse::SchemaGraphicObject::UpdateObject ( QString Name )
     ClassesPositions.append ( ClassPosition );
 
     Scene->RemoveClassObject ( this );
-    Scene->AddItemToScene ( QStringList ( ClassObjectName ), ClassesPositions );
+    Scene->AddItemToScene ( QStringList ( m_class_object_name ), ClassesPositions );
   }
 
   /// Repainting object
@@ -412,7 +436,7 @@ void dbse::SchemaGraphicObject::UpdateObject ( QString Name )
 
 void dbse::SchemaGraphicObject::RemoveObject ( QString Name )
 {
-  if ( Name != ClassObjectName )
+  if ( Name != m_class_object_name )
   {
     return;
   }
