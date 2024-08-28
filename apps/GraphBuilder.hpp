@@ -21,7 +21,7 @@ namespace dbe {
 
     using ConfigObject = dunedaq::conffwk::ConfigObject;
 
-    enum class TopGraphLevel {
+    enum class ObjectKind {
       kSession = 0,
       kSegment,
       kApplication,
@@ -62,6 +62,28 @@ namespace dbe {
       std::string label;
       std::string displaylabel;
     };
+
+    struct EnhancedConfigObject {
+
+      EnhancedConfigObject(const ConfigObject& config_object_arg, ObjectKind kind_arg, int level_arg) :
+	config_object(config_object_arg),
+	kind(kind_arg),
+	level(level_arg)
+      {}
+      
+      const ConfigObject config_object;
+      const ObjectKind kind;
+      const int level; // How deep in the graph should this object be?
+
+      bool added_to_graph = false; 
+      
+      // What objects does this one own (in a logical sense, not a memory-management sense)?
+      std::vector<const EnhancedConfigObject*> related_objects;
+
+      // What objects does this one send data to?
+      std::vector<const EnhancedConfigObject*> receiving_objects; 
+
+    };
     
     using Graph_t = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, VertexLabel>;
     using Edge_t = boost::graph_traits<Graph_t>::edge_descriptor;
@@ -69,8 +91,7 @@ namespace dbe {
     
     explicit GraphBuilder(const std::string& oksfilename);
 
-    void construct_graph(const TopGraphLevel level);
-    void construct_graph(const TopGraphLevel level, const std::string& root_obj_uid);
+    void construct_graph(const ObjectKind level, const std::string& root_obj_uid);
     
     Graph_t get_graph() const { return m_graph; };
     
@@ -81,23 +102,27 @@ namespace dbe {
 
   private:
 
-    void add_connected_objects(ConfigObject& starting_obj, const Vertex_t& starting_vtx, bool add_edges);
-    void find_candidate_objects(const TopGraphLevel level);
-    std::vector<dunedaq::conffwk::ConfigObject> find_connected_objects(ConfigObject& starting_obj);
+    void find_candidate_objects(const ObjectKind level);
+    std::vector<dunedaq::conffwk::ConfigObject> find_related_objects(const ConfigObject& starting_obj);
+
+    void find_objects_and_connections(const ConfigObject& object, int level);
 
     const std::string m_oksfilename;
     dunedaq::conffwk::Configuration* m_confdb {nullptr};
 
-    std::map<TopGraphLevel, std::vector<std::string>> m_included_classes;
-
+    std::map<ObjectKind, std::vector<std::string>> m_included_classes;
     std::vector<std::string> m_ignored_application_uids;
+    
     std::vector<ConfigObject> m_all_objects;
     std::vector<ConfigObject> m_candidate_objects;
     std::vector<ConfigObject> m_passed_objects;
-    
-    Graph_t m_graph;
 
+    std::vector<EnhancedConfigObject> m_objects_for_graph;
+
+    Graph_t m_graph;
+    
     dunedaq::confmodel::Session* m_session {nullptr};
+    std::string m_session_name;
   };
 
   void write_graph(const GraphBuilder::Graph_t& graph, const std::string& outputfilename = "");

@@ -76,31 +76,26 @@ int main ( int argc, char * argv[] )
                  args );
     bpo::notify ( args );
 
-    const std::map<std::string, dbe::GraphBuilder::TopGraphLevel> level_as_enum {
-      {"session", dbe::GraphBuilder::TopGraphLevel::kSession },
-      {"segment", dbe::GraphBuilder::TopGraphLevel::kSegment },
-      {"application", dbe::GraphBuilder::TopGraphLevel::kApplication },
-      {"module", dbe::GraphBuilder::TopGraphLevel::kModule }
+    const std::map<std::string, dbe::GraphBuilder::ObjectKind> level_as_enum {
+      {"session", dbe::GraphBuilder::ObjectKind::kSession },
+      {"segment", dbe::GraphBuilder::ObjectKind::kSegment },
+      {"application", dbe::GraphBuilder::ObjectKind::kApplication },
+      {"module", dbe::GraphBuilder::ObjectKind::kModule }
     };
     
-    if ( args.count ( "help" ) || ! args.count ( "file" ) || ! args.count("level") || ! level_as_enum.count(level) )
+    if ( args.count ( "help" ) || ! args.count ( "file" ) || ! args.count("level") || ! level_as_enum.count(level) || ! args.count("object") )
     {
       display_help_message();
       return EXIT_FAILURE;
     }
     
     dbe::GraphBuilder graphbuilder(oksfilename);
-
-    if (args.count("object")) {
-      graphbuilder.construct_graph( level_as_enum.at( level ), object_uid );
-    } else {
-      graphbuilder.construct_graph( level_as_enum.at( level ) );
-    }
+    graphbuilder.construct_graph( level_as_enum.at( level ), object_uid );
 
     write_graph(
-		graphbuilder.get_graph(),
+     		graphbuilder.get_graph(),
 		outputfilename
-		);
+     		);
     
   } catch (const bpo::error& e) {
 
