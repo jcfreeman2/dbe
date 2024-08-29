@@ -26,9 +26,11 @@
 #include <QFileInfo>
 
 #include <algorithm>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -57,7 +59,7 @@ namespace dbe {
     }
 
     // Get the session in the database. Currently (May-13-2024) can handle one and only one session
-    std::vector<ConfigObject> session_objects;
+    std::vector<ConfigObject> session_objects {};
 
     m_confdb->get("Session", session_objects);
 
@@ -87,7 +89,7 @@ namespace dbe {
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    std::vector<ConfigObject> all_class_objects;
+    std::vector<ConfigObject> all_class_objects {};
 
     using classmap = dunedaq::conffwk::fmap<dunedaq::conffwk::fset>;
 
@@ -171,7 +173,7 @@ namespace dbe {
     }
   }
 
-  void GraphBuilder::construct_graph(const ObjectKind level, const std::string& obj_uid) {
+  void GraphBuilder::calculate_graph(const ObjectKind level, const std::string& obj_uid) {
 
     find_candidate_objects(level);
     
@@ -190,107 +192,41 @@ namespace dbe {
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    // std::unordered_map<std::string, std::vector<VertexLabel>> outgoing_connections {};
-    // std::unordered_map<std::string, std::vector<VertexLabel>> incoming_connections {};
+    for (auto& incoming : m_incoming_network_connections) {
 
-    // for (auto& obj: m_passed_objects) {
+      std::regex incoming_pattern(incoming.first);
 
-    //   if (obj.class_name().find("Application")) {
+      for (auto& outgoing : m_outgoing_network_connections) {
 
-    // 	decltype(m_confdb) localdatabase;
-
-    // 	try {
-    // 	  localdatabase = new dunedaq::conffwk::Configuration("oksconflibs:" + m_oksfilename);
-    // 	} catch (dunedaq::conffwk::Generic& exc) {
-    // 	  TLOG() << "Failed to load OKS database: " << exc << "\n";
-    // 	  throw exc;
-    // 	}
-	  
-    // 	auto daqapp = localdatabase->get<dunedaq::appmodel::SmartDaqApplication>(obj.UID());
-    // 	if (daqapp) {
-
-    // 	  auto local_session = const_cast<dunedaq::confmodel::Session*>(
-    // 									localdatabase->get<dunedaq::confmodel::Session>(m_session_name));
-    // 	  auto modules = daqapp->generate_modules(localdatabase, m_oksfilename, local_session);
-
-    // 	  // This map will exist until it's determined how to check a Graph_t for an already-existing vertex
-    // 	  std::map<VertexLabel, Vertex_t> io_vertices;
-
-    // 	  for (const auto& module : modules) {
-	    
-    // 	    // auto module_vertex = boost::add_vertex( VertexLabel(module->UID(), module->class_name()), m_graph);
-
-    // 	    // // Easier to look at an Application graph without the lines between it and the (obviously-owned) modules
-    // 	    // // boost::add_edge(vertex, module_vertex, m_graph);
-
-    // 	    for (auto connection : module->get_inputs()) {
-	      
-    // 	      auto connection_vertex_label = VertexLabel(connection->config_object().UID(),
-    // 							 connection->config_object().class_name());
-
-    // 	      // if (io_vertices.find(connection_vertex_label) == io_vertices.end()) {
-    // 	      // io_vertices[connection_vertex_label] = boost::add_vertex(connection_vertex_label, m_graph);
-    // 	      // }
-
-    // 	      // boost::add_edge(io_vertices[connection_vertex_label], module_vertex, m_graph);
-
-    // 	      // Fill a map associating applications with a given incoming network connection
-	      
-    // 	      if (connection->config_object().class_name() == "NetworkConnection") {
-    // 		incoming_connections[connection->config_object().UID()].emplace_back( VertexLabel(obj.UID(), obj.class_name() ));
-    // 	      }
-	      
-    // 	    }
-
-    // 	    for (auto connection : module->get_outputs()) {
-    // 	      auto connection_vertex_label = VertexLabel(connection->config_object().UID(),
-    // 							 connection->config_object().class_name());
-
-    // 	      // if (io_vertices.find(connection_vertex_label) == io_vertices.end()) {
-    // 	      // io_vertices[connection_vertex_label] = boost::add_vertex(connection_vertex_label, m_graph);
-    // 	      // }
-
-    // 	      // boost::add_edge(module_vertex, io_vertices[connection_vertex_label], m_graph);
-
-    // 	      // Fill a map associating applications with a given outgoing network connection
-	      
-    // 	      if (connection->config_object().class_name() == "NetworkConnection") {
-    // 		outgoing_connections[connection->config_object().UID()].emplace_back( VertexLabel(obj.UID(), obj.class_name() ));
-    // 	      }
-    // 	    }
-    // 	  }
-    // 	}
-    //   }
-    // }
-
-    // TLOG() << "JCF: HERE WE GO";
-
-    // for (auto& outgoing : outgoing_connections) {
-    //   std::cout << "\n" << outgoing.first << "\n";
-
-    //   if (incoming_connections.contains(outgoing.first)) {
+	std::regex outgoing_pattern(outgoing.first);
 	
-    // 	for (auto& sending_app : outgoing.second) {
-    // 	  for (auto& receiving_app : incoming_connections[outgoing.first]) {
-    // 	    std::cout << sending_app.label << " sends data to " << receiving_app.label << "\n";
-    // 	  }
-    // 	}
-    //   } else {
-    // 	std::cout << outgoing.first << " sends data into the void" << "\n";
-    //   }
-    // }
+	bool match = false;
+	
+	if (incoming.first == outgoing.first) {
+	  match = true;
+	} else if (incoming.first.find(".*") != std::string::npos) {
+	  if (std::regex_match(outgoing.first, incoming_pattern)) {
+	    match = true;
+	  }
+	} else if (outgoing.first.find(".*") != std::string::npos) {
+	  if (std::regex_match(incoming.first, outgoing_pattern)) {
+	    match = true;
+	  }
+	}
 
-    // std::cout << "ADDRESSES: " << m_map_to_vertices[ "hsi-to-tc-app@HSIEventToTCApplication" ] << " " << m_map_to_vertices[ "hsi-01@FakeHSIApplication" ] << "\n";
-    
-    // boost::add_edge(*m_map_to_vertices[ "hsi-to-tc-app@HSIEventToTCApplication" ],
-    // 		    *m_map_to_vertices[ "hsi-01@FakeHSIApplication" ],
-    // 		    m_graph);
-    // std::cout << "DONE WITH ADDING EDGE" << "\n";
-    // //auto some_vertex = boost::vertex(VertexLabel("hsi-01", "FakeHSIApplication"), m_graph);
-
+	if (match) {
+	  for (auto& receiver : incoming.second) {
+	    for (auto& sender : outgoing.second) {
+	      std::cout << sender << " sends to " << receiver << " via " << incoming.first << "\n";
+	    }
+	  }
+	}
+      }
+    }
   }
 
-  void GraphBuilder::find_objects_and_connections(const ConfigObject& object, int level) {
+  size_t
+  GraphBuilder::find_objects_and_connections(const ConfigObject& object, int level) {
 
     ObjectKind kind = ObjectKind::kSession;
     
@@ -302,13 +238,12 @@ namespace dbe {
       kind = ObjectKind::kModule;
     }
     
-    EnhancedConfigObject enhanced_object { object, kind, level };
-
-    if (std::find(m_passed_objects.begin(), m_passed_objects.end(), object) == m_passed_objects.end()) {
-      m_passed_objects.push_back( object );
-      m_objects_for_graph.push_back( enhanced_object );
-    }
-
+    EnhancedObject enhanced_object { object, kind, level };
+    
+    // If we've got a session or a segment, look at its OKS-relations,
+    // and recursively process those relation objects which are on the
+    // candidates list and haven't already been processed
+    
     if (enhanced_object.kind == ObjectKind::kSession || enhanced_object.kind ==	ObjectKind::kSegment) {
 
       for (auto& related_object: find_related_objects(enhanced_object.config_object)) {
@@ -317,11 +252,19 @@ namespace dbe {
 	  if (std::find(m_passed_objects.begin(), m_passed_objects.end(), related_object) == m_passed_objects.end()) { // And it hasn't already been added to the "passed" list
 	    std::cout << "CONNECT " << object.UID() << " to " << related_object.UID() << "\n";
 
-	    find_objects_and_connections(related_object, level + 1);
+	    auto related_object_index = find_objects_and_connections(related_object, level + 1);
+	    enhanced_object.related_object_indices.push_back(related_object_index);
 	  }
 	}
       }
-    } else if (enhanced_object.kind == ObjectKind::kApplication) {
+    }
+    // If we've got an application object, try to determine what
+    // modules are in it and what their connections are. Recursively
+    // process the modules, and then add connection info to class-wide
+    // member maps to calculate edges corresponding to the connections
+    // for the plotted graph later
+
+    else if (enhanced_object.kind == ObjectKind::kApplication) {
 
       dunedaq::conffwk::Configuration* local_database;
 
@@ -340,12 +283,65 @@ namespace dbe {
 
 	for (const auto& module : modules) {
 	  std::cout << "CONNECT " << object.UID() << " to " << module->UID() << "\n";
-	  find_objects_and_connections(module->config_object(), level + 1);
+	  auto related_object_index = find_objects_and_connections(module->config_object(), level + 1);
+	  enhanced_object.related_object_indices.push_back(related_object_index);
+	  
+	  for (auto in : module->get_inputs()) {
+	    if (in->config_object().class_name() == "NetworkConnection") {
+	      std::cout << in->config_object().UID() << " goes into " << object.UID() << "\n";
+	      m_incoming_network_connections[in->config_object().UID()].push_back( object.UID() );
+	    }
+	  }
+
+	  for (auto out : module->get_outputs()) {
+	    if (out->config_object().class_name() == "NetworkConnection") {
+	      std::cout << out->config_object().UID() << " goes out of " << object.UID() << "\n";
+
+	      m_outgoing_network_connections[out->config_object().UID()].push_back( object.UID() );
+	    }
+	  }
 	}
       }
     }
+
+    size_t enhanced_object_index = std::numeric_limits<size_t>::max();
+    
+    if (std::find(m_passed_objects.begin(), m_passed_objects.end(), object) == m_passed_objects.end()) {
+      m_passed_objects.push_back( object );
+      m_objects_for_graph.push_back( enhanced_object );
+      enhanced_object_index = m_objects_for_graph.size() - 1;
+    } else {
+      assert(false);
+    }
+
+    return enhanced_object_index;
   }
 
+  void GraphBuilder::construct_graph(const ObjectKind level, const std::string& obj_uid) {
+    calculate_graph(level, obj_uid);
+    
+    for (auto& enhanced_object : m_objects_for_graph) {
+
+      auto& obj = enhanced_object.config_object;
+
+      std::cout << obj.UID() << " owns the following: ";
+      for (auto& eoi : enhanced_object.related_object_indices) {
+	std::cout << m_objects_for_graph[eoi].config_object.UID() << " ";
+      }
+      std::cout << "\n";
+      
+      enhanced_object.vertex_in_graph = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
+    }
+
+    for (auto i_p = 0; i_p < m_objects_for_graph.size(); ++i_p) {
+      for (auto& i_c : m_objects_for_graph[i_p].related_object_indices) {
+	boost::add_edge(m_objects_for_graph[i_p].vertex_in_graph,
+			m_objects_for_graph[i_c].vertex_in_graph,
+			m_graph);
+      }
+    }
+  }
+  
   std::vector<dunedaq::conffwk::ConfigObject>
   GraphBuilder::find_related_objects(const ConfigObject& starting_obj) {
 
