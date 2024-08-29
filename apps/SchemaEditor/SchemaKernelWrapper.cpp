@@ -24,13 +24,9 @@ void dbse::KernelWrapper::SetActiveSchema ( const std::string & ActiveSchema )
 {
   OksFile * File = Kernel->find_schema_file ( ActiveSchema );
 
-  if ( File )
+  if ( File && IsFileWritable( ActiveSchema ))
   {
     Kernel->set_active_schema ( File );
-  }
-  else
-  {
-    /// This never should happen
   }
 }
 
@@ -74,7 +70,7 @@ void dbse::KernelWrapper::GetIncludedList ( const std::string & FileName,
   Kernel->get_includes ( FileName, IncludedFiles );
 }
 
-bool dbse::KernelWrapper::IsFileWritable ( std::string & FileName ) const
+bool dbse::KernelWrapper::IsFileWritable (const std::string & FileName ) const
 {
   OksFile * File = Kernel->find_schema_file ( FileName );
 
