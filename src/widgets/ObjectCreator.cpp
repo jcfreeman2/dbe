@@ -73,8 +73,11 @@ dbe::ObjectCreator::ObjectCreator ( dunedaq::conffwk::class_t const & cinfo, QWi
   BuildContextMenu();
 
   int index = ui->ComboBoxClass->findText ( cname );
-
-  ui->ComboBoxClass->setCurrentIndex ( index );
+  ui->ComboBoxClass->setCurrentIndex ( 1 );  // If index is 0 somehow this doesnt work
+  ui->ComboBoxClass->setCurrentIndex ( index ); // Now set it to the right value posssibly 0
+  // std::cout << "index=" << index
+  //           << " ui->ComboBoxClass->currentIndex=" << ui->ComboBoxClass->currentIndex()
+  //           << " valid=" << ui->ComboBoxClass->IsValid() << "\n";
   setup_editor();
   ui->ComboBoxClass->setEditText ( cname );
 
