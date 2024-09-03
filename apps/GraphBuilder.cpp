@@ -373,11 +373,11 @@ namespace dbe {
     for (auto& possible_sender_object : m_objects_for_graph) {
       for (auto receiver_info : possible_sender_object.receiving_object_infos) {
 
-	auto edge = boost::add_edge(
-				    possible_sender_object.vertex_in_graph,
-				    m_objects_for_graph[receiver_info.receiver_index].vertex_in_graph,
-				    { receiver_info.connection_name },
-				    m_graph).first;
+	boost::add_edge(
+			possible_sender_object.vertex_in_graph,
+			m_objects_for_graph[receiver_info.receiver_index].vertex_in_graph,
+			{ receiver_info.connection_name },
+			m_graph).first;
       }
     }
   }
@@ -434,14 +434,28 @@ namespace dbe {
       if (eo.kind == ObjectKind::kApplication) {
 	std::stringstream labelstringstr;
 	labelstringstr << "label=\"" << eo.config_object.UID();
-	std::cout << "Searching for " << labelstringstr.str() << "\n";
+
 	auto insert_point = dotfilestring.find(labelstringstr.str());
 	if (insert_point != std::string::npos) {
-	  dotfilestring.insert(insert_point, "color=red, fontcolor=red,");
+	  dotfilestring.insert(insert_point, "color=red, fontcolor=red, ");
 	} else {
 	  assert(false);
 	}
       }
+    }
+
+    // Take advantage of the fact that the edges describing ownership
+    // rather than data flow (e.g., hsi-segment owning hsi-01, the
+    // FakeHSIApplication) have null labels in order to turn them into
+    // arrow-free dotted lines
+    
+    std::string unlabeled_edge = "label=\"\"";
+    std::string edge_modifier = ", style=\"dotted\", arrowhead=\"none\"";
+
+    size_t pos = 0;
+    while ((pos = dotfilestring.find(unlabeled_edge, pos)) != std::string::npos) {
+      dotfilestring.replace(pos, unlabeled_edge.length(), unlabeled_edge + edge_modifier);
+      pos += (unlabeled_edge + edge_modifier).length();
     }
 
     std::ofstream outputfile;
