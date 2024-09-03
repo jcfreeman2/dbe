@@ -306,5 +306,6 @@ daq_add_application(create_config_plot create_config_plot.cxx GraphBuilder.cpp L
 daq_add_unit_test(confaccessor_test LINK_LIBRARIES dbe)
 daq_add_unit_test(config_api_set_test LINK_LIBRARIES dbe)
 daq_add_unit_test(config_api_info_test LINK_LIBRARIES dbe)
+daq_add_unit_test(Graph_test)
 
 daq_install()

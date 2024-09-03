@@ -23,13 +23,12 @@
 
 #include "boost/graph/graphviz.hpp"
 
-#include <QFileInfo>
-
 #include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <ranges>
 #include <regex>
 #include <string>
 #include <vector>
@@ -71,7 +70,12 @@ namespace dbe {
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    // We need the session object to check if an application has been disabled
+    // The following not-brief section of code is dedicated to
+    // determining which applications in the configuration are
+    // disabled
+    
+    // First, we need the session object to check if an application
+    // has been disabled
 
     // Note the "const_cast" is needed since "m_confdb->get"
     // returns a const pointer, but since m_session is a member needed
@@ -181,7 +185,8 @@ namespace dbe {
     for (auto& obj: m_candidate_objects) {
       if (obj.UID() == obj_uid) {
 	found = true;
-	find_objects_and_connections(obj, 1); 
+	const int top_level = 1;
+	find_objects_and_connections(obj, top_level);   // Put differently, "find the vertices"
 	break;
       }
     }
@@ -192,6 +197,11 @@ namespace dbe {
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
+    calculate_network_connections();  // Put differently, "find the edges between the vertices"
+  }
+
+  void GraphBuilder::calculate_network_connections() {
+    
     for (auto& incoming : m_incoming_network_connections) {
 
       std::regex incoming_pattern(incoming.first);
@@ -218,13 +228,34 @@ namespace dbe {
 	  for (auto& receiver : incoming.second) {
 	    for (auto& sender : outgoing.second) {
 	      std::cout << sender << " sends to " << receiver << " via " << incoming.first << "\n";
+
+	      auto sender_iterator = std::ranges::find_if(m_objects_for_graph,
+							  [sender](const EnhancedObject& obj) {
+							    return obj.config_object.UID() == sender;
+							  });
+
+	      auto receiver_iterator = std::ranges::find_if(m_objects_for_graph,
+							    [receiver](const EnhancedObject& obj) {
+							      return obj.config_object.UID() == receiver;
+							    });
+
+	      auto sender_index = std::distance(m_objects_for_graph.begin(), sender_iterator);
+	      auto receiver_index = std::distance(m_objects_for_graph.begin(), receiver_iterator);
+
+	      const EnhancedObject::ReceivingInfo receiving_info {incoming.first, receiver_index};
+
+	      auto res = std::ranges::find(m_objects_for_graph[sender_index].receiving_object_infos, receiving_info );
+
+	      if (res == m_objects_for_graph[sender_index].receiving_object_infos.end() ) {
+		m_objects_for_graph[sender_index].receiving_object_infos.push_back(receiving_info);
+	      }
 	    }
 	  }
 	}
       }
     }
   }
-
+  
   size_t
   GraphBuilder::find_objects_and_connections(const ConfigObject& object, int level) {
 
@@ -282,13 +313,9 @@ namespace dbe {
 	auto modules = daqapp->generate_modules(local_database, m_oksfilename, local_session);
 
 	for (const auto& module : modules) {
-	  std::cout << "CONNECT " << object.UID() << " to " << module->UID() << "\n";
-	  auto related_object_index = find_objects_and_connections(module->config_object(), level + 1);
-	  enhanced_object.related_object_indices.push_back(related_object_index);
 	  
 	  for (auto in : module->get_inputs()) {
 	    if (in->config_object().class_name() == "NetworkConnection") {
-	      std::cout << in->config_object().UID() << " goes into " << object.UID() << "\n";
 	      m_incoming_network_connections[in->config_object().UID()].push_back( object.UID() );
 	    }
 	  }
@@ -337,11 +364,23 @@ namespace dbe {
       for (auto& i_c : m_objects_for_graph[i_p].related_object_indices) {
 	boost::add_edge(m_objects_for_graph[i_p].vertex_in_graph,
 			m_objects_for_graph[i_c].vertex_in_graph,
+			{""}, // No label for an edge which just describes ownership
 			m_graph);
       }
     }
+
+    for (auto& possible_sender_object : m_objects_for_graph) {
+      for (auto receiver_info : possible_sender_object.receiving_object_infos) {
+
+	auto edge = boost::add_edge(
+				    possible_sender_object.vertex_in_graph,
+				    m_objects_for_graph[receiver_info.receiver_index].vertex_in_graph,
+				    { receiver_info.connection_name },
+				    m_graph).first;
+      }
+    }
   }
-  
+
   std::vector<dunedaq::conffwk::ConfigObject>
   GraphBuilder::find_related_objects(const ConfigObject& starting_obj) {
 
@@ -372,22 +411,22 @@ namespace dbe {
     return connected_objects;
   }
 
-  void write_graph(const GraphBuilder::Graph_t& graph, const std::string& outputfilename) {
+  void GraphBuilder::write_graph(const std::string& outputfilename) const {
 
     std::ofstream outputfile;
 
-    if (outputfilename != "") {
-      outputfile.open( outputfilename );
-
-      if ( outputfile.is_open() ) {
-	boost::write_graphviz(outputfile, graph, boost::make_label_writer(boost::get(&GraphBuilder::VertexLabel::displaylabel, graph)));
-      } else {
-	std::stringstream errmsg;
-	errmsg << "Unable to open requested file \"" << outputfilename << "\" for writing";
-	throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
-      }
+    outputfile.open( outputfilename );
+    
+    if ( outputfile.is_open() ) {
+      boost::write_graphviz(outputfile,
+			    m_graph,
+			    boost::make_label_writer(boost::get(&GraphBuilder::VertexLabel::displaylabel, m_graph)),
+			    boost::make_label_writer(boost::get(&GraphBuilder::EdgeLabel::displaylabel, m_graph))
+			    );
     } else {
-        boost::write_graphviz(std::cout, graph, boost::make_label_writer(boost::get(&GraphBuilder::VertexLabel::displaylabel, graph)));
+      std::stringstream errmsg;
+      errmsg << "Unable to open requested file \"" << outputfilename << "\" for writing";
+      throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
   };
 

@@ -22,7 +22,11 @@ namespace dbe {
     using ConfigObject = dunedaq::conffwk::ConfigObject;
 
     struct VertexLabel;
-    using Graph_t = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, VertexLabel>;
+    struct EdgeLabel;
+
+    // Switching container type to boost::listS seems to cause
+    // compilation problems with the boost::write_graphviz function...
+    using Graph_t = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, VertexLabel, EdgeLabel>;
     using Edge_t = boost::graph_traits<Graph_t>::edge_descriptor;
     using Vertex_t = boost::graph_traits<Graph_t>::vertex_descriptor;
 
@@ -44,30 +48,21 @@ namespace dbe {
 	displaylabel(uid_arg + "\n" + classname_arg)
       {}
 
-
-      bool operator>(const VertexLabel& other) const {
-        if (uid > other.uid) {
-	  return true;
-        } else if (uid == other.uid) {
-	  return classname > other.classname;
-        }
-        return false;
-      }
-
-      bool operator<(const VertexLabel& other) const {
-        return other > *this;
-      }
-
-      bool operator==(const VertexLabel& other) const {
-	return !(*this < other) && !(other < *this); // !(a < b) && !(b < a) is equivalent to a == b
-      }
-
       std::string uid;
       std::string classname;
       std::string label;
       std::string displaylabel;
     };
-    
+
+    struct EdgeLabel {
+
+      //      EdgeLabel(std::string displaylabel_arg) :
+      //	displaylabel(displaylabel_arg)
+      //      {}
+      
+      std::string displaylabel {"undefined"};
+    };
+
     struct EnhancedObject {
 
       EnhancedObject(const ConfigObject& config_object_arg, ObjectKind kind_arg, int level_arg) :
@@ -85,17 +80,23 @@ namespace dbe {
       // What objects does this one own?
       std::vector<size_t> related_object_indices;
 
-      // What objects does this one send data to?
-      std::vector<size_t> receiving_object_indices; 
+      // What objects does this one send data to, and what's their connection called?
+      struct ReceivingInfo {
+	std::string connection_name;
+	size_t receiver_index;
 
+	bool operator==(const ReceivingInfo& other) const {
+	  return connection_name == other.connection_name && receiver_index == other.receiver_index;
+	}
+      };
+
+      std::vector<ReceivingInfo> receiving_object_infos; 
     };
 
     explicit GraphBuilder(const std::string& oksfilename);
 
-    void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
     void construct_graph(const ObjectKind level, const std::string& root_obj_uid);
-    
-    Graph_t get_graph() const { return m_graph; };
+    void write_graph(const std::string& outputfilename) const;
     
     GraphBuilder(const GraphBuilder&) = delete;
     GraphBuilder(GraphBuilder&&) = delete;
@@ -106,8 +107,10 @@ namespace dbe {
 
     void find_candidate_objects(const ObjectKind level);
     std::vector<dunedaq::conffwk::ConfigObject> find_related_objects(const ConfigObject& starting_obj);
-
+    void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
+    
     size_t find_objects_and_connections(const ConfigObject& object, int level);
+    void calculate_network_connections();
 
     const std::string m_oksfilename;
     dunedaq::conffwk::Configuration* m_confdb {nullptr};
@@ -128,10 +131,8 @@ namespace dbe {
     
     dunedaq::confmodel::Session* m_session {nullptr};
     std::string m_session_name;
-  };
 
-  void write_graph(const GraphBuilder::Graph_t& graph, const std::string& outputfilename = "");
-  
+  };
 } // namespace dbe
 
 

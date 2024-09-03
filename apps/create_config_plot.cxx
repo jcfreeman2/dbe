@@ -92,10 +92,7 @@ int main ( int argc, char * argv[] )
     dbe::GraphBuilder graphbuilder(oksfilename);
     graphbuilder.construct_graph( level_as_enum.at( level ), object_uid );
 
-    write_graph(
-     		graphbuilder.get_graph(),
-		outputfilename
-     		);
+    graphbuilder.write_graph(outputfilename);
     
   } catch (const bpo::error& e) {
 
