@@ -65,15 +65,13 @@ namespace dbe {
 
     struct EnhancedObject {
 
-      EnhancedObject(const ConfigObject& config_object_arg, ObjectKind kind_arg, int level_arg) :
+      EnhancedObject(const ConfigObject& config_object_arg, ObjectKind kind_arg) :
 	config_object {config_object_arg},
-	kind {kind_arg},
-	level {level_arg}
+	kind {kind_arg}
       {}
       
       const ConfigObject config_object;
       const ObjectKind kind;
-      const int level; // How deep in the graph should this object be?
 
       Vertex_t vertex_in_graph;
       
@@ -109,7 +107,7 @@ namespace dbe {
     std::vector<dunedaq::conffwk::ConfigObject> find_related_objects(const ConfigObject& starting_obj);
     void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
     
-    size_t find_objects_and_connections(const ConfigObject& object, int level);
+    size_t find_objects_and_connections(const ObjectKind level, const ConfigObject& object);
     void calculate_network_connections();
 
     const std::string m_oksfilename;
@@ -124,8 +122,8 @@ namespace dbe {
 
     std::vector<EnhancedObject> m_objects_for_graph;
 
-    std::unordered_map<std::string, std::vector<std::string>> m_incoming_network_connections;
-    std::unordered_map<std::string, std::vector<std::string>> m_outgoing_network_connections;
+    std::unordered_map<std::string, std::vector<std::string>> m_incoming_connections;
+    std::unordered_map<std::string, std::vector<std::string>> m_outgoing_connections;
     
     Graph_t m_graph;
     

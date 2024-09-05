@@ -43,8 +43,8 @@ namespace dbe {
     m_included_classes {  // Classes which match the first token in the list are the roots in the graph
       { ObjectKind::kSession, {"Session", "Segment", "Application"} },
       { ObjectKind::kSegment, {"Segment", "Application"} },
-      { ObjectKind::kApplication, {"Application"} },
-      { ObjectKind::kModule, {"Module", ""} }
+      { ObjectKind::kApplication, {"Application", "Module"} },
+      { ObjectKind::kModule, {"Module"} }
     },
     m_session { nullptr }
   {
@@ -186,8 +186,7 @@ namespace dbe {
     for (auto& obj: m_candidate_objects) {
       if (obj.UID() == obj_uid) {
 	found = true;
-	const int top_level = 1;
-	find_objects_and_connections(obj, top_level);   // Put differently, "find the vertices"
+	find_objects_and_connections(level, obj);   // Put differently, "find the vertices"
 	break;
       }
     }
@@ -203,16 +202,16 @@ namespace dbe {
 
   void GraphBuilder::calculate_network_connections() {
     
-    for (auto& incoming : m_incoming_network_connections) {
+    for (auto& incoming : m_incoming_connections) {
 
       std::regex incoming_pattern(incoming.first);
 
-      for (auto& outgoing : m_outgoing_network_connections) {
+      for (auto& outgoing : m_outgoing_connections) {
 
 	std::regex outgoing_pattern(outgoing.first);
-	
+
 	bool match = false;
-	
+
 	if (incoming.first == outgoing.first) {
 	  match = true;
 	} else if (incoming.first.find(".*") != std::string::npos) {
@@ -243,6 +242,16 @@ namespace dbe {
 	      auto sender_index = std::distance(m_objects_for_graph.begin(), sender_iterator);
 	      auto receiver_index = std::distance(m_objects_for_graph.begin(), receiver_iterator);
 
+	      // We just want to plot applications sending to other
+	      // applications and queues sending to other
+	      // queues. Showing, e.g., a queue directly sending to
+	      // some other application via a network connection makes
+	      // the plot too busy.
+
+	      if (m_objects_for_graph[sender_index].kind != m_objects_for_graph[receiver_index].kind) {
+		continue;
+	      }
+
 	      const EnhancedObject::ReceivingInfo receiving_info {incoming.first, receiver_index};
 
 	      auto res = std::ranges::find(m_objects_for_graph[sender_index].receiving_object_infos, receiving_info );
@@ -258,7 +267,7 @@ namespace dbe {
   }
   
   size_t
-  GraphBuilder::find_objects_and_connections(const ConfigObject& object, int level) {
+  GraphBuilder::find_objects_and_connections(const ObjectKind level, const ConfigObject& object) {
 
     ObjectKind kind = ObjectKind::kSession;
     
@@ -270,7 +279,7 @@ namespace dbe {
       kind = ObjectKind::kModule;
     }
     
-    EnhancedObject enhanced_object { object, kind, level };
+    EnhancedObject enhanced_object { object, kind };
     
     // If we've got a session or a segment, look at its OKS-relations,
     // and recursively process those relation objects which are on the
@@ -284,7 +293,7 @@ namespace dbe {
 	  if (std::find(m_passed_objects.begin(), m_passed_objects.end(), related_object) == m_passed_objects.end()) { // And it hasn't already been added to the "passed" list
 	    std::cout << "CONNECT " << object.UID() << " to " << related_object.UID() << "\n";
 
-	    auto related_object_index = find_objects_and_connections(related_object, level + 1);
+	    auto related_object_index = find_objects_and_connections(level, related_object);
 	    enhanced_object.related_object_indices.push_back(related_object_index);
 	  }
 	}
@@ -313,20 +322,43 @@ namespace dbe {
 								      local_database->get<dunedaq::confmodel::Session>(m_session_name));
 	auto modules = daqapp->generate_modules(local_database, m_oksfilename, local_session);
 
+	std::vector<std::string> allowed_conns {};
+
+	if (level == ObjectKind::kSession || level == ObjectKind::kSegment) {
+	  allowed_conns = {"NetworkConnection"};
+	} else if (level == ObjectKind::kApplication || level == ObjectKind::kModule){
+	  allowed_conns = {"NetworkConnection", "Queue", "QueueWithSourceId"};
+	}
+
 	for (const auto& module : modules) {
-	  
+
 	  for (auto in : module->get_inputs()) {
-	    if (in->config_object().class_name() == "NetworkConnection") {
-	      m_incoming_network_connections[in->config_object().UID()].push_back( object.UID() );
+
+	    // Elsewhere in the code it'll be useful to know if the
+	    // connection is a network or a queue, so include the
+	    // class name in the std::string key
+
+	    const std::string key = in->config_object().UID() + "@" + in->config_object().class_name();
+
+	    if (std::ranges::find(allowed_conns, in->config_object().class_name()) != allowed_conns.end()) {
+	      m_incoming_connections[key].push_back( object.UID() );
+	      m_incoming_connections[key].push_back( module->UID() );
 	    }
 	  }
 
 	  for (auto out : module->get_outputs()) {
-	    if (out->config_object().class_name() == "NetworkConnection") {
-	      std::cout << out->config_object().UID() << " goes out of " << object.UID() << "\n";
 
-	      m_outgoing_network_connections[out->config_object().UID()].push_back( object.UID() );
+	    const std::string key = out->config_object().UID() + "@" + out->config_object().class_name();
+
+	    if (std::ranges::find(allowed_conns, out->config_object().class_name()) != allowed_conns.end()) {
+	      m_outgoing_connections[key].push_back( object.UID() );
+	      m_outgoing_connections[key].push_back( module->UID() );
 	    }
+	  }
+
+	  if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
+	    auto related_object_index = find_objects_and_connections(level, module->config_object());
+	    enhanced_object.related_object_indices.push_back(related_object_index);
 	  }
 	}
       }
@@ -351,12 +383,6 @@ namespace dbe {
     for (auto& enhanced_object : m_objects_for_graph) {
 
       auto& obj = enhanced_object.config_object;
-
-      std::cout << obj.UID() << " owns the following: ";
-      for (auto& eoi : enhanced_object.related_object_indices) {
-	std::cout << m_objects_for_graph[eoi].config_object.UID() << " ";
-      }
-      std::cout << "\n";
       
       enhanced_object.vertex_in_graph = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
     }
@@ -373,10 +399,38 @@ namespace dbe {
     for (auto& possible_sender_object : m_objects_for_graph) {
       for (auto receiver_info : possible_sender_object.receiving_object_infos) {
 
+	auto at_pos = receiver_info.connection_name.find("@");
+	auto uid = receiver_info.connection_name.substr(0, at_pos);
+	auto classname = receiver_info.connection_name.substr(at_pos + 1);
+
+	std::string connection_label {""};
+
+	//	if (classname == "NetworkConnection") {
+	if (true) {
+	  connection_label = uid;
+	}
+
+	// If we're plotting at the level of a session or segment,
+	// show the connections as between applications; if we're
+	// doing this for a single application, show them entering and
+	// exiting the individual modules
+
+	if (level == ObjectKind::kSession || level == ObjectKind::kSegment) {
+	  if (m_objects_for_graph[receiver_info.receiver_index].kind == ObjectKind::kModule) {
+	    continue;
+	  }
+	}
+
+	if (level == ObjectKind::kApplication || level == ObjectKind::kModule) {
+	  if (m_objects_for_graph[receiver_info.receiver_index].kind == ObjectKind::kApplication) {
+	    continue;
+	  }
+	}
+
 	boost::add_edge(
 			possible_sender_object.vertex_in_graph,
 			m_objects_for_graph[receiver_info.receiver_index].vertex_in_graph,
-			{ receiver_info.connection_name },
+			{ connection_label },
 			m_graph).first;
       }
     }
