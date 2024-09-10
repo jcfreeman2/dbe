@@ -34,7 +34,9 @@ namespace dbe {
       kSession = 0,
       kSegment,
       kApplication,
-      kModule
+      kModule,
+      kIncomingExternal,   // Object is meant to represent the outside world, not an actual component of the DAQ
+      kOutgoingExternal    // ""
     };
 
     struct VertexLabel {
@@ -103,7 +105,7 @@ namespace dbe {
     void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
     
     void find_objects_and_connections(const ObjectKind level, const ConfigObject& object);
-    void calculate_network_connections();
+    void calculate_network_connections(const ObjectKind level);
 
     const std::string m_oksfilename;
     dunedaq::conffwk::Configuration* m_confdb;

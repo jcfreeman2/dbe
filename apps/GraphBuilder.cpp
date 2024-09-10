@@ -198,10 +198,17 @@ namespace dbe {
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    calculate_network_connections();  // Put differently, "find the edges between the vertices"
+    calculate_network_connections(level);  // Put differently, "find the edges between the vertices"
   }
 
-  void GraphBuilder::calculate_network_connections() {
+  void GraphBuilder::calculate_network_connections(const ObjectKind level) {
+
+    // Will use "incoming_matched" and "outgoing_matched" to keep
+    // track of incoming and outgoing connections which don't get
+    // matched, i.e. would terminate external to the graph
+
+    std::vector<std::string> incoming_matched;
+    std::vector<std::string> outgoing_matched;
 
     for (auto& incoming : m_incoming_connections) {
 
@@ -226,6 +233,9 @@ namespace dbe {
 	}
 
 	if (match) {
+
+          incoming_matched.push_back(incoming.first);
+          outgoing_matched.push_back(outgoing.first);
 
 	  for (auto& receiver : incoming.second) {
 	    for (auto& sender : outgoing.second) {
@@ -255,13 +265,84 @@ namespace dbe {
 	}
       }
     }
+
+    auto incoming_unmatched = m_incoming_connections | std::views::keys | std::views::filter(
+      [&incoming_matched](auto& connection) {
+	if (std::ranges::find(incoming_matched, connection) == incoming_matched.end()) {
+          return true;
+        } else {
+          return false;
+	}
+      });
+
+    for (auto& incoming_conn : incoming_unmatched) {
+
+      EnhancedObject external_obj {ConfigObject{}, ObjectKind::kIncomingExternal};
+      const std::string incoming_vertex_name = incoming_conn;
+
+      // Find the connections appropriate to the granularity level of this graph
+      for (auto& receiving_object_name : m_incoming_connections[incoming_conn]) {
+
+	if (!m_objects_for_graph.contains(receiving_object_name)) {
+	  continue;
+	};
+
+	if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
+	  if (m_objects_for_graph.at(receiving_object_name).kind == ObjectKind::kModule) {
+	    external_obj.receiving_object_infos.push_back( {incoming_conn, receiving_object_name} );
+	  }
+	} else if (std::ranges::find(m_included_classes[level], "Application") != m_included_classes[level].end()) {
+	  std::cout << "Receiving object is " << receiving_object_name << "\n";
+	  if (m_objects_for_graph.at(receiving_object_name).kind == ObjectKind::kApplication) {
+	    external_obj.receiving_object_infos.push_back( {incoming_conn, receiving_object_name} );
+	  }
+	}
+      }
+
+      m_objects_for_graph.insert( {incoming_vertex_name, external_obj} );
+    }
+
+    auto outgoing_unmatched = m_outgoing_connections | std::views::keys | std::views::filter(
+      [&outgoing_matched](auto& connection) {
+	if (std::ranges::find(outgoing_matched, connection) == outgoing_matched.end()) {
+          return true;
+        } else {
+          return false;
+	}
+      });
+
+    for (auto& outgoing_conn : outgoing_unmatched) {
+
+      EnhancedObject external_obj {ConfigObject{}, ObjectKind::kOutgoingExternal};
+      const std::string outgoing_vertex_name = outgoing_conn;
+
+      // Find the connections appropriate to the granularity level of this graph
+      for (auto& sending_object_name : m_outgoing_connections[outgoing_conn]) {
+
+	if (!m_objects_for_graph.contains(sending_object_name)) {
+	  continue;
+	}
+
+	if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
+	  if (m_objects_for_graph.at(sending_object_name).kind == ObjectKind::kModule) {
+	    m_objects_for_graph.at(sending_object_name).receiving_object_infos.push_back( {outgoing_conn, outgoing_vertex_name} );
+	  }
+	} else if (std::ranges::find(m_included_classes[level], "Application") != m_included_classes[level].end()) {
+	  if (m_objects_for_graph.at(sending_object_name).kind == ObjectKind::kApplication) {
+	    m_objects_for_graph.at(sending_object_name).receiving_object_infos.push_back( {outgoing_conn, outgoing_vertex_name} );
+	  }
+	}
+      }
+
+      m_objects_for_graph.insert( {outgoing_vertex_name, external_obj} );
+    }
   }
-  
+
   void
   GraphBuilder::find_objects_and_connections(const ObjectKind level, const ConfigObject& object) {
 
     ObjectKind kind = ObjectKind::kSession;
-    
+
     if (object.class_name().find("Segment") != std::string::npos ) {
       kind = ObjectKind::kSegment;
     } else if (object.class_name().find("Application") != std::string::npos ) {
@@ -269,13 +350,13 @@ namespace dbe {
     } else if (object.class_name().find("Module") != std::string::npos ) {
       kind = ObjectKind::kModule;
     }
-    
+
     EnhancedObject enhanced_object { object, kind };
-    
+
     // If we've got a session or a segment, look at its OKS-relations,
     // and recursively process those relation objects which are on the
     // candidates list and haven't already been processed
-    
+
     if (enhanced_object.kind == ObjectKind::kSession || enhanced_object.kind ==	ObjectKind::kSegment) {
 
       for (auto& related_object: find_related_objects(enhanced_object.config_object)) {
@@ -366,11 +447,19 @@ namespace dbe {
   void GraphBuilder::construct_graph(const ObjectKind level, const std::string& obj_uid) {
     calculate_graph(level, obj_uid);
     
-    for (auto& enhanced_object : m_objects_for_graph | std::views::values) {
+    for (auto& map_pair: m_objects_for_graph) {
 
-      auto& obj = enhanced_object.config_object;
-      
-      enhanced_object.vertex_in_graph = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
+      auto& objname = map_pair.first;
+      auto& enhanced_object = map_pair.second;
+
+      if (enhanced_object.kind == ObjectKind::kIncomingExternal) {
+	enhanced_object.vertex_in_graph = boost::add_vertex(VertexLabel("O", ""), m_graph);
+      } else if (enhanced_object.kind == ObjectKind::kOutgoingExternal) {
+	enhanced_object.vertex_in_graph = boost::add_vertex(VertexLabel("X", ""), m_graph);
+      } else {
+	auto& obj = enhanced_object.config_object;
+	enhanced_object.vertex_in_graph = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
+      } 
     }
 
     for (auto& parent_obj : m_objects_for_graph | std::views::values) {
