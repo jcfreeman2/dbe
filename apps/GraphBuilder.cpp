@@ -40,7 +40,8 @@ namespace dbe {
 
   GraphBuilder::GraphBuilder(const std::string& oksfilename) :
     m_oksfilename { oksfilename },
-    m_included_classes {  // Classes which match the first token in the list are the roots in the graph
+    m_confdb { nullptr },
+    m_included_classes {
       { ObjectKind::kSession, {"Session", "Segment", "Application"} },
       { ObjectKind::kSegment, {"Segment", "Application"} },
       { ObjectKind::kApplication, {"Application", "Module"} },
@@ -201,7 +202,7 @@ namespace dbe {
   }
 
   void GraphBuilder::calculate_network_connections() {
-    
+
     for (auto& incoming : m_incoming_connections) {
 
       std::regex incoming_pattern(incoming.first);
@@ -225,22 +226,10 @@ namespace dbe {
 	}
 
 	if (match) {
+
 	  for (auto& receiver : incoming.second) {
 	    for (auto& sender : outgoing.second) {
 	      std::cout << sender << " sends to " << receiver << " via " << incoming.first << "\n";
-
-	      auto sender_iterator = std::ranges::find_if(m_objects_for_graph,
-							  [sender](const EnhancedObject& obj) {
-							    return obj.config_object.UID() == sender;
-							  });
-
-	      auto receiver_iterator = std::ranges::find_if(m_objects_for_graph,
-							    [receiver](const EnhancedObject& obj) {
-							      return obj.config_object.UID() == receiver;
-							    });
-
-	      auto sender_index = std::distance(m_objects_for_graph.begin(), sender_iterator);
-	      auto receiver_index = std::distance(m_objects_for_graph.begin(), receiver_iterator);
 
 	      // We just want to plot applications sending to other
 	      // applications and queues sending to other
@@ -248,16 +237,18 @@ namespace dbe {
 	      // some other application via a network connection makes
 	      // the plot too busy.
 
-	      if (m_objects_for_graph[sender_index].kind != m_objects_for_graph[receiver_index].kind) {
+	      if (!m_objects_for_graph.contains(sender) || !m_objects_for_graph.contains(receiver)) {
+		continue;
+	      } else if (m_objects_for_graph.at(sender).kind != m_objects_for_graph.at(receiver).kind) {
 		continue;
 	      }
 
-	      const EnhancedObject::ReceivingInfo receiving_info {incoming.first, receiver_index};
+	      const EnhancedObject::ReceivingInfo receiving_info {incoming.first, receiver };
 
-	      auto res = std::ranges::find(m_objects_for_graph[sender_index].receiving_object_infos, receiving_info );
+	      auto res = std::ranges::find(m_objects_for_graph.at(sender).receiving_object_infos, receiving_info );
 
-	      if (res == m_objects_for_graph[sender_index].receiving_object_infos.end() ) {
-		m_objects_for_graph[sender_index].receiving_object_infos.push_back(receiving_info);
+	      if (res == m_objects_for_graph.at(sender).receiving_object_infos.end() ) {
+		m_objects_for_graph.at(sender).receiving_object_infos.push_back(receiving_info);
 	      }
 	    }
 	  }
@@ -266,7 +257,7 @@ namespace dbe {
     }
   }
   
-  size_t
+  void
   GraphBuilder::find_objects_and_connections(const ObjectKind level, const ConfigObject& object) {
 
     ObjectKind kind = ObjectKind::kSession;
@@ -293,8 +284,8 @@ namespace dbe {
 	  if (std::find(m_passed_objects.begin(), m_passed_objects.end(), related_object) == m_passed_objects.end()) { // And it hasn't already been added to the "passed" list
 	    std::cout << "CONNECT " << object.UID() << " to " << related_object.UID() << "\n";
 
-	    auto related_object_index = find_objects_and_connections(level, related_object);
-	    enhanced_object.related_object_indices.push_back(related_object_index);
+	    find_objects_and_connections(level, related_object);
+	    enhanced_object.related_object_names.push_back(related_object.UID());
 	  }
 	}
       }
@@ -357,46 +348,41 @@ namespace dbe {
 	  }
 
 	  if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
-	    auto related_object_index = find_objects_and_connections(level, module->config_object());
-	    enhanced_object.related_object_indices.push_back(related_object_index);
+	    find_objects_and_connections(level, module->config_object());
+	    enhanced_object.related_object_names.push_back(module->UID());
 	  }
 	}
       }
     }
 
-    size_t enhanced_object_index = std::numeric_limits<size_t>::max();
-    
     if (std::find(m_passed_objects.begin(), m_passed_objects.end(), object) == m_passed_objects.end()) {
       m_passed_objects.push_back( object );
-      m_objects_for_graph.push_back( enhanced_object );
-      enhanced_object_index = m_objects_for_graph.size() - 1;
+      m_objects_for_graph.insert( {object.UID(), enhanced_object}  );
     } else {
       assert(false);
     }
-
-    return enhanced_object_index;
   }
 
   void GraphBuilder::construct_graph(const ObjectKind level, const std::string& obj_uid) {
     calculate_graph(level, obj_uid);
     
-    for (auto& enhanced_object : m_objects_for_graph) {
+    for (auto& enhanced_object : m_objects_for_graph | std::views::values) {
 
       auto& obj = enhanced_object.config_object;
       
       enhanced_object.vertex_in_graph = boost::add_vertex( VertexLabel(obj.UID(), obj.class_name()), m_graph);
     }
 
-    for (auto i_p = 0; i_p < m_objects_for_graph.size(); ++i_p) {
-      for (auto& i_c : m_objects_for_graph[i_p].related_object_indices) {
-	boost::add_edge(m_objects_for_graph[i_p].vertex_in_graph,
-			m_objects_for_graph[i_c].vertex_in_graph,
+    for (auto& parent_obj : m_objects_for_graph | std::views::values) {
+      for (auto& child_obj_name : parent_obj.related_object_names) {
+	boost::add_edge(parent_obj.vertex_in_graph,
+			m_objects_for_graph.at(child_obj_name).vertex_in_graph,
 			{""}, // No label for an edge which just describes ownership
 			m_graph);
       }
     }
 
-    for (auto& possible_sender_object : m_objects_for_graph) {
+    for (auto& possible_sender_object : m_objects_for_graph | std::views::values) {
       for (auto receiver_info : possible_sender_object.receiving_object_infos) {
 
 	auto at_pos = receiver_info.connection_name.find("@");
@@ -416,20 +402,20 @@ namespace dbe {
 	// exiting the individual modules
 
 	if (level == ObjectKind::kSession || level == ObjectKind::kSegment) {
-	  if (m_objects_for_graph[receiver_info.receiver_index].kind == ObjectKind::kModule) {
+	  if (m_objects_for_graph.at(receiver_info.receiver_label).kind == ObjectKind::kModule) {
 	    continue;
 	  }
 	}
 
 	if (level == ObjectKind::kApplication || level == ObjectKind::kModule) {
-	  if (m_objects_for_graph[receiver_info.receiver_index].kind == ObjectKind::kApplication) {
+	  if (m_objects_for_graph.at(receiver_info.receiver_label).kind == ObjectKind::kApplication) {
 	    continue;
 	  }
 	}
 
 	boost::add_edge(
 			possible_sender_object.vertex_in_graph,
-			m_objects_for_graph[receiver_info.receiver_index].vertex_in_graph,
+			m_objects_for_graph.at(receiver_info.receiver_label).vertex_in_graph,
 			{ connection_label },
 			m_graph).first;
       }
@@ -484,10 +470,10 @@ namespace dbe {
 
     std::string dotfilestring = outputstream.str();
 
-    for (auto& eo : m_objects_for_graph) {
+    for (auto& eo : m_objects_for_graph | std::views::values) {
       if (eo.kind == ObjectKind::kApplication) {
 	std::stringstream labelstringstr;
-	labelstringstr << "label=\"" << eo.config_object.UID();
+	labelstringstr << "label=\"" << eo.config_object.UID() << "\n";
 
 	auto insert_point = dotfilestring.find(labelstringstr.str());
 	if (insert_point != std::string::npos) {

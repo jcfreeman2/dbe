@@ -55,11 +55,6 @@ namespace dbe {
     };
 
     struct EdgeLabel {
-
-      //      EdgeLabel(std::string displaylabel_arg) :
-      //	displaylabel(displaylabel_arg)
-      //      {}
-      
       std::string displaylabel {"undefined"};
     };
 
@@ -69,22 +64,22 @@ namespace dbe {
 	config_object {config_object_arg},
 	kind {kind_arg}
       {}
-      
-      const ConfigObject config_object;
-      const ObjectKind kind;
+
+      ConfigObject config_object;
+      ObjectKind kind;
 
       Vertex_t vertex_in_graph;
-      
+
       // What objects does this one own?
-      std::vector<size_t> related_object_indices;
+      std::vector<std::string> related_object_names;
 
       // What objects does this one send data to, and what's their connection called?
       struct ReceivingInfo {
 	std::string connection_name;
-	size_t receiver_index;
+	std::string receiver_label;
 
 	bool operator==(const ReceivingInfo& other) const {
-	  return connection_name == other.connection_name && receiver_index == other.receiver_index;
+	  return connection_name == other.connection_name && receiver_label == other.receiver_label;
 	}
       };
 
@@ -107,11 +102,11 @@ namespace dbe {
     std::vector<dunedaq::conffwk::ConfigObject> find_related_objects(const ConfigObject& starting_obj);
     void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
     
-    size_t find_objects_and_connections(const ObjectKind level, const ConfigObject& object);
+    void find_objects_and_connections(const ObjectKind level, const ConfigObject& object);
     void calculate_network_connections();
 
     const std::string m_oksfilename;
-    dunedaq::conffwk::Configuration* m_confdb {nullptr};
+    dunedaq::conffwk::Configuration* m_confdb;
 
     std::map<ObjectKind, std::vector<std::string>> m_included_classes;
     std::vector<std::string> m_ignored_application_uids;
@@ -120,14 +115,14 @@ namespace dbe {
     std::vector<ConfigObject> m_candidate_objects;
     std::vector<ConfigObject> m_passed_objects;
 
-    std::vector<EnhancedObject> m_objects_for_graph;
+    std::unordered_map<std::string, EnhancedObject> m_objects_for_graph;
 
     std::unordered_map<std::string, std::vector<std::string>> m_incoming_connections;
     std::unordered_map<std::string, std::vector<std::string>> m_outgoing_connections;
     
     Graph_t m_graph;
     
-    dunedaq::confmodel::Session* m_session {nullptr};
+    dunedaq::confmodel::Session* m_session;
     std::string m_session_name;
 
   };
