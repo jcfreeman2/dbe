@@ -17,6 +17,9 @@
 #include <QPrinter>
 #include <QPrintDialog>
 
+//#include <format>
+#include <sstream>
+
 using namespace dunedaq;
 using namespace dunedaq::oks;
 
@@ -140,14 +143,18 @@ void dbse::SchemaMainWindow::BuildTableModel()
 
 int dbse::SchemaMainWindow::ShouldSaveChanges() const
 {
-  if ( KernelWrapper::GetInstance().GetUndoStack()->isClean() )
+  // if ( KernelWrapper::GetInstance().GetUndoStack()->isClean() )
+  auto modified = KernelWrapper::GetInstance().ModifiedSchemaFiles();
+  if (modified.empty())
   {
     return QMessageBox::Discard;
   }
 
+  std::string msg = "There are unsaved changes in the following files:\n\n"
+    + modified + "Do you want to save the changes in the schema?\n";
   return QMessageBox::question (
            0, tr ( "DBE" ),
-           QString ( "There are unsaved changes.\n\nDo you want to save the changes in the schema?\n" ),
+           QString ( msg.c_str() ),
            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save );
 }
 
@@ -217,7 +224,12 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
   {
     try
     {
-      KernelWrapper::GetInstance().SaveAllSchema();
+      int nsaved = KernelWrapper::GetInstance().SaveModifiedSchema();
+      std::ostringstream ostream;
+      ostream << nsaved << " schema files successfully saved";
+      std::string msg = ostream.str();
+      QMessageBox::information ( 0, "Schema editor",
+                                 QString ( msg.c_str() ) );
       KernelWrapper::GetInstance().CloseAllSchema();
     }
     catch ( oks::exception & Ex )
@@ -292,9 +304,13 @@ void dbse::SchemaMainWindow::SaveSchema()
 {
     try
     {
-      KernelWrapper::GetInstance().SaveAllSchema();
+      int nsaved = KernelWrapper::GetInstance().SaveModifiedSchema();
+      //std::format msg("{} schema files successfully saved", nsaved)
+      std::ostringstream ostream;
+      ostream << nsaved << " schema files successfully saved";
+      std::string msg = ostream.str();
       QMessageBox::information ( 0, "Schema editor",
-                                 QString ( "Schema successfully saved" ) );
+                                 QString ( msg.c_str() ) );
 
     }
     catch ( oks::exception & Ex )

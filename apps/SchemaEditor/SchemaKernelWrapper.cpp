@@ -97,6 +97,28 @@ void dbse::KernelWrapper::SaveAllSchema() const
   Kernel->save_all_schema();
 }
 
+std::string dbse::KernelWrapper::ModifiedSchemaFiles() const
+{
+  std::string modified{""};
+  for (auto [name, file] : Kernel->schema_files()) {
+    if (file->is_updated()) {
+      modified += file->get_full_file_name() + "\n\n";
+    }
+  }
+  return modified;
+}
+int dbse::KernelWrapper::SaveModifiedSchema() const
+{
+  int nsaved = 0;
+  for (auto [name, file] : Kernel->schema_files()) {
+    if (file->is_updated()) {
+      Kernel->save_schema(file);
+      nsaved++;
+    }
+  }
+  return nsaved;
+}
+
 void dbse::KernelWrapper::CloseAllSchema() const
 {
   Kernel->close_all_schema();
