@@ -1,14 +1,18 @@
+/************************************************************
+ *
+ * GraphBuilder.cpp
+ *
+ * JCF, Sep-11-2024
+ *
+ * Implementation of GraphBuilder::construct_graph and GraphBuilder::write_graph
+ *
+ * This is part of the DUNE DAQ Application Framework, copyright 2020.
+ * Licensing/copyright details are in the COPYING file that you should have
+ * received with this code.
+ *
+ *************************************************************/
 
 #include "GraphBuilder.hpp"
-
-#include "conffwk/Configuration.hpp"
-#include "conffwk/Schema.hpp"
-
-#include "ers/ers.hpp"
-
-#include "confmodel/Session.hpp"
-#include "confmodel/Connection.hpp"
-#include "confmodel/DaqModule.hpp"
 
 #include "appmodel/DFApplication.hpp"
 #include "appmodel/DFOApplication.hpp"
@@ -17,9 +21,13 @@
 #include "appmodel/TriggerApplication.hpp"
 #include "appmodel/MLTApplication.hpp"
 #include "appmodel/TPStreamWriterApplication.hpp"
-
 #include "appmodel/appmodelIssues.hpp"
-
+#include "conffwk/Configuration.hpp"
+#include "conffwk/Schema.hpp"
+#include "confmodel/Session.hpp"
+#include "confmodel/Connection.hpp"
+#include "confmodel/DaqModule.hpp"
+#include "ers/ers.hpp"
 
 #include "boost/graph/graphviz.hpp"
 
@@ -38,11 +46,11 @@
 
 namespace dbe {
 
-  GraphBuilder::GraphBuilder(const std::string& oksfilename) :
+  GraphBuilder::GraphBuilder(std::string_view oksfilename) :
     m_oksfilename { oksfilename },
     m_confdb { nullptr },
     m_included_classes {
-      { ObjectKind::kSession, {"Session", "Segment", "Application"} },
+      { ObjectKind::kSession, {"Session", "Segment", "Application" } },
       { ObjectKind::kSegment, {"Segment", "Application"} },
       { ObjectKind::kApplication, {"Application", "Module"} },
       { ObjectKind::kModule, {"Module"} }
@@ -59,7 +67,7 @@ namespace dbe {
       throw exc;
     }
 
-    // Get the session in the database. Currently (May-13-2024) can handle one and only one session
+    // Get the session in the database. Can handle one and only one session.
     std::vector<ConfigObject> session_objects {};
 
     m_confdb->get("Session", session_objects);
@@ -89,69 +97,57 @@ namespace dbe {
     m_session = const_cast<dunedaq::confmodel::Session*>(
 							 m_confdb->get<dunedaq::confmodel::Session>(m_session_name));
   
-    if (m_session == nullptr) {
+    if (!m_session) {
       std::stringstream errmsg;
       errmsg << "Unable to get session with UID \"" << m_session_name << "\"";
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    std::vector<ConfigObject> all_class_objects {};
+    std::vector<ConfigObject> every_object_deriving_from_class {}; // Includes objects of the class itself
+    std::vector<ConfigObject> objects_of_class {}; // A subset of every_object_deriving_from_class
+    
+    // m_confdb->superclasses() returns a conffwk::fmap; see the conffwk package for details
+    
+    auto classnames = m_confdb->superclasses() | std::views::keys |
+      std::views::transform([](const auto& ptr_to_class_name) {
+	return *ptr_to_class_name;
+      });
 
-    using classmap = dunedaq::conffwk::fmap<dunedaq::conffwk::fset>;
+    for (const auto& classname : classnames) {
 
-    classmap classrepresentors = m_confdb->superclasses();
-    std::vector<std::string> classnames;
+      every_object_deriving_from_class.clear();
+      objects_of_class.clear();
 
-    std::transform(classrepresentors.begin(),
-		   classrepresentors.end(),
-		   std::back_inserter(classnames),
-		   [](const classmap::value_type& classrepresentor) {
-		     return *classrepresentor.first;
-		   });
+      m_confdb->get(classname, every_object_deriving_from_class);
 
-    std::sort(classnames.begin(), classnames.end());
+      std::ranges::copy_if(every_object_deriving_from_class,
+			   std::back_inserter(objects_of_class),
+			   [&classname](const ConfigObject& obj) {
+			     if (obj.class_name() == classname)  {
+			       return true;
+			     } else {
+			       return false;
+			     }
+			   });
 
-    std::vector<ConfigObject> every_object_of_class;
+      std::ranges::copy(objects_of_class, std::back_inserter(m_all_objects));
 
-    for (auto& classname : classnames) {
-
-      every_object_of_class.clear();
-      all_class_objects.clear();
-      TLOG_DEBUG(GENERAL_DEBUG_LVL) << "CLASS NAME IS " << classname << ": ";
-
-      m_confdb->get(classname, every_object_of_class);
-
-      std::copy_if(every_object_of_class.begin(),
-		   every_object_of_class.end(),
-		   std::back_inserter(all_class_objects),
-		   [&classname](const ConfigObject& obj) {
-		     if (obj.class_name() == classname)  {
-		       TLOG_DEBUG(GENERAL_DEBUG_LVL) << obj.UID() << " ";
-		       return true;
-		     } else {
-		       return false;
-		     }
-		   });
-      TLOG_DEBUG(GENERAL_DEBUG_LVL) << std::endl;
-
-      std::copy(all_class_objects.begin(), all_class_objects.end(), std::back_inserter(m_all_objects));
-
-      if (classname.find("Application") != std::string::npos ) {
-	for (const auto& appobj : all_class_objects) {
+      if (classname.find("Application") != std::string::npos ) { // DFApplication, ReadoutApplication, etc.
+	for (const auto& appobj : objects_of_class) {
 
 	  auto daqapp = m_confdb->get<dunedaq::appmodel::SmartDaqApplication>(appobj.UID());
 
-	  if (daqapp != nullptr) {
+	  if (daqapp) {
 
 	    auto res = daqapp->cast<dunedaq::confmodel::ResourceBase>();
 	    
 	    if (res && res->disabled(*m_session)) {
 	      m_ignored_application_uids.push_back( appobj.UID() );
-	      std::cout << "Skipping disabled application " << appobj.UID() << "@" << daqapp->class_name() << "\n";
+	      TLOG() << "Skipping disabled application " << appobj.UID() << "@" << daqapp->class_name();
 	      continue;
 	    }
 	  } else {
-	    std::cout << "daqapp for " << appobj.UID() << "@" << appobj.class_name() << " came up empty" << "\n";
+	    TLOG(TLVL_DEBUG) << "daqapp for " << appobj.UID() << "@" << appobj.class_name() << " came up empty";
 	    m_ignored_application_uids.push_back( appobj.UID() );
 	  }
 	}
@@ -160,29 +156,28 @@ namespace dbe {
   }
 
   void GraphBuilder::find_candidate_objects(const ObjectKind level) {
+
     m_candidate_objects.clear();
 
-    std::string cname;
     for (const auto& obj: m_all_objects) {
-      for (const auto& classname : this->m_included_classes[ level ]) {
+      for (const auto& classname : this->m_included_classes.at(level)) {
 
-	cname = obj.class_name();
-	if (cname.find(classname) != std::string::npos && \
-	    std::find(m_ignored_application_uids.begin(), m_ignored_application_uids.end(), obj.UID()) == m_ignored_application_uids.end()) {
+	if (obj.class_name().find(classname) != std::string::npos &&
+	    std::ranges::find(m_ignored_application_uids, obj.UID()) == m_ignored_application_uids.end()) {
 	  m_candidate_objects.emplace_back(obj);
 	}
       }
     }
 
     for (const auto& obj : m_candidate_objects) {
-      std::cout << "Candidate " << obj.UID() << "@" << obj.class_name() << "\n";
+      TLOG(GENERAL_DEBUG_LVL) << "Candidate " << obj.UID() << "@" << obj.class_name();
     }
   }
 
   void GraphBuilder::calculate_graph(const ObjectKind level, const std::string& obj_uid) {
 
     find_candidate_objects(level);
-    
+
     bool found = false;
     for (auto& obj: m_candidate_objects) {
       if (obj.UID() == obj_uid) {
@@ -239,7 +234,6 @@ namespace dbe {
 
 	  for (auto& receiver : incoming.second) {
 	    for (auto& sender : outgoing.second) {
-	      std::cout << sender << " sends to " << receiver << " via " << incoming.first << "\n";
 
 	      // We just want to plot applications sending to other
 	      // applications and queues sending to other
@@ -253,10 +247,9 @@ namespace dbe {
 		continue;
 	      }
 
-	      const EnhancedObject::ReceivingInfo receiving_info {incoming.first, receiver };
+	      const EnhancedObject::ReceivingInfo receiving_info {incoming.first, receiver};
 
 	      auto res = std::ranges::find(m_objects_for_graph.at(sender).receiving_object_infos, receiving_info );
-
 	      if (res == m_objects_for_graph.at(sender).receiving_object_infos.end() ) {
 		m_objects_for_graph.at(sender).receiving_object_infos.push_back(receiving_info);
 	      }
@@ -285,14 +278,13 @@ namespace dbe {
 
 	if (!m_objects_for_graph.contains(receiving_object_name)) {
 	  continue;
-	};
+	}
 
-	if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
+	if (std::ranges::find(m_included_classes.at(level), "Module") != m_included_classes.at(level).end()) {
 	  if (m_objects_for_graph.at(receiving_object_name).kind == ObjectKind::kModule) {
 	    external_obj.receiving_object_infos.push_back( {incoming_conn, receiving_object_name} );
 	  }
-	} else if (std::ranges::find(m_included_classes[level], "Application") != m_included_classes[level].end()) {
-	  std::cout << "Receiving object is " << receiving_object_name << "\n";
+	} else if (std::ranges::find(m_included_classes.at(level), "Application") != m_included_classes.at(level).end()) {
 	  if (m_objects_for_graph.at(receiving_object_name).kind == ObjectKind::kApplication) {
 	    external_obj.receiving_object_infos.push_back( {incoming_conn, receiving_object_name} );
 	  }
@@ -323,11 +315,11 @@ namespace dbe {
 	  continue;
 	}
 
-	if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
+	if (std::ranges::find(m_included_classes.at(level), "Module") != m_included_classes.at(level).end()) {
 	  if (m_objects_for_graph.at(sending_object_name).kind == ObjectKind::kModule) {
 	    m_objects_for_graph.at(sending_object_name).receiving_object_infos.push_back( {outgoing_conn, outgoing_vertex_name} );
 	  }
-	} else if (std::ranges::find(m_included_classes[level], "Application") != m_included_classes[level].end()) {
+	} else if (std::ranges::find(m_included_classes.at(level), "Application") != m_included_classes.at(level).end()) {
 	  if (m_objects_for_graph.at(sending_object_name).kind == ObjectKind::kApplication) {
 	    m_objects_for_graph.at(sending_object_name).receiving_object_infos.push_back( {outgoing_conn, outgoing_vertex_name} );
 	  }
@@ -351,33 +343,28 @@ namespace dbe {
       kind = ObjectKind::kModule;
     }
 
-    EnhancedObject enhanced_object { object, kind };
+    EnhancedObject starting_object { object, kind };
 
     // If we've got a session or a segment, look at its OKS-relations,
     // and recursively process those relation objects which are on the
     // candidates list and haven't already been processed
 
-    if (enhanced_object.kind == ObjectKind::kSession || enhanced_object.kind ==	ObjectKind::kSegment) {
+    if (starting_object.kind == ObjectKind::kSession || starting_object.kind ==	ObjectKind::kSegment) {
 
-      for (auto& related_object: find_related_objects(enhanced_object.config_object)) {
+      for (auto& child_object: find_child_objects(starting_object.config_object)) {
 
-	if (std::find(m_candidate_objects.begin(), m_candidate_objects.end(), related_object) != m_candidate_objects.end()) {  // If it's in the candidate list
-	  if (std::find(m_passed_objects.begin(), m_passed_objects.end(), related_object) == m_passed_objects.end()) { // And it hasn't already been added to the "passed" list
-	    std::cout << "CONNECT " << object.UID() << " to " << related_object.UID() << "\n";
-
-	    find_objects_and_connections(level, related_object);
-	    enhanced_object.related_object_names.push_back(related_object.UID());
-	  }
+	if (std::ranges::find(m_candidate_objects, child_object) != m_candidate_objects.end()) {
+	  find_objects_and_connections(level, child_object);
+	  starting_object.child_object_names.push_back(child_object.UID());
 	}
       }
-    }
-    // If we've got an application object, try to determine what
-    // modules are in it and what their connections are. Recursively
-    // process the modules, and then add connection info to class-wide
-    // member maps to calculate edges corresponding to the connections
-    // for the plotted graph later
+    } else if (starting_object.kind == ObjectKind::kApplication) {
 
-    else if (enhanced_object.kind == ObjectKind::kApplication) {
+      // If we've got an application object, try to determine what
+      // modules are in it and what their connections are. Recursively
+      // process the modules, and then add connection info to class-wide
+      // member maps to calculate edges corresponding to the connections
+      // for the plotted graph later
 
       dunedaq::conffwk::Configuration* local_database;
 
@@ -428,29 +415,23 @@ namespace dbe {
 	    }
 	  }
 
-	  if (std::ranges::find(m_included_classes[level], "Module") != m_included_classes[level].end()) {
+	  if (std::ranges::find(m_included_classes.at(level), "Module") != m_included_classes.at(level).end()) {
 	    find_objects_and_connections(level, module->config_object());
-	    enhanced_object.related_object_names.push_back(module->UID());
+	    starting_object.child_object_names.push_back(module->UID());
 	  }
 	}
       }
     }
 
-    if (std::find(m_passed_objects.begin(), m_passed_objects.end(), object) == m_passed_objects.end()) {
-      m_passed_objects.push_back( object );
-      m_objects_for_graph.insert( {object.UID(), enhanced_object}  );
-    } else {
-      assert(false);
-    }
+    assert(!m_objects_for_graph.contains(object.UID()));
+
+    m_objects_for_graph.insert( {object.UID(), starting_object} );
   }
 
   void GraphBuilder::construct_graph(const ObjectKind level, const std::string& obj_uid) {
     calculate_graph(level, obj_uid);
     
-    for (auto& map_pair: m_objects_for_graph) {
-
-      auto& objname = map_pair.first;
-      auto& enhanced_object = map_pair.second;
+    for (auto& enhanced_object : m_objects_for_graph | std::views::values) {
 
       if (enhanced_object.kind == ObjectKind::kIncomingExternal) {
 	enhanced_object.vertex_in_graph = boost::add_vertex(VertexLabel("O", ""), m_graph);
@@ -463,27 +444,19 @@ namespace dbe {
     }
 
     for (auto& parent_obj : m_objects_for_graph | std::views::values) {
-      for (auto& child_obj_name : parent_obj.related_object_names) {
+      for (auto& child_obj_name : parent_obj.child_object_names) {
 	boost::add_edge(parent_obj.vertex_in_graph,
 			m_objects_for_graph.at(child_obj_name).vertex_in_graph,
-			{""}, // No label for an edge which just describes ownership
+			{""}, // No label for an edge which just describes "ownership" rather than dataflow
 			m_graph);
       }
     }
 
     for (auto& possible_sender_object : m_objects_for_graph | std::views::values) {
-      for (auto receiver_info : possible_sender_object.receiving_object_infos) {
+      for (auto& receiver_info : possible_sender_object.receiving_object_infos) {
 
 	auto at_pos = receiver_info.connection_name.find("@");
-	auto uid = receiver_info.connection_name.substr(0, at_pos);
-	auto classname = receiver_info.connection_name.substr(at_pos + 1);
-
-	std::string connection_label {""};
-
-	//	if (classname == "NetworkConnection") {
-	if (true) {
-	  connection_label = uid;
-	}
+	const std::string connection_label = receiver_info.connection_name.substr(0, at_pos);
 
 	// If we're plotting at the level of a session or segment,
 	// show the connections as between applications; if we're
@@ -512,11 +485,11 @@ namespace dbe {
   }
 
   std::vector<dunedaq::conffwk::ConfigObject>
-  GraphBuilder::find_related_objects(const ConfigObject& starting_obj) {
+  GraphBuilder::find_child_objects(const ConfigObject& parent_obj) {
 
-    std::vector<ConfigObject> connected_objects;
+    std::vector<ConfigObject> connected_objects {};
 
-    dunedaq::conffwk::class_t classdef = m_confdb->get_class_info( starting_obj.class_name(), false );
+    dunedaq::conffwk::class_t classdef = m_confdb->get_class_info( parent_obj.class_name(), false );
 
     for (const dunedaq::conffwk::relationship_t& relationship : classdef.p_relationships) {
 
@@ -524,16 +497,16 @@ namespace dbe {
       // const-qualifier on it for no apparent good reason; we need
       // this cast in order to call it
       
-      auto starting_obj_casted = const_cast<ConfigObject&>(starting_obj);
+      auto parent_obj_casted = const_cast<ConfigObject&>(parent_obj);
       
       if (relationship.p_cardinality == dunedaq::conffwk::only_one ||
 	  relationship.p_cardinality == dunedaq::conffwk::zero_or_one) {
-	ConfigObject connected_obj;
-	starting_obj_casted.get(relationship.p_name, connected_obj);
+	ConfigObject connected_obj {};
+	parent_obj_casted.get(relationship.p_name, connected_obj);
 	connected_objects.push_back(connected_obj);
       } else {
-	std::vector<ConfigObject> connected_objects_in_relationship;
-	starting_obj_casted.get(relationship.p_name, connected_objects_in_relationship);
+	std::vector<ConfigObject> connected_objects_in_relationship {};
+	parent_obj_casted.get(relationship.p_name, connected_objects_in_relationship);
 	connected_objects.insert(connected_objects.end(), connected_objects_in_relationship.begin(), connected_objects_in_relationship.end());
       }
     }
@@ -557,19 +530,17 @@ namespace dbe {
     // library is so messy and clumsy that this is a worthwhile
     // tradeoff
 
-    std::string dotfilestring = outputstream.str();
+    std::string dotfileslurped = outputstream.str();
 
     for (auto& eo : m_objects_for_graph | std::views::values) {
       if (eo.kind == ObjectKind::kApplication) {
 	std::stringstream labelstringstr;
 	labelstringstr << "label=\"" << eo.config_object.UID() << "\n";
 
-	auto insert_point = dotfilestring.find(labelstringstr.str());
-	if (insert_point != std::string::npos) {
-	  dotfilestring.insert(insert_point, "color=red, fontcolor=red, ");
-	} else {
-	  assert(false);
-	}
+	auto insert_point = dotfileslurped.find(labelstringstr.str());
+	assert(insert_point != std::string::npos);
+	
+	dotfileslurped.insert(insert_point, "color=red, fontcolor=red, ");
       }
     }
 
@@ -578,12 +549,12 @@ namespace dbe {
     // FakeHSIApplication) have null labels in order to turn them into
     // arrow-free dotted lines
     
-    std::string unlabeled_edge = "label=\"\"";
-    std::string edge_modifier = ", style=\"dotted\", arrowhead=\"none\"";
+    const std::string unlabeled_edge = "label=\"\"";
+    const std::string edge_modifier = ", style=\"dotted\", arrowhead=\"none\"";
 
     size_t pos = 0;
-    while ((pos = dotfilestring.find(unlabeled_edge, pos)) != std::string::npos) {
-      dotfilestring.replace(pos, unlabeled_edge.length(), unlabeled_edge + edge_modifier);
+    while ((pos = dotfileslurped.find(unlabeled_edge, pos)) != std::string::npos) {
+      dotfileslurped.replace(pos, unlabeled_edge.length(), unlabeled_edge + edge_modifier);
       pos += (unlabeled_edge + edge_modifier).length();
     }
 
@@ -591,7 +562,7 @@ namespace dbe {
     outputfile.open( outputfilename );
     
     if ( outputfile.is_open() ) {
-      outputfile << dotfilestring.c_str();
+      outputfile << dotfileslurped.c_str();
     } else {
       std::stringstream errmsg;
       errmsg << "Unable to open requested file \"" << outputfilename << "\" for writing";

@@ -16,8 +16,8 @@
 #include "GraphBuilder.hpp"
 #include "dbe/confaccessor.hpp"
 
-#include "logging/Logging.hpp"
 #include "appmodel/appmodelIssues.hpp"
+#include "logging/Logging.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -25,18 +25,17 @@
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 namespace bpo = boost::program_options;
 
 int main ( int argc, char * argv[] )
 {
-  // Setting language variable to English (otherwise "," is interpreted as "." in numbers)
-  setenv ( "LC_ALL", "C", 1 );
 
-  std::string oksfilename = "";
-  std::string outputfilename = "";
-  std::string level = "";
-  std::string object_uid = "";
+  std::string oksfilename {""};
+  std::string outputfilename {""};
+  std::string level {""};
+  std::string object_uid {""};
 
   bpo::options_description options_description (
     "Allowed options", 128 );
@@ -47,9 +46,9 @@ int main ( int argc, char * argv[] )
 
   ( "file,f", bpo::value<std::string> ( &oksfilename ), "OKS database file name" )
 
-  ( "level,l", bpo::value<std::string>(&level), "base level (session, segment, application, module)")
+  ( "level,l", bpo::value<std::string>(&level), "detail level (session, segment, application, module)")
 
-  ( "object,b", bpo::value<std::string>(&object_uid), "base object UID")
+  ( "object,b", bpo::value<std::string>(&object_uid), "OKS object UID of root vertex")
 
   ( "output,o", bpo::value<std::string> ( &outputfilename ),
     "Output DOT file which can be used as input to GraphViz" );
@@ -62,8 +61,7 @@ int main ( int argc, char * argv[] )
         << "DBE create_config_plot : Generate dot graphs from database files"
         << std::endl
         << std::endl
-        << "Usage: create_config_plot -f/--file <input OKS file> -b/--object <base object UID for a session or application> -l/--level <session, segment, application or module> (-o/--output <output DOT file>)"
-        << "\nIf no output file is specified the result is sent to stdout"
+        << "Usage: create_config_plot -f/--file <input OKS file> -b/--object <object UID for session or application> -l/--level <session, segment, application or module> (-o/--output <output DOT file>)"
         << std::endl
         << std::endl
         << options_description
@@ -102,7 +100,7 @@ int main ( int argc, char * argv[] )
     errmsgstr << "Incorrect command line argument: " << e.what();
     ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
 
-  } catch (dunedaq::appmodel::BadConf& exc) {
+  } catch (const dunedaq::appmodel::BadConf& exc) {
     std::stringstream errmsgstr;
     errmsgstr << "Caught BadConf exception: " << exc;
     ers::fatal(dbe::GeneralGraphToolError(ERS_HERE, errmsgstr.str()));
@@ -114,6 +112,5 @@ int main ( int argc, char * argv[] )
   }
 
   return 0;
-
 }
 

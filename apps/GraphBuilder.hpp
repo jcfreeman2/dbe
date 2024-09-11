@@ -1,3 +1,26 @@
+/************************************************************
+ *
+ * GraphBuilder.hpp
+ *
+ * JCF, Sep-11-2024
+ *
+ * GraphBuilder is the tool we can use to plot configurations. A quick overview:
+ *
+ * - Constructed from an OKS database file (XML)
+ * - GraphBuilder::construct_graph will take a granularity level and a
+ *   "root object" and construct a graph accordingly
+ * - GraphBuilder::write_graph will take the name of an output DOT
+ *   file and write the graph to it
+ *
+ * The resulting DOT file can then be processed by, e.g., Graphviz in
+ * order to generate a viewable graphic of the configuration
+ *
+ * This is part of the DUNE DAQ Application Framework, copyright 2020.
+ * Licensing/copyright details are in the COPYING file that you should have
+ * received with this code.
+ *
+ *************************************************************/
+
 #ifndef DBE_APPS_GRAPHBUILDER_HPP_
 #define DBE_APPS_GRAPHBUILDER_HPP_
 
@@ -11,6 +34,7 @@
 #include "boost/graph/labeled_graph.hpp"
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace dbe {
@@ -43,52 +67,18 @@ namespace dbe {
 
       VertexLabel() = default;
       
-      VertexLabel(std::string uid_arg, std::string classname_arg) :
-	uid(uid_arg),
-	classname(classname_arg),
-	label(uid_arg + "@" + classname_arg),
-	displaylabel(uid_arg + "\n" + classname_arg)
+      VertexLabel(const std::string& uid, const std::string& classname) :
+	displaylabel(uid + "\n" + classname)
       {}
 
-      std::string uid;
-      std::string classname;
-      std::string label;
-      std::string displaylabel;
+      const std::string displaylabel {"undefined"};
     };
 
     struct EdgeLabel {
-      std::string displaylabel {"undefined"};
+      const std::string displaylabel {"undefined"};
     };
 
-    struct EnhancedObject {
-
-      EnhancedObject(const ConfigObject& config_object_arg, ObjectKind kind_arg) :
-	config_object {config_object_arg},
-	kind {kind_arg}
-      {}
-
-      ConfigObject config_object;
-      ObjectKind kind;
-
-      Vertex_t vertex_in_graph;
-
-      // What objects does this one own?
-      std::vector<std::string> related_object_names;
-
-      // What objects does this one send data to, and what's their connection called?
-      struct ReceivingInfo {
-	std::string connection_name;
-	std::string receiver_label;
-
-	bool operator==(const ReceivingInfo& other) const {
-	  return connection_name == other.connection_name && receiver_label == other.receiver_label;
-	}
-      };
-
-      std::vector<ReceivingInfo> receiving_object_infos; 
-    };
-
-    explicit GraphBuilder(const std::string& oksfilename);
+    explicit GraphBuilder(std::string_view oksfilename);
 
     void construct_graph(const ObjectKind level, const std::string& root_obj_uid);
     void write_graph(const std::string& outputfilename) const;
@@ -100,8 +90,34 @@ namespace dbe {
 
   private:
 
+    struct EnhancedObject {
+
+      struct ReceivingInfo {
+	std::string connection_name;
+	std::string receiver_label;
+
+	bool operator==(const ReceivingInfo& other) const = default;
+      };
+
+      EnhancedObject(const ConfigObject& config_object_arg, ObjectKind kind_arg) :
+	config_object {config_object_arg},
+	kind {kind_arg}
+      {}
+
+      ConfigObject config_object;
+      ObjectKind kind;
+
+      Vertex_t vertex_in_graph;
+
+      // What objects is this one the parent of? E.g., a parent session with child segments
+      std::vector<std::string> child_object_names;
+
+      // What objects does this one send data to, and what's their connection called?
+      std::vector<ReceivingInfo> receiving_object_infos; 
+    };
+
     void find_candidate_objects(const ObjectKind level);
-    std::vector<dunedaq::conffwk::ConfigObject> find_related_objects(const ConfigObject& starting_obj);
+    [[nodiscard]] std::vector<dunedaq::conffwk::ConfigObject> find_child_objects(const ConfigObject& parent_obj);
     void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
     
     void find_objects_and_connections(const ObjectKind level, const ConfigObject& object);
@@ -110,12 +126,7 @@ namespace dbe {
     const std::string m_oksfilename;
     dunedaq::conffwk::Configuration* m_confdb;
 
-    std::map<ObjectKind, std::vector<std::string>> m_included_classes;
-    std::vector<std::string> m_ignored_application_uids;
-    
-    std::vector<ConfigObject> m_all_objects;
-    std::vector<ConfigObject> m_candidate_objects;
-    std::vector<ConfigObject> m_passed_objects;
+    const std::map<ObjectKind, std::vector<std::string>> m_included_classes;
 
     std::unordered_map<std::string, EnhancedObject> m_objects_for_graph;
 
@@ -123,10 +134,14 @@ namespace dbe {
     std::unordered_map<std::string, std::vector<std::string>> m_outgoing_connections;
     
     Graph_t m_graph;
-    
+
     dunedaq::confmodel::Session* m_session;
     std::string m_session_name;
-
+    
+    std::vector<std::string> m_ignored_application_uids;
+    
+    std::vector<ConfigObject> m_all_objects;
+    std::vector<ConfigObject> m_candidate_objects;
   };
 } // namespace dbe
 
