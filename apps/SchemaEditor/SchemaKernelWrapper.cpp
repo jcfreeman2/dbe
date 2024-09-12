@@ -107,16 +107,17 @@ std::string dbse::KernelWrapper::ModifiedSchemaFiles() const
   }
   return modified;
 }
-int dbse::KernelWrapper::SaveModifiedSchema() const
+
+std::string dbse::KernelWrapper::SaveModifiedSchema() const
 {
-  int nsaved = 0;
+  std::string saved{""};
   for (auto [name, file] : Kernel->schema_files()) {
     if (file->is_updated()) {
       Kernel->save_schema(file);
-      nsaved++;
+      saved += file->get_full_file_name() + "\n\n";
     }
   }
-  return nsaved;
+  return saved;
 }
 
 void dbse::KernelWrapper::CloseAllSchema() const

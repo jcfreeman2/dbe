@@ -49,6 +49,7 @@ private slots:
   void OpenSchemaFile();
   void CreateNewSchema();
   void SaveSchema();
+  void SaveModifiedSchema();
   void ChangeCursorRelationship ( bool State );
   void ChangeCursorInheritance ( bool State );
   void AddTab();

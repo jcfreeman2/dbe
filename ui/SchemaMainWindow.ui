@@ -70,9 +70,19 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="CreateNewSchema"/>
+   <addaction name="SaveSchema"/>
+   <addaction name="separator"/>
+   <addaction name="Exit"/>
+   <addaction name="separator"/>
+
+   <addaction name="AddClass"/>
+
    <addaction name="SetInheritance"/>
    <addaction name="SetRelationship"/>
+   <addaction name="separator"/>
    <addaction name="SaveView"/>
+   <addaction name="PrintView"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="StatusBar"/>
@@ -137,33 +147,56 @@
    <property name="text">
     <string>Open Schema</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+o</string>
+   </property>
   </action>
   <action name="SaveSchema">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/commit.xpm</normaloff>:/icons/commit.xpm</iconset>
+   </property>
    <property name="text">
     <string>Save Schema</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+s</string>
    </property>
   </action>
   <action name="Exit">
    <property name="icon">
     <iconset>
-     <normaloff>:/icons/fail.xpm</normaloff>:/icons/fail.xpm</iconset>
+     <normaloff>:/icons/Exit.png</normaloff>:/icons/Exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+q</string>
    </property>
   </action>
   <action name="CreateNewSchema">
    <property name="text">
     <string>Create New Schema</string>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/CreateDatabase.png</normaloff>:/icons/CreateDatabase.png</iconset>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+n</string>
+   </property>
   </action>
   <action name="AddClass">
    <property name="icon">
     <iconset>
-     <normaloff>:/icons/new_class.xpm</normaloff>:/icons/new_class.xpm</iconset>
+     <normaloff>:/icons/schema_editor_oks_class.xpm</normaloff>:/icons/schema_editor_oks_class.xpm</iconset>
    </property>
    <property name="text">
     <string>AddClass</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+a</string>
    </property>
   </action>
   <action name="SetRelationship">
@@ -199,17 +232,19 @@
     <string>Save View</string>
    </property>
   </action>
-  <action name="LoadFileSchema">
-   <property name="text">
-    <string>Load Schema</string>
-   </property>
-  </action>
   <action name="LoadView">
    <property name="text">
     <string>Load View</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+v</string>
+   </property>
   </action>
   <action name="PrintView">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/print.xpm</normaloff>:/icons/print.xpm</iconset>
+   </property>
    <property name="text">
     <string>Print View</string>
    </property>

@@ -78,13 +78,13 @@ void dbse::SchemaMainWindow::InitialTabCorner()
 void dbse::SchemaMainWindow::SetController()
 {
   connect ( ui->OpenFileSchema, SIGNAL ( triggered() ), this, SLOT ( OpenSchemaFile() ) );
-  connect ( ui->LoadFileSchema, SIGNAL ( triggered() ), this, SLOT ( OpenSchemaFile() ) );
   connect ( ui->CreateNewSchema, SIGNAL ( triggered() ), this, SLOT ( CreateNewSchema() ) );
   connect ( ui->SaveSchema, SIGNAL ( triggered() ), this, SLOT ( SaveSchema() ) );
   connect ( ui->SetRelationship, SIGNAL ( triggered ( bool ) ), this,
             SLOT ( ChangeCursorRelationship ( bool ) ) );
   connect ( ui->SetInheritance, SIGNAL ( triggered ( bool ) ), this,
             SLOT ( ChangeCursorInheritance ( bool ) ) );
+  connect ( ui->AddClass, SIGNAL ( triggered() ), this, SLOT ( AddNewClass() ) );
   connect ( ui->SaveView, SIGNAL ( triggered() ), this, SLOT ( SaveView() ) );
   connect ( ui->LoadView, SIGNAL ( triggered() ), this, SLOT ( LoadView() ) );
   connect ( ui->Exit, SIGNAL ( triggered() ), this, SLOT ( close() ) );
@@ -222,21 +222,7 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
 
   if ( UserChoice == QMessageBox::Save )
   {
-    try
-    {
-      int nsaved = KernelWrapper::GetInstance().SaveModifiedSchema();
-      std::ostringstream ostream;
-      ostream << nsaved << " schema files successfully saved";
-      std::string msg = ostream.str();
-      QMessageBox::information ( 0, "Schema editor",
-                                 QString ( msg.c_str() ) );
-      KernelWrapper::GetInstance().CloseAllSchema();
-    }
-    catch ( oks::exception & Ex )
-    {
-      QMessageBox::warning ( 0, "Schema editor",
-                             QString ( "Could not save schemas.\n\n%1" ).arg ( QString ( Ex.what() ) ) );
-    }
+    SaveModifiedSchema();
   }
   else if ( UserChoice == QMessageBox::Discard )
   {
@@ -299,15 +285,14 @@ void dbse::SchemaMainWindow::OpenSchemaFile()
 
   OpenSchemaFile(SchemaPath);
 }
-
-void dbse::SchemaMainWindow::SaveSchema()
+void dbse::SchemaMainWindow::SaveModifiedSchema()
 {
-    try
+   try
     {
-      int nsaved = KernelWrapper::GetInstance().SaveModifiedSchema();
+      auto saved = KernelWrapper::GetInstance().SaveModifiedSchema();
       //std::format msg("{} schema files successfully saved", nsaved)
       std::ostringstream ostream;
-      ostream << nsaved << " schema files successfully saved";
+      ostream << "Schema files:\n" + saved + " successfully saved";
       std::string msg = ostream.str();
       QMessageBox::information ( 0, "Schema editor",
                                  QString ( msg.c_str() ) );
@@ -318,11 +303,25 @@ void dbse::SchemaMainWindow::SaveSchema()
       QMessageBox::warning ( 0, "Schema editor",
                              QString ( "Could not save schemas.\n\n%1" ).arg ( QString ( Ex.what() ) ) );
     }
+ }
+
+void dbse::SchemaMainWindow::SaveSchema()
+{
+  auto modified = KernelWrapper::GetInstance().ModifiedSchemaFiles();
+  if (modified.empty())
+  {
+      QMessageBox::information ( 0, "Schema editor",
+                                 QString ( "No modified schema files need saving" ) );
+      
+  }
+  else {
+    SaveModifiedSchema();
+  }
 }
 
 void dbse::SchemaMainWindow::CreateNewSchema()
 {
-  QString FileName = QFileDialog::getSaveFileName ( this, tr ( "Save File" ) );
+  QString FileName = QFileDialog::getSaveFileName ( this, tr ( "New schema File" ) );
 
   if ( FileName.isEmpty() )
   {

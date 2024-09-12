@@ -44,7 +44,7 @@ public:
   void LoadSchema ( const std::string & SchemaName ) const;
   void SaveAllSchema() const;
   std::string ModifiedSchemaFiles() const;
-  int SaveModifiedSchema() const;
+  std::string SaveModifiedSchema() const;
   void CloseAllSchema() const;
   void CreateNewSchema ( const std::string & SchemaName ) const;
   bool AnyClassReferenceThis ( dunedaq::oks::OksClass * SchemaClass );
