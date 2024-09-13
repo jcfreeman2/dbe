@@ -42,7 +42,7 @@
 #include <string>
 #include <vector>
 
-#define GENERAL_DEBUG_LVL 10
+#define GENERAL_DEBUG_LVL 10   // NOLINT
 
 namespace dbe {
 
@@ -55,6 +55,7 @@ namespace dbe {
       { ObjectKind::kApplication, {"Application", "Module"} },
       { ObjectKind::kModule, {"Module"} }
     },
+    m_root_object_kind { ObjectKind::kUndefined },
     m_session { nullptr }
   {
 
@@ -94,7 +95,7 @@ namespace dbe {
     // its initial value here. Once this is done, it shouldn't be
     // changed again.
 
-    m_session = const_cast<dunedaq::confmodel::Session*>(
+    m_session = const_cast<dunedaq::confmodel::Session*>(  // NOLINT
 							 m_confdb->get<dunedaq::confmodel::Session>(m_session_name));
   
     if (!m_session) {
@@ -123,11 +124,7 @@ namespace dbe {
       std::ranges::copy_if(every_object_deriving_from_class,
 			   std::back_inserter(objects_of_class),
 			   [&classname](const ConfigObject& obj) {
-			     if (obj.class_name() == classname)  {
-			       return true;
-			     } else {
-			       return false;
-			     }
+			     return obj.class_name() == classname;
 			   });
 
       std::ranges::copy(objects_of_class, std::back_inserter(m_all_objects));
@@ -155,12 +152,12 @@ namespace dbe {
     }
   }
 
-  void GraphBuilder::find_candidate_objects(const ObjectKind level) {
+  void GraphBuilder::find_candidate_objects() {
 
     m_candidate_objects.clear();
 
     for (const auto& obj: m_all_objects) {
-      for (const auto& classname : this->m_included_classes.at(level)) {
+      for (const auto& classname : this->m_included_classes.at(m_root_object_kind)) {
 
 	if (obj.class_name().find(classname) != std::string::npos &&
 	    std::ranges::find(m_ignored_application_uids, obj.UID()) == m_ignored_application_uids.end()) {
@@ -174,29 +171,29 @@ namespace dbe {
     }
   }
 
-  void GraphBuilder::calculate_graph(const ObjectKind level, const std::string& obj_uid) {
+  void GraphBuilder::calculate_graph(std::string_view root_obj_uid) {
 
-    find_candidate_objects(level);
+    find_candidate_objects();
 
     bool found = false;
     for (auto& obj: m_candidate_objects) {
-      if (obj.UID() == obj_uid) {
+      if (obj.UID() == root_obj_uid) {
 	found = true;
-	find_objects_and_connections(level, obj);   // Put differently, "find the vertices"
+	find_objects_and_connections(obj);   // Put differently, "find what will make up the vertices and edges"
 	break;
       }
     }
 
     if (!found) {
       std::stringstream errmsg;
-      errmsg << "Unable to find requested object \"" << obj_uid << "\"";
+      errmsg << "Unable to find requested object \"" << root_obj_uid << "\"";
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
 
-    calculate_network_connections(level);  // Put differently, "find the edges between the vertices"
+    calculate_network_connections();  // Put differently, "find the edges between the vertices"
   }
 
-  void GraphBuilder::calculate_network_connections(const ObjectKind level) {
+  void GraphBuilder::calculate_network_connections() {
 
     // Will use "incoming_matched" and "outgoing_matched" to keep
     // track of incoming and outgoing connections which don't get
@@ -261,12 +258,10 @@ namespace dbe {
 
     auto incoming_unmatched = m_incoming_connections | std::views::keys | std::views::filter(
       [&incoming_matched](auto& connection) {
-	if (std::ranges::find(incoming_matched, connection) == incoming_matched.end()) {
-          return true;
-        } else {
-          return false;
-	}
+	return std::ranges::find(incoming_matched, connection) == incoming_matched.end();
       });
+
+    auto included_classes = m_included_classes.at(m_root_object_kind);
 
     for (auto& incoming_conn : incoming_unmatched) {
 
@@ -280,11 +275,11 @@ namespace dbe {
 	  continue;
 	}
 
-	if (std::ranges::find(m_included_classes.at(level), "Module") != m_included_classes.at(level).end()) {
+	if (std::ranges::find(included_classes, "Module") != included_classes.end()) {
 	  if (m_objects_for_graph.at(receiving_object_name).kind == ObjectKind::kModule) {
 	    external_obj.receiving_object_infos.push_back( {incoming_conn, receiving_object_name} );
 	  }
-	} else if (std::ranges::find(m_included_classes.at(level), "Application") != m_included_classes.at(level).end()) {
+	} else if (std::ranges::find(included_classes, "Application") != included_classes.end()) {
 	  if (m_objects_for_graph.at(receiving_object_name).kind == ObjectKind::kApplication) {
 	    external_obj.receiving_object_infos.push_back( {incoming_conn, receiving_object_name} );
 	  }
@@ -296,11 +291,7 @@ namespace dbe {
 
     auto outgoing_unmatched = m_outgoing_connections | std::views::keys | std::views::filter(
       [&outgoing_matched](auto& connection) {
-	if (std::ranges::find(outgoing_matched, connection) == outgoing_matched.end()) {
-          return true;
-        } else {
-          return false;
-	}
+	return std::ranges::find(outgoing_matched, connection) == outgoing_matched.end();
       });
 
     for (auto& outgoing_conn : outgoing_unmatched) {
@@ -315,11 +306,11 @@ namespace dbe {
 	  continue;
 	}
 
-	if (std::ranges::find(m_included_classes.at(level), "Module") != m_included_classes.at(level).end()) {
+	if (std::ranges::find(included_classes, "Module") != included_classes.end()) {
 	  if (m_objects_for_graph.at(sending_object_name).kind == ObjectKind::kModule) {
 	    m_objects_for_graph.at(sending_object_name).receiving_object_infos.push_back( {outgoing_conn, outgoing_vertex_name} );
 	  }
-	} else if (std::ranges::find(m_included_classes.at(level), "Application") != m_included_classes.at(level).end()) {
+	} else if (std::ranges::find(included_classes, "Application") != included_classes.end()) {
 	  if (m_objects_for_graph.at(sending_object_name).kind == ObjectKind::kApplication) {
 	    m_objects_for_graph.at(sending_object_name).receiving_object_infos.push_back( {outgoing_conn, outgoing_vertex_name} );
 	  }
@@ -331,19 +322,9 @@ namespace dbe {
   }
 
   void
-  GraphBuilder::find_objects_and_connections(const ObjectKind level, const ConfigObject& object) {
+  GraphBuilder::find_objects_and_connections(const ConfigObject& object) {
 
-    ObjectKind kind = ObjectKind::kSession;
-
-    if (object.class_name().find("Segment") != std::string::npos ) {
-      kind = ObjectKind::kSegment;
-    } else if (object.class_name().find("Application") != std::string::npos ) {
-      kind = ObjectKind::kApplication;
-    } else if (object.class_name().find("Module") != std::string::npos ) {
-      kind = ObjectKind::kModule;
-    }
-
-    EnhancedObject starting_object { object, kind };
+    EnhancedObject starting_object { object, get_object_kind(object.class_name()) };
 
     // If we've got a session or a segment, look at its OKS-relations,
     // and recursively process those relation objects which are on the
@@ -354,7 +335,7 @@ namespace dbe {
       for (auto& child_object: find_child_objects(starting_object.config_object)) {
 
 	if (std::ranges::find(m_candidate_objects, child_object) != m_candidate_objects.end()) {
-	  find_objects_and_connections(level, child_object);
+	  find_objects_and_connections(child_object);
 	  starting_object.child_object_names.push_back(child_object.UID());
 	}
       }
@@ -366,7 +347,7 @@ namespace dbe {
       // member maps to calculate edges corresponding to the connections
       // for the plotted graph later
 
-      dunedaq::conffwk::Configuration* local_database;
+      dunedaq::conffwk::Configuration* local_database {nullptr};
 
       try {                                                                                                
 	local_database = new dunedaq::conffwk::Configuration("oksconflibs:" + m_oksfilename);               
@@ -377,15 +358,15 @@ namespace dbe {
 
       auto daqapp = local_database->get<dunedaq::appmodel::SmartDaqApplication>(object.UID());                 
       if (daqapp) {
-	auto local_session = const_cast<dunedaq::confmodel::Session*>(
+	auto local_session = const_cast<dunedaq::confmodel::Session*>(  // NOLINT
 								      local_database->get<dunedaq::confmodel::Session>(m_session_name));
 	auto modules = daqapp->generate_modules(local_database, m_oksfilename, local_session);
 
 	std::vector<std::string> allowed_conns {};
 
-	if (level == ObjectKind::kSession || level == ObjectKind::kSegment) {
+	if (m_root_object_kind == ObjectKind::kSession || m_root_object_kind == ObjectKind::kSegment) {
 	  allowed_conns = {"NetworkConnection"};
-	} else if (level == ObjectKind::kApplication || level == ObjectKind::kModule){
+	} else if (m_root_object_kind == ObjectKind::kApplication || m_root_object_kind == ObjectKind::kModule){
 	  allowed_conns = {"NetworkConnection", "Queue", "QueueWithSourceId"};
 	}
 
@@ -415,8 +396,8 @@ namespace dbe {
 	    }
 	  }
 
-	  if (std::ranges::find(m_included_classes.at(level), "Module") != m_included_classes.at(level).end()) {
-	    find_objects_and_connections(level, module->config_object());
+	  if (std::ranges::find(m_included_classes.at(m_root_object_kind), "Module") != m_included_classes.at(m_root_object_kind).end()) {
+	    find_objects_and_connections(module->config_object());
 	    starting_object.child_object_names.push_back(module->UID());
 	  }
 	}
@@ -428,8 +409,24 @@ namespace dbe {
     m_objects_for_graph.insert( {object.UID(), starting_object} );
   }
 
-  void GraphBuilder::construct_graph(const ObjectKind level, const std::string& obj_uid) {
-    calculate_graph(level, obj_uid);
+  void GraphBuilder::construct_graph(std::string_view root_obj_uid) {
+
+    // Next several lines just mean "tell me the class type of the root object in the config plot's graph"
+
+    auto class_names_view = m_all_objects |
+      std::views::filter([root_obj_uid](const ConfigObject& obj) {
+	return obj.UID() == root_obj_uid;
+      }) |
+      std::views::transform([](const ConfigObject& obj){
+	return obj.class_name();
+      });
+
+    assert(std::ranges::distance(class_names_view) == 1);
+    std::string_view root_obj_class_name = *class_names_view.begin();
+
+    m_root_object_kind = get_object_kind(root_obj_class_name);
+
+    calculate_graph(root_obj_uid);
     
     for (auto& enhanced_object : m_objects_for_graph | std::views::values) {
 
@@ -463,13 +460,13 @@ namespace dbe {
 	// doing this for a single application, show them entering and
 	// exiting the individual modules
 
-	if (level == ObjectKind::kSession || level == ObjectKind::kSegment) {
+	if (m_root_object_kind == ObjectKind::kSession || m_root_object_kind == ObjectKind::kSegment) {
 	  if (m_objects_for_graph.at(receiver_info.receiver_label).kind == ObjectKind::kModule) {
 	    continue;
 	  }
 	}
 
-	if (level == ObjectKind::kApplication || level == ObjectKind::kModule) {
+	if (m_root_object_kind == ObjectKind::kApplication || m_root_object_kind == ObjectKind::kModule) {
 	  if (m_objects_for_graph.at(receiver_info.receiver_label).kind == ObjectKind::kApplication) {
 	    continue;
 	  }
@@ -497,7 +494,7 @@ namespace dbe {
       // const-qualifier on it for no apparent good reason; we need
       // this cast in order to call it
       
-      auto parent_obj_casted = const_cast<ConfigObject&>(parent_obj);
+      auto parent_obj_casted = const_cast<ConfigObject&>(parent_obj); // NOLINT
       
       if (relationship.p_cardinality == dunedaq::conffwk::only_one ||
 	  relationship.p_cardinality == dunedaq::conffwk::zero_or_one) {
@@ -548,7 +545,7 @@ namespace dbe {
     // rather than data flow (e.g., hsi-segment owning hsi-01, the
     // FakeHSIApplication) have null labels in order to turn them into
     // arrow-free dotted lines
-    
+
     const std::string unlabeled_edge = "label=\"\"";
     const std::string edge_modifier = ", style=\"dotted\", arrowhead=\"none\"";
 
@@ -568,8 +565,27 @@ namespace dbe {
       errmsg << "Unable to open requested file \"" << outputfilename << "\" for writing";
       throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
     }
-  };
+  }
 
-  
+  constexpr GraphBuilder::ObjectKind get_object_kind(std::string_view class_name) {
+
+    using ObjectKind = GraphBuilder::ObjectKind;
+
+    ObjectKind kind = ObjectKind::kSession;
+
+    if (class_name.find("Session") != std::string::npos ) {
+      kind = ObjectKind::kSession;
+    } else if (class_name.find("Segment") != std::string::npos ) {
+      kind = ObjectKind::kSegment;
+    } else if (class_name.find("Application") != std::string::npos ) {
+      kind = ObjectKind::kApplication;
+    } else if (class_name.find("Module") != std::string::npos ) {
+      kind = ObjectKind::kModule;
+    } else {
+      throw dbe::GeneralGraphToolError(ERS_HERE, "Unsupported class type passed to get_object_kind");
+    }
+
+    return kind;
+  }
+
 } // namespace dbe
-

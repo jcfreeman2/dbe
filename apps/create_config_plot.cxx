@@ -29,12 +29,11 @@
 
 namespace bpo = boost::program_options;
 
-int main ( int argc, char * argv[] )
+int main(int argc, char* argv[])
 {
 
   std::string oksfilename {""};
   std::string outputfilename {""};
-  std::string level {""};
   std::string object_uid {""};
 
   bpo::options_description options_description (
@@ -46,11 +45,9 @@ int main ( int argc, char * argv[] )
 
   ( "file,f", bpo::value<std::string> ( &oksfilename ), "OKS database file name" )
 
-  ( "level,l", bpo::value<std::string>(&level), "detail level (session, segment, application, module)")
+  ( "root-object,r", bpo::value<std::string>(&object_uid), "OKS object UID of root vertex; must be session, segment or application")
 
-  ( "object,b", bpo::value<std::string>(&object_uid), "OKS object UID of root vertex")
-
-  ( "output,o", bpo::value<std::string> ( &outputfilename ),
+    ( "output,o", bpo::value<std::string> ( &outputfilename )->default_value("config.dot"),
     "Output DOT file which can be used as input to GraphViz" );
 
   bpo::variables_map args;
@@ -61,7 +58,7 @@ int main ( int argc, char * argv[] )
         << "DBE create_config_plot : Generate dot graphs from database files"
         << std::endl
         << std::endl
-        << "Usage: create_config_plot -f/--file <input OKS file> -b/--object <object UID for session or application> -l/--level <session, segment, application or module> (-o/--output <output DOT file>)"
+        << "Usage: create_config_plot -f/--file <input OKS file> -r/--root-object <object UID for session, segment or application> (-o/--output <output DOT file, default is config.dot>)"
         << std::endl
         << std::endl
         << options_description
@@ -73,23 +70,15 @@ int main ( int argc, char * argv[] )
     bpo::store ( bpo::command_line_parser ( argc, argv ).options ( options_description ).run(),
                  args );
     bpo::notify ( args );
-
-    const std::map<std::string, dbe::GraphBuilder::ObjectKind> level_as_enum {
-      {"session", dbe::GraphBuilder::ObjectKind::kSession },
-      {"segment", dbe::GraphBuilder::ObjectKind::kSegment },
-      {"application", dbe::GraphBuilder::ObjectKind::kApplication },
-      {"module", dbe::GraphBuilder::ObjectKind::kModule }
-    };
     
-    if ( args.count ( "help" ) || ! args.count ( "file" ) || ! args.count("level") || ! level_as_enum.count(level) || ! args.count("object") )
+    if ( args.count ( "help" ) || ! args.count ( "file" ) || ! args.count("root-object") )
     {
       display_help_message();
       return EXIT_FAILURE;
     }
     
     dbe::GraphBuilder graphbuilder(oksfilename);
-    graphbuilder.construct_graph( level_as_enum.at( level ), object_uid );
-
+    graphbuilder.construct_graph(object_uid);
     graphbuilder.write_graph(outputfilename);
     
   } catch (const bpo::error& e) {

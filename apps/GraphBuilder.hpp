@@ -7,8 +7,8 @@
  * GraphBuilder is the tool we can use to plot configurations. A quick overview:
  *
  * - Constructed from an OKS database file (XML)
- * - GraphBuilder::construct_graph will take a granularity level and a
- *   "root object" and construct a graph accordingly
+ * - GraphBuilder::construct_graph will take a "root object" and
+ *   construct a graph accordingly
  * - GraphBuilder::write_graph will take the name of an output DOT
  *   file and write the graph to it
  *
@@ -35,6 +35,7 @@
 
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace dbe {
@@ -55,7 +56,8 @@ namespace dbe {
     using Vertex_t = boost::graph_traits<Graph_t>::vertex_descriptor;
 
     enum class ObjectKind {
-      kSession = 0,
+      kUndefined,
+      kSession,
       kSegment,
       kApplication,
       kModule,
@@ -80,7 +82,7 @@ namespace dbe {
 
     explicit GraphBuilder(std::string_view oksfilename);
 
-    void construct_graph(const ObjectKind level, const std::string& root_obj_uid);
+    void construct_graph(std::string_view root_obj_uid);
     void write_graph(const std::string& outputfilename) const;
     
     GraphBuilder(const GraphBuilder&) = delete;
@@ -112,21 +114,21 @@ namespace dbe {
       // What objects is this one the parent of? E.g., a parent session with child segments
       std::vector<std::string> child_object_names;
 
-      // What objects does this one send data to, and what's their connection called?
+      // What objects does this one send data to, and what are their connections called?
       std::vector<ReceivingInfo> receiving_object_infos; 
     };
 
-    void find_candidate_objects(const ObjectKind level);
+    void find_candidate_objects();
     [[nodiscard]] std::vector<dunedaq::conffwk::ConfigObject> find_child_objects(const ConfigObject& parent_obj);
-    void calculate_graph(const ObjectKind level, const std::string& root_obj_uid);
+    void calculate_graph(std::string_view root_obj_uid);
     
-    void find_objects_and_connections(const ObjectKind level, const ConfigObject& object);
-    void calculate_network_connections(const ObjectKind level);
+    void find_objects_and_connections(const ConfigObject& object);
+    void calculate_network_connections();
 
     const std::string m_oksfilename;
     dunedaq::conffwk::Configuration* m_confdb;
 
-    const std::map<ObjectKind, std::vector<std::string>> m_included_classes;
+    const std::unordered_map<ObjectKind, std::vector<std::string>> m_included_classes;
 
     std::unordered_map<std::string, EnhancedObject> m_objects_for_graph;
 
@@ -134,6 +136,7 @@ namespace dbe {
     std::unordered_map<std::string, std::vector<std::string>> m_outgoing_connections;
     
     Graph_t m_graph;
+    ObjectKind m_root_object_kind;
 
     dunedaq::confmodel::Session* m_session;
     std::string m_session_name;
@@ -143,6 +146,9 @@ namespace dbe {
     std::vector<ConfigObject> m_all_objects;
     std::vector<ConfigObject> m_candidate_objects;
   };
+
+  [[nodiscard]] constexpr GraphBuilder::ObjectKind get_object_kind(std::string_view class_name);
+
 } // namespace dbe
 
 
