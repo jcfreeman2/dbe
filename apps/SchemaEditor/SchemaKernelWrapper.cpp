@@ -55,6 +55,17 @@ void dbse::KernelWrapper::GetClassListString ( QStringList & ClassListString ) c
   }
 }
 
+std::string dbse::KernelWrapper::GetActiveSchema () const
+{
+  auto file = Kernel->get_active_schema();
+  if ( file) {
+    return file->get_full_file_name();
+  }
+  else {
+    return "";
+  }
+}
+
 void dbse::KernelWrapper::GetSchemaFiles ( std::vector<std::string> & SchemaFiles )
 {
   for ( OksFile::Map::const_iterator i = Kernel->schema_files().begin();

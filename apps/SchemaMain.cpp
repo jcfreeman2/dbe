@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
     dbse::SchemaMainWindow w(QString::fromStdString(oksfn));
 
-    w.showMaximized();
+    w.show();
 
     return a.exec();
 }

@@ -107,7 +107,7 @@ void dbse::SchemaMainWindow::SetController()
 void dbse::SchemaMainWindow::BuildFileModel()
 {
   QStringList Headers
-  { "File Name", "Access" };
+    { "File Name", "Access", "Status" };
 
   if ( FileModel == nullptr )
   {
@@ -118,8 +118,10 @@ void dbse::SchemaMainWindow::BuildFileModel()
     delete FileModel;
     FileModel = new CustomFileModel ( Headers );
   }
-
   ui->FileView->setModel ( FileModel );
+  ui->FileView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  ui->FileView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  ui->FileView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 }
 
 void dbse::SchemaMainWindow::BuildTableModel()
@@ -161,6 +163,7 @@ int dbse::SchemaMainWindow::ShouldSaveChanges() const
 void dbse::SchemaMainWindow::AddNewClass()
 {
     SchemaClassEditor::createNewClass();
+    BuildFileModel();
 }
 
 void dbse::SchemaMainWindow::RemoveClass()
@@ -189,6 +192,7 @@ void dbse::SchemaMainWindow::RemoveClass()
     KernelWrapper::GetInstance().PushRemoveClassCommand ( SchemaClass, SchemaClass->get_name(),
                                                           SchemaClass->get_description(),
                                                           SchemaClass->get_is_abstract() );
+    BuildFileModel();
   }
 }
 
@@ -197,6 +201,7 @@ void dbse::SchemaMainWindow::SetSchemaFileActive()
   QModelIndex Index = ui->FileView->currentIndex();
   QStringList Row = FileModel->getRowFromIndex ( Index );
   KernelWrapper::GetInstance().SetActiveSchema ( Row.at ( 0 ).toStdString() );
+  BuildFileModel();
 }
 
 void dbse::SchemaMainWindow::PrintCurrentView()
@@ -317,6 +322,7 @@ void dbse::SchemaMainWindow::SaveSchema()
   else {
     SaveModifiedSchema();
   }
+  BuildFileModel();
 }
 
 void dbse::SchemaMainWindow::CreateNewSchema()
@@ -562,8 +568,6 @@ void dbse::SchemaMainWindow::CustomContextMenuFileView ( QPoint Pos )
     ContextMenuFileView = new QMenu ( this );
 
     QAction * Add = new QAction ( tr ( "&Set Active Schema" ), this );
-    Add->setShortcut ( tr ( "Ctrl+S" ) );
-    Add->setShortcutContext ( Qt::WidgetShortcut );
     connect ( Add, SIGNAL ( triggered() ), this, SLOT ( SetSchemaFileActive() ) );
 
     ContextMenuFileView->addAction ( Add );

@@ -4,6 +4,8 @@
 /// Including C++ Headers
 #include <vector>
 
+#include <QSize>
+
 dbse::CustomFileModel::CustomFileModel ( QStringList & Headers, QObject * parent )
   : QAbstractTableModel ( parent ),
     HeaderList ( Headers )
@@ -29,8 +31,12 @@ int dbse::CustomFileModel::columnCount ( const QModelIndex & parent ) const
 
 Qt::ItemFlags dbse::CustomFileModel::flags ( const QModelIndex & index ) const
 {
-  Q_UNUSED ( index )
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  if ( Data.value (index.row() ).value ( 1) == "RW" ) {
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  }
+  else {
+    return Qt::NoItemFlags;
+  }
 }
 
 QVariant dbse::CustomFileModel::headerData ( int section, Qt::Orientation orientation,
@@ -63,7 +69,8 @@ void dbse::CustomFileModel::setupModel()
 {
   std::vector<std::string> SchemaFiles;
   KernelWrapper::GetInstance().GetSchemaFiles ( SchemaFiles );
-
+  std::string ActiveSchema = KernelWrapper::GetInstance().GetActiveSchema();
+  std::string Modified = KernelWrapper::GetInstance().ModifiedSchemaFiles();
   for ( std::string & FileName : SchemaFiles )
   {
     QStringList Row;
@@ -78,6 +85,18 @@ void dbse::CustomFileModel::setupModel()
       Row.append ( "RO" );
     }
 
+    std::string Status = "";
+    if ( Modified.find( FileName ) != std::string::npos) {
+      Status = "Modified";
+    }
+    if ( FileName == ActiveSchema) {
+      if ( !Status.empty() ) {
+        Status += "  ";
+      }
+      Status += "Active";
+    }
+
+    Row.append ( QString::fromStdString ( Status ) );
     Data.append ( Row );
   }
 }
