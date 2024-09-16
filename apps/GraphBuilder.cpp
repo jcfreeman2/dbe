@@ -46,7 +46,7 @@
 
 namespace dbe {
 
-  GraphBuilder::GraphBuilder(std::string_view oksfilename) :
+  GraphBuilder::GraphBuilder(const std::string& oksfilename) :
     m_oksfilename { oksfilename },
     m_confdb { nullptr },
     m_included_classes {
@@ -144,7 +144,7 @@ namespace dbe {
 	      continue;
 	    }
 	  } else {
-	    TLOG(TLVL_DEBUG) << "daqapp for " << appobj.UID() << "@" << appobj.class_name() << " came up empty";
+	    TLOG(TLVL_DEBUG) << "Skipping non-SmartDaqApplication " << appobj.UID() << "@" << appobj.class_name();
 	    m_ignored_application_uids.push_back( appobj.UID() );
 	  }
 	}
@@ -165,13 +165,9 @@ namespace dbe {
 	}
       }
     }
-
-    for (const auto& obj : m_candidate_objects) {
-      TLOG(GENERAL_DEBUG_LVL) << "Candidate " << obj.UID() << "@" << obj.class_name();
-    }
   }
 
-  void GraphBuilder::calculate_graph(std::string_view root_obj_uid) {
+  void GraphBuilder::calculate_graph(const std::string& root_obj_uid) {
 
     find_candidate_objects();
 
@@ -409,7 +405,7 @@ namespace dbe {
     m_objects_for_graph.insert( {object.UID(), starting_object} );
   }
 
-  void GraphBuilder::construct_graph(std::string_view root_obj_uid) {
+  void GraphBuilder::construct_graph(const std::string& root_obj_uid) {
 
     // Next several lines just mean "tell me the class type of the root object in the config plot's graph"
 
@@ -422,7 +418,7 @@ namespace dbe {
       });
 
     assert(std::ranges::distance(class_names_view) == 1);
-    std::string_view root_obj_class_name = *class_names_view.begin();
+    const std::string& root_obj_class_name = *class_names_view.begin();
 
     m_root_object_kind = get_object_kind(root_obj_class_name);
 
@@ -527,19 +523,126 @@ namespace dbe {
     // library is so messy and clumsy that this is a worthwhile
     // tradeoff
 
-    std::string dotfileslurped = outputstream.str();
+    struct VertexStyle {
+      const std::string shape;
+      const std::string color;
+    };
 
+    const std::unordered_map<ObjectKind, VertexStyle> vertex_styles {
+      {ObjectKind::kSession, {"octagon", "black"}},
+      {ObjectKind::kSegment, {"hexagon", "brown"}},
+      {ObjectKind::kApplication, {"pentagon", "blue"}},
+      {ObjectKind::kModule, {"rectangle", "red"}}
+    };
+
+    std::string dotfile_slurped = outputstream.str();
+    std::vector<std::string> legend_entries {};
+    std::vector<std::string> legend_ordering_code {};
+    
     for (auto& eo : m_objects_for_graph | std::views::values) {
-      if (eo.kind == ObjectKind::kApplication) {
-	std::stringstream labelstringstr;
-	labelstringstr << "label=\"" << eo.config_object.UID() << "\n";
 
-	auto insert_point = dotfileslurped.find(labelstringstr.str());
-	assert(insert_point != std::string::npos);
-	
-	dotfileslurped.insert(insert_point, "color=red, fontcolor=red, ");
+      std::stringstream vertexstr {};
+      std::stringstream legendstr {};
+      std::stringstream labelstringstr {};
+      size_t insertion_location {0};
+
+      auto calculate_insertion_location = [&](){
+
+	labelstringstr << "label=\"" << eo.config_object.UID() << "\n";	  
+	insertion_location = dotfile_slurped.find(labelstringstr.str());
+	assert(insertion_location != std::string::npos);
+	return insertion_location;
+      };
+
+      auto add_vertex_info = [&]() {
+	vertexstr << "shape=" << vertex_styles.at(eo.kind).shape << ", color=" <<
+	  vertex_styles.at(eo.kind).color << ", fontcolor=" << vertex_styles.at(eo.kind).color << ", ";
+	dotfile_slurped.insert(calculate_insertion_location(), vertexstr.str());
+      };
+
+      auto add_legend_entry = [&](char letter, const std::string objkind) {
+	legendstr << "legend" << letter << " [label=<<font color=\"" << vertex_styles.at(eo.kind).color << "\">" << vertex_styles.at(eo.kind).color << ": " << objkind << "</font>>, shape=box, color=" << vertex_styles.at(eo.kind).color << ", fontcolor=" << vertex_styles.at(eo.kind).color << "];";
+      };
+      
+      // Note that the seemingly arbitrary single characters added
+      // after "legend" aren't just to uniquely identify each entry in
+      // the legend, it's also so that when the entries are sorted
+      // alphabetically they'll appear in the correct order
+      
+      switch (eo.kind) {
+      case ObjectKind::kSession:
+	add_vertex_info();
+	add_legend_entry('A', "session");
+	break;
+      case ObjectKind::kSegment:
+	add_vertex_info();
+	add_legend_entry('B', "segment");
+	break;
+      case ObjectKind::kApplication:
+	add_vertex_info();
+	add_legend_entry('C', "session");
+	break;
+      case ObjectKind::kModule:
+	add_vertex_info();
+	add_legend_entry('D', "module");
+	break;
+      case ObjectKind::kIncomingExternal:
+	legendstr << "legendE [label=\"X: External Data Sink\"];";
+	break;
+      case ObjectKind::kOutgoingExternal:
+	legendstr << "legendF [label=\"O: External Data Sink\"];";
+	break;
+      default:
+	assert(false);
+      }
+
+      if (std::ranges::find(legend_entries, legendstr.str()) == legend_entries.end()) {
+	legend_entries.emplace_back(legendstr.str());
       }
     }
+
+    std::ranges::sort(legend_entries);
+
+    // We have the line-by-line entries containing the labels in our
+    // legend and their colors, but more DOT code is needed in order
+    // to show the labels in order. E.g., if we have:
+
+    // legendA [label=<<font color="blue">Blue: Segment</font>>, shape=box, color=blue, fontcolor=blue];
+    // legendB [label=<<font color="red">Red: Application</font>>, shape=box, color=red, fontcolor=red];
+    //
+    // Then we'll also need
+    //
+    // legendA -> legendB [style=invis];
+
+    auto legend_tokens = legend_entries | std::views::transform([](const std::string& line) {
+      return line.substr(0, line.find(' '));
+    });
+
+    auto it = legend_tokens.begin();
+    for (auto next_it = std::next(it); next_it != legend_tokens.end(); ++it, ++next_it) {
+      std::stringstream astr {};
+      astr << "        " << *it << " -> " << *next_it << " [style=invis];";
+      legend_ordering_code.push_back(astr.str());
+    }
+
+    auto last_brace_iter = dotfile_slurped.end() - 2;
+    assert(*last_brace_iter == '}');
+    size_t last_brace_loc = last_brace_iter - dotfile_slurped.begin();
+    
+    std::string legend_code {};
+    legend_code += "\n\n\n";
+
+    for (auto& l : legend_entries) {
+      legend_code += l + "\n";
+    }
+    
+    legend_code += "\n\n\n";
+
+    for (auto& l : legend_ordering_code) {
+      legend_code += l + "\n";
+    }
+
+    dotfile_slurped.insert(last_brace_loc, legend_code);
 
     // Take advantage of the fact that the edges describing ownership
     // rather than data flow (e.g., hsi-segment owning hsi-01, the
@@ -550,8 +653,8 @@ namespace dbe {
     const std::string edge_modifier = ", style=\"dotted\", arrowhead=\"none\"";
 
     size_t pos = 0;
-    while ((pos = dotfileslurped.find(unlabeled_edge, pos)) != std::string::npos) {
-      dotfileslurped.replace(pos, unlabeled_edge.length(), unlabeled_edge + edge_modifier);
+    while ((pos = dotfile_slurped.find(unlabeled_edge, pos)) != std::string::npos) {
+      dotfile_slurped.replace(pos, unlabeled_edge.length(), unlabeled_edge + edge_modifier);
       pos += (unlabeled_edge + edge_modifier).length();
     }
 
@@ -559,7 +662,7 @@ namespace dbe {
     outputfile.open( outputfilename );
     
     if ( outputfile.is_open() ) {
-      outputfile << dotfileslurped.c_str();
+      outputfile << dotfile_slurped.c_str();
     } else {
       std::stringstream errmsg;
       errmsg << "Unable to open requested file \"" << outputfilename << "\" for writing";
@@ -567,7 +670,7 @@ namespace dbe {
     }
   }
 
-  constexpr GraphBuilder::ObjectKind get_object_kind(std::string_view class_name) {
+  constexpr GraphBuilder::ObjectKind get_object_kind(const std::string& class_name) {
 
     using ObjectKind = GraphBuilder::ObjectKind;
 
@@ -582,7 +685,7 @@ namespace dbe {
     } else if (class_name.find("Module") != std::string::npos ) {
       kind = ObjectKind::kModule;
     } else {
-      throw dbe::GeneralGraphToolError(ERS_HERE, "Unsupported class type passed to get_object_kind");
+      throw dbe::GeneralGraphToolError(ERS_HERE, "Unsupported class type \"" + std::string(class_name) + "\"passed to get_object_kind");
     }
 
     return kind;

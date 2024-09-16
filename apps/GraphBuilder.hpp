@@ -34,7 +34,6 @@
 #include "boost/graph/labeled_graph.hpp"
 
 #include <string>
-#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -80,9 +79,9 @@ namespace dbe {
       const std::string displaylabel {"undefined"};
     };
 
-    explicit GraphBuilder(std::string_view oksfilename);
+    explicit GraphBuilder(const std::string& oksfilename);
 
-    void construct_graph(std::string_view root_obj_uid);
+    void construct_graph(const std::string& root_obj_uid);
     void write_graph(const std::string& outputfilename) const;
     
     GraphBuilder(const GraphBuilder&) = delete;
@@ -120,7 +119,7 @@ namespace dbe {
 
     void find_candidate_objects();
     [[nodiscard]] std::vector<dunedaq::conffwk::ConfigObject> find_child_objects(const ConfigObject& parent_obj);
-    void calculate_graph(std::string_view root_obj_uid);
+    void calculate_graph(const std::string& root_obj_uid);
     
     void find_objects_and_connections(const ConfigObject& object);
     void calculate_network_connections();
@@ -147,7 +146,7 @@ namespace dbe {
     std::vector<ConfigObject> m_candidate_objects;
   };
 
-  [[nodiscard]] constexpr GraphBuilder::ObjectKind get_object_kind(std::string_view class_name);
+  [[nodiscard]] constexpr GraphBuilder::ObjectKind get_object_kind(const std::string& class_name);
 
 } // namespace dbe
 
