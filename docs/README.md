@@ -76,14 +76,17 @@ where I've defined a `max_buffer_size` Attribute, which you can set anywhere fro
 You can now see the changes you've made, whether by opening up `tutorial.schema.xml` or by re-running `dbe_main -f tutorial.data.xml` and looking at `ReadoutApplication` instances. 
 
 ## Creating A Diagram of Your Configuration
-
-A discussion of DBE wouldn't be complete without mention of its diagram-creation tool, `dbe_gtool`. E.g., to create a diagram of the configuration we've edited in this tutorial, you can do the following:
+In `dbe` it's possible to create a diagram of a DAQ configuration in the [DOT graph description language](https://en.wikipedia.org/wiki/DOT_(graph_description_language)), which can then be fed to the `dot` program to generate a viewable graphic. This is accomplished using the `create_config_plot` application. You can run `create_config_plot -h` to see how it's used, but to explain it simply, you provide it with a database file and the name of a session, segment or application in the database, and it will create a plot using that object as the root of the plot. E.g., if you clone the `appmodel` repo you can generate a plot of its test DAQ session via:
 ```
-tmpfile=$( mktemp )
-dbe_gtool --file ./tutorial.data.xml --result $tmpfile
-dot -Tsvg $tmpfile > tutorial_diagram.svg
+create_config_plot -f ./appmodel/test/config/test-session.data.xml -r test-session
 ```
-...where you can then display `tutorial_diagram.svg` using, e.g., `gimp` or your web browser. Please note that depending on the display tool you choose you may need to display the diagram from a different terminal than the one in which you have your work area set up due to compatibility issues with the `cairo` package which Qt depends on. The diagram will look something like the following:
-
-![Configuration Diagram](configuration_diagram.png)
+and if you want to plot the `mlt` application in there, you can just do
+```
+create_config_plot -f ./appmodel/test/config/test-session.data.xml -r mlt
+```
+Either of these commands will create (or clobber) a file called `config.dot`. If you wish to give the file a different name you can use the `-o` option, e.g., `-o mypreferredname.dot`. Once you have the DOT file, you can generate a graphic by doing the following:
+```
+dot -Tsvg -o mypreferredname.svg config.dot
+``` 
+...which can then be displayed, e.g., in a browser window via the link `file:///path/to/file/mypreferredname.svg`. Note that while `dot` is available on the np04 cluster, it's not (yet) part of our externals; if `dot` isn't available on your host, you'll want to use Spack to install the Graphviz package which contains `dot` via `spack install --reuse graphviz +expat`. Remember that in order to set up a work area which allows you to install Spack packages [you need to pass `-s` to `dbt-create`](https://dune-daq-sw.readthedocs.io/en/latest/packages/daq-release/Build-external-packages-with-spack-in-a-work-area/). 
 
