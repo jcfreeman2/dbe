@@ -417,7 +417,12 @@ namespace dbe {
 	return obj.class_name();
       });
 
-    assert(std::ranges::distance(class_names_view) == 1);
+    if (std::ranges::distance(class_names_view) != 1) {
+      std::stringstream errmsg;
+      errmsg << "Failed to find instance of desired root object \"" << root_obj_uid << "\"";
+      throw dbe::GeneralGraphToolError(ERS_HERE, errmsg.str());
+    }
+
     const std::string& root_obj_class_name = *class_names_view.begin();
 
     m_root_object_kind = get_object_kind(root_obj_class_name);
@@ -538,7 +543,7 @@ namespace dbe {
     std::string dotfile_slurped = outputstream.str();
     std::vector<std::string> legend_entries {};
     std::vector<std::string> legend_ordering_code {};
-    
+
     for (auto& eo : m_objects_for_graph | std::views::values) {
 
       std::stringstream vertexstr {};
@@ -554,6 +559,12 @@ namespace dbe {
 	return insertion_location;
       };
 
+      // TODO: John Freeman (jcfree@fnal.gov), Sep-17-2024
+
+      // Switch to std::format for line construction rather than
+      // std::stringstream when we switch to a gcc version which
+      // supports it
+
       auto add_vertex_info = [&]() {
 	vertexstr << "shape=" << vertex_styles.at(eo.kind).shape << ", color=" <<
 	  vertex_styles.at(eo.kind).color << ", fontcolor=" << vertex_styles.at(eo.kind).color << ", ";
@@ -561,7 +572,7 @@ namespace dbe {
       };
 
       auto add_legend_entry = [&](char letter, const std::string objkind) {
-	legendstr << "legend" << letter << " [label=<<font color=\"" << vertex_styles.at(eo.kind).color << "\">" << vertex_styles.at(eo.kind).color << ": " << objkind << "</font>>, shape=box, color=" << vertex_styles.at(eo.kind).color << ", fontcolor=" << vertex_styles.at(eo.kind).color << "];";
+	legendstr << "legend" << letter << " [label=<<font color=\"" << vertex_styles.at(eo.kind).color << "\"><b><i>" << vertex_styles.at(eo.kind).color << ": " << objkind << "</i></b></font>>, shape=plaintext, color=" << vertex_styles.at(eo.kind).color << ", fontcolor=" << vertex_styles.at(eo.kind).color << "];";
       };
       
       // Note that the seemingly arbitrary single characters added
@@ -580,17 +591,17 @@ namespace dbe {
 	break;
       case ObjectKind::kApplication:
 	add_vertex_info();
-	add_legend_entry('C', "session");
+	add_legend_entry('C', "application");
 	break;
       case ObjectKind::kModule:
 	add_vertex_info();
-	add_legend_entry('D', "module");
+	add_legend_entry('D', "DAQModule");
 	break;
       case ObjectKind::kIncomingExternal:
-	legendstr << "legendE [label=\"X: External Data Sink\"];";
+	legendstr << "legendE [label=<<font color=\"black\">O:<b><i> External Data Source</i></b></font>>, shape=plaintext];";
 	break;
       case ObjectKind::kOutgoingExternal:
-	legendstr << "legendF [label=\"O: External Data Sink\"];";
+	legendstr << "legendF [label=<<font color=\"black\">X:<b><i> External Data Sink</i></b></font>>, shape=plaintext];";
 	break;
       default:
 	assert(false);
@@ -615,7 +626,7 @@ namespace dbe {
     // legendA -> legendB [style=invis];
 
     auto legend_tokens = legend_entries | std::views::transform([](const std::string& line) {
-      return line.substr(0, line.find(' '));
+      return line.substr(0, line.find(' ')); // i.e., grab the first word on the line
     });
 
     auto it = legend_tokens.begin();
@@ -625,20 +636,21 @@ namespace dbe {
       legend_ordering_code.push_back(astr.str());
     }
 
-    auto last_brace_iter = dotfile_slurped.end() - 2;
+    constexpr int chars_to_last_brace = 2;
+    auto last_brace_iter = dotfile_slurped.end() - chars_to_last_brace;
     assert(*last_brace_iter == '}');
     size_t last_brace_loc = last_brace_iter - dotfile_slurped.begin();
-    
+
     std::string legend_code {};
     legend_code += "\n\n\n";
 
-    for (auto& l : legend_entries) {
+    for (const auto& l : legend_entries) {
       legend_code += l + "\n";
     }
     
     legend_code += "\n\n\n";
 
-    for (auto& l : legend_ordering_code) {
+    for (const auto& l : legend_ordering_code) {
       legend_code += l + "\n";
     }
 
@@ -657,6 +669,8 @@ namespace dbe {
       dotfile_slurped.replace(pos, unlabeled_edge.length(), unlabeled_edge + edge_modifier);
       pos += (unlabeled_edge + edge_modifier).length();
     }
+
+    // And now with all the edits made to the contents of the DOT code, write it to file
 
     std::ofstream outputfile;
     outputfile.open( outputfilename );
