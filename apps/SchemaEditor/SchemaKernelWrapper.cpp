@@ -66,6 +66,20 @@ std::string dbse::KernelWrapper::GetActiveSchema () const
   }
 }
 
+void dbse::KernelWrapper::AddInclude( std::string IncludeFile ) const
+{
+  auto ActiveSchema = Kernel->get_active_schema();
+  ActiveSchema->add_include_file( IncludeFile );
+  Kernel->load_schema( IncludeFile, ActiveSchema );
+}
+
+void dbse::KernelWrapper::RemoveInclude( std::string IncludeFile ) const
+{
+  auto ActiveSchema = Kernel->get_active_schema();
+  ActiveSchema->remove_include_file( IncludeFile );
+
+}
+
 void dbse::KernelWrapper::GetSchemaFiles ( std::vector<std::string> & SchemaFiles )
 {
   for ( OksFile::Map::const_iterator i = Kernel->schema_files().begin();
@@ -130,6 +144,13 @@ std::string dbse::KernelWrapper::SaveModifiedSchema() const
   }
   return saved;
 }
+
+void dbse::KernelWrapper::SaveSchema(const std::string& schema_file) const
+{
+  OksFile * file = Kernel->find_schema_file ( schema_file );
+  Kernel->save_schema(file);
+}
+
 
 void dbse::KernelWrapper::CloseAllSchema() const
 {

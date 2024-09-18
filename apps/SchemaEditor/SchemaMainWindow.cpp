@@ -5,6 +5,7 @@
 #include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaRelationshipEditor.hpp"
 #include "dbe/SchemaMethodImplementationEditor.hpp"
+#include "dbe/SchemaIncludeFileWidget.hpp"
 /// Including Auto-Generated Files
 #include "ui_SchemaMainWindow.h"
 /// Including QT Headers
@@ -36,6 +37,7 @@ dbse::SchemaMainWindow::SchemaMainWindow ( QWidget * parent )
   InitialTab();
   InitialTabCorner();
   SetController();
+  setFocusPolicy( Qt::StrongFocus );
 }
 
 dbse::SchemaMainWindow::SchemaMainWindow ( QString SchemaFile, QWidget * parent )
@@ -79,6 +81,7 @@ void dbse::SchemaMainWindow::SetController()
 {
   connect ( ui->OpenFileSchema, SIGNAL ( triggered() ), this, SLOT ( OpenSchemaFile() ) );
   connect ( ui->CreateNewSchema, SIGNAL ( triggered() ), this, SLOT ( CreateNewSchema() ) );
+  connect ( ui->AddInclude, SIGNAL ( triggered() ), this, SLOT ( LaunchIncludeEditorActiveSchema() ) );
   connect ( ui->SaveSchema, SIGNAL ( triggered() ), this, SLOT ( SaveSchema() ) );
   connect ( ui->SetRelationship, SIGNAL ( triggered ( bool ) ), this,
             SLOT ( ChangeCursorRelationship ( bool ) ) );
@@ -104,20 +107,33 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->ClassTableSearchLine, SIGNAL( textChanged ( QString ) ), proxyModel, SLOT( setFilterRegExp( QString ) ) );
 }
 
+void dbse::SchemaMainWindow::LaunchIncludeEditor()
+{
+  QModelIndex Index = ui->FileView->currentIndex();
+  QStringList Row = FileModel->getRowFromIndex ( Index );
+  auto * FileWidget = new dbse::SchemaIncludeFileWidget ( Row.at ( 0 ) );
+  FileWidget->show();
+
+}
+
+void dbse::SchemaMainWindow::LaunchIncludeEditorActiveSchema()
+{
+  std::string ActiveSchema = KernelWrapper::GetInstance().GetActiveSchema();
+
+  auto * FileWidget = new dbse::SchemaIncludeFileWidget ( QString::fromStdString (ActiveSchema) );
+  FileWidget->show();
+}
+
 void dbse::SchemaMainWindow::BuildFileModel()
 {
-  QStringList Headers
-    { "File Name", "Access", "Status" };
+  QStringList Headers { "File Name", "Access", "Status" };
 
-  if ( FileModel == nullptr )
-  {
-    FileModel = new CustomFileModel ( Headers );
-  }
-  else
+  if ( FileModel != nullptr )
   {
     delete FileModel;
-    FileModel = new CustomFileModel ( Headers );
   }
+  FileModel = new CustomFileModel ( Headers );
+
   ui->FileView->setModel ( FileModel );
   ui->FileView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui->FileView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -247,6 +263,14 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
   event->accept();
 }
 
+
+void dbse::SchemaMainWindow::focusInEvent( QFocusEvent * event )
+{
+  std::cout << "SchemaMainWindow::focusInEvent()\n";
+  BuildFileModel();
+  event->accept();
+}
+
 void dbse::SchemaMainWindow::OpenSchemaFile(QString SchemaFile) {
     if(!SchemaFile.isEmpty()) {
             try {
@@ -347,7 +371,7 @@ void dbse::SchemaMainWindow::CreateNewSchema()
   try
   {
     KernelWrapper::GetInstance().CreateNewSchema ( FileNameStd );
-
+    KernelWrapper::GetInstance().SaveSchema ( FileNameStd );
     BuildTableModel();
     BuildFileModel();
   }
@@ -567,10 +591,13 @@ void dbse::SchemaMainWindow::CustomContextMenuFileView ( QPoint Pos )
   {
     ContextMenuFileView = new QMenu ( this );
 
-    QAction * Add = new QAction ( tr ( "&Set Active Schema" ), this );
-    connect ( Add, SIGNAL ( triggered() ), this, SLOT ( SetSchemaFileActive() ) );
+    QAction * Act = new QAction ( tr ( "Set as Active Schema" ), this );
+    connect ( Act, SIGNAL ( triggered() ), this, SLOT ( SetSchemaFileActive() ) );
+    QAction * Inc = new QAction ( tr ( "Update include file list" ), this );
+    connect ( Inc, SIGNAL ( triggered() ), this, SLOT ( LaunchIncludeEditor() ) );
 
-    ContextMenuFileView->addAction ( Add );
+    ContextMenuFileView->addAction ( Act );
+    ContextMenuFileView->addAction ( Inc );
   }
 
   QModelIndex Index = ui->FileView->currentIndex();

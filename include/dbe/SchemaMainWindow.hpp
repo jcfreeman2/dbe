@@ -44,10 +44,13 @@ private:
   int ShouldSaveChanges() const;
 protected:
   void closeEvent ( QCloseEvent * event );
+  void focusInEvent( QFocusEvent * event ) override;
   void OpenSchemaFile( QString SchemaFile);
 private slots:
   void OpenSchemaFile();
   void CreateNewSchema();
+  void LaunchIncludeEditor();
+  void LaunchIncludeEditorActiveSchema();
   void SaveSchema();
   void SaveModifiedSchema();
   void ChangeCursorRelationship ( bool State );

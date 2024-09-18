@@ -44,6 +44,7 @@
     </property>
     <addaction name="OpenFileSchema"/>
     <addaction name="CreateNewSchema"/>
+    <addaction name="AddInclude"/>
     <addaction name="SaveSchema"/>
     <addaction name="separator"/>
     <addaction name="Exit"/>
@@ -183,6 +184,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="AddInclude">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/CreateDatabase.png</normaloff>:/icons/CreateDatabase.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add include</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="AddClass">

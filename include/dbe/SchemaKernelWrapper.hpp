@@ -43,9 +43,12 @@ public:
   dunedaq::oks::OksClass * FindClass ( std::string ClassName ) const;
   void LoadSchema ( const std::string & SchemaName ) const;
   void SaveAllSchema() const;
+  void SaveSchema ( const std::string& file ) const;
   std::string ModifiedSchemaFiles() const;
   std::string SaveModifiedSchema() const;
   std::string GetActiveSchema() const;
+  void AddInclude( std::string IncludeFile ) const;
+  void RemoveInclude( std::string IncludeFile ) const;
   void CloseAllSchema() const;
   void CreateNewSchema ( const std::string & SchemaName ) const;
   bool AnyClassReferenceThis ( dunedaq::oks::OksClass * SchemaClass );
