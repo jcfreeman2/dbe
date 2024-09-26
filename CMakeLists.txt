@@ -250,7 +250,7 @@ set(schema_core_ui
                     ui/SchemaMethodEditor.ui
                     ui/SchemaMethodImplementationEditor.ui
                     ui/SchemaRelationshipEditor.ui
-                    ui/IncludeFileWidget.ui
+                    ui/SchemaIncludeFileWidget.ui
                     )
 
 qt5_wrap_ui(schema_core_ui_header ${schema_core_ui})

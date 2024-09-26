@@ -12,13 +12,14 @@
 
 using dbe::StyleUtility;
 
-namespace dbe::Ui
-{
-class IncludeFileWidget;
-}  // namespace dbse::Ui
 
 namespace dbse
 {
+  namespace Ui
+  {
+    class SchemaIncludeFileWidget;
+  }  // namespace Ui
+
 class SchemaIncludeFileWidget: public QWidget
 {
   Q_OBJECT
@@ -28,9 +29,9 @@ public:
 
 private:
   void SetRemoveComboBox();
+  void SetCurrentIncludeList();
   void SetController();
-
-  std::unique_ptr<dbe::Ui::IncludeFileWidget> ui;
+  std::unique_ptr<dbse::Ui::SchemaIncludeFileWidget> ui;
 
   // CreateDatabaseWidget * CreateWidget;
   QString CurrentFile;
@@ -49,7 +50,8 @@ private slots:
   void RemoveFileFromInclude ( int );
   void SetDirectory ( const QString & Dir );
   void CheckInclude ();
-  // void CreateFileToInclude();
+  void SaveSchema();
+  void CreateFileToInclude();
 };
 }  // namespace dbse
 

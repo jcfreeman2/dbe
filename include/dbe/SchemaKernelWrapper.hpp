@@ -47,8 +47,8 @@ public:
   std::string ModifiedSchemaFiles() const;
   std::string SaveModifiedSchema() const;
   std::string GetActiveSchema() const;
-  void AddInclude( std::string IncludeFile ) const;
-  void RemoveInclude( std::string IncludeFile ) const;
+  void AddInclude( std::string schemaFile, std::string IncludeFile ) const;
+  void RemoveInclude( std::string schemaFile, std::string IncludeFile ) const;
   void CloseAllSchema() const;
   void CreateNewSchema ( const std::string & SchemaName ) const;
   bool AnyClassReferenceThis ( dunedaq::oks::OksClass * SchemaClass );

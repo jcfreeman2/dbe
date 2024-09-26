@@ -66,18 +66,29 @@ std::string dbse::KernelWrapper::GetActiveSchema () const
   }
 }
 
-void dbse::KernelWrapper::AddInclude( std::string IncludeFile ) const
+// void dbse::KernelWrapper::AddInclude( std::string IncludeFile ) const
+// {
+//   auto ActiveSchema = Kernel->get_active_schema();
+//   ActiveSchema->add_include_file( IncludeFile );
+//   Kernel->load_schema( IncludeFile, ActiveSchema );
+// }
+void dbse::KernelWrapper::AddInclude( std::string schemaFile, std::string IncludeFile ) const
 {
-  auto ActiveSchema = Kernel->get_active_schema();
-  ActiveSchema->add_include_file( IncludeFile );
-  Kernel->load_schema( IncludeFile, ActiveSchema );
+  auto ParentSchema = Kernel->find_schema_file( schemaFile );
+  if ( ParentSchema != nullptr) {
+    ParentSchema->add_include_file( IncludeFile );
+    Kernel->load_schema( IncludeFile, ParentSchema );
+  }
 }
 
-void dbse::KernelWrapper::RemoveInclude( std::string IncludeFile ) const
+void dbse::KernelWrapper::RemoveInclude( std::string schemaFile, std::string IncludeFile ) const
 {
-  auto ActiveSchema = Kernel->get_active_schema();
-  ActiveSchema->remove_include_file( IncludeFile );
-
+  auto ParentSchema = Kernel->find_schema_file( schemaFile );
+  if (ParentSchema != nullptr) {
+    std::cout << "Calling remove_include_file()\n";
+    ParentSchema->remove_include_file( IncludeFile );
+    std::cout << "Called remove_include_file()\n";
+  }
 }
 
 void dbse::KernelWrapper::GetSchemaFiles ( std::vector<std::string> & SchemaFiles )

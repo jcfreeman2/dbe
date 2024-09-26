@@ -268,6 +268,7 @@ void dbse::SchemaMainWindow::focusInEvent( QFocusEvent * event )
 {
   std::cout << "SchemaMainWindow::focusInEvent()\n";
   BuildFileModel();
+  BuildTableModel();
   event->accept();
 }
 
@@ -290,6 +291,9 @@ void dbse::SchemaMainWindow::OpenSchemaFile(QString SchemaFile) {
                                      QString("Could not load schema!\n\n").append(QString(Ex.what())),
                                      QMessageBox::Ok);
             }
+
+            ui->CreateNewSchema->setDisabled (true );
+            ui->OpenFileSchema->setDisabled (true );
     }
 }
 
@@ -374,6 +378,8 @@ void dbse::SchemaMainWindow::CreateNewSchema()
     KernelWrapper::GetInstance().SaveSchema ( FileNameStd );
     BuildTableModel();
     BuildFileModel();
+    ui->CreateNewSchema->setDisabled (true );
+    ui->OpenFileSchema->setDisabled (true );
   }
   catch ( oks::exception & Ex )
   {
@@ -593,7 +599,7 @@ void dbse::SchemaMainWindow::CustomContextMenuFileView ( QPoint Pos )
 
     QAction * Act = new QAction ( tr ( "Set as Active Schema" ), this );
     connect ( Act, SIGNAL ( triggered() ), this, SLOT ( SetSchemaFileActive() ) );
-    QAction * Inc = new QAction ( tr ( "Update include file list" ), this );
+    QAction * Inc = new QAction ( tr ( "Show/Update include file list" ), this );
     connect ( Inc, SIGNAL ( triggered() ), this, SLOT ( LaunchIncludeEditor() ) );
 
     ContextMenuFileView->addAction ( Act );

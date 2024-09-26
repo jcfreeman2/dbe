@@ -4,22 +4,30 @@
 #include "dbe/Exceptions.hpp"
 #include "dbe/config_api_get.hpp"
 #include "dbe/config_api_commands.hpp"
-#include "ui_IncludeFileWidget.h"
+#include "ui_SchemaIncludeFileWidget.h"
 #include "dbe/messenger.hpp"
 //#include "dbe/SchemaMainWindow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
 
+#include "dbe/SchemaCustomFileModel.hpp"
+#include "dbe/SchemaCustomTableModel.hpp"
+
+
 #include <QUrl>
 #include <QApplication>
+#include <QMessageBox>
 
 #include <boost/scope_exit.hpp>
 #include <cstdlib>
+
+using namespace dunedaq;
+using namespace dunedaq::oks;
 
 dbse::SchemaIncludeFileWidget::~SchemaIncludeFileWidget() = default;
 
 dbse::SchemaIncludeFileWidget::SchemaIncludeFileWidget ( QString FilePath, QWidget * parent )
   : QWidget ( parent ),
-    ui ( new dbe::Ui::IncludeFileWidget ),
+    ui ( new dbse::Ui::SchemaIncludeFileWidget ),
     // CreateWidget ( nullptr ),
     CurrentFile ( FilePath ),
     Removed ( false ),
@@ -29,12 +37,12 @@ dbse::SchemaIncludeFileWidget::SchemaIncludeFileWidget ( QString FilePath, QWidg
   ui->setupUi ( this );
 
   /// Visual
-  ui->AddLabel->setStyleSheet (
-    "QLabel{background-color:#8DAA2E; color:#facd64; font:bold14px; border-style:outset; border-width:2px; border-radius:10px;"
-    "border-color:beige; font:bold14px; min-width:10em; padding: 6px;}" );
-  ui->RemoveLabel->setStyleSheet (
-    "QLabel{background-color:#b5351b; color:#facd64; font:bold14px; border-style:outset;"
-    "border-width:2px; border-radius:10px; border-color:beige; font:bold14px; min-width:10em; padding:6px;}" );
+  // ui->AddLabel->setStyleSheet (
+  //   "QLabel{background-color:#8DAA2E; color:#facd64; font:bold14px; border-style:outset; border-width:2px; border-radius:10px;"
+  //   "border-color:beige; font:bold14px; min-width:10em; padding: 6px;}" );
+  // ui->RemoveLabel->setStyleSheet (
+  //   "QLabel{background-color:#b5351b; color:#facd64; font:bold14px; border-style:outset;"
+  //   "border-width:2px; border-radius:10px; border-color:beige; font:bold14px; min-width:10em; padding:6px;}" );
   setWindowTitle (
     QString ( "Edit Included Files for schema file : %1" ).arg ( QFileInfo (
                                                                 FilePath ).fileName() ) );
@@ -81,13 +89,50 @@ dbse::SchemaIncludeFileWidget::SchemaIncludeFileWidget ( QString FilePath, QWidg
   SelectFile->setSidebarUrls ( List );
   SelectFile->setOption(QFileDialog::DontResolveSymlinks, true);
   ui->AddToIncludeButton->setDisabled ( true );
-  ui->RemoveButton->setDisabled ( true );
+  // ui->RemoveButton->setDisabled ( true );
+  ui->SaveButton->setDisabled ( true );
 
   ui->AddFileLine->setSelectionMode(QAbstractItemView::NoSelection);
 
   SetRemoveComboBox();
+  SetCurrentIncludeList();
 
   SetController();
+}
+
+void dbse::SchemaIncludeFileWidget::SetCurrentIncludeList()
+{
+  std::set<std::string> includes;
+  dbse::KernelWrapper::GetInstance().GetIncludedList ( CurrentFile.toStdString(),
+                                                       includes );
+  QStringList IncludeList;
+  for (auto file: includes) {
+    std::cout << "Include file = <" << file << ">\n";
+    QString File = QString::fromStdString ( file );
+    if ( !File.isEmpty() )
+    {
+      /// Need to strip file....
+      for ( QString & PathFile : FolderPathList )
+      {
+        if ( File.startsWith ( PathFile ) )
+        {
+          File = File.replace ( 0, PathFile.size(), "" );
+          break;
+        }
+      }
+      IncludeList.append ( File );
+    }
+  }
+  if ( !IncludeList.isEmpty() )
+  {
+    if ( IncludeList.contains ( CurrentFile ) )
+    {
+      IncludeList.removeOne ( CurrentFile );
+    }
+
+    ui->CurrentIncludeList->clear();
+    ui->CurrentIncludeList->addItems ( IncludeList );
+  }
 }
 
 void dbse::SchemaIncludeFileWidget::SetRemoveComboBox()
@@ -122,6 +167,7 @@ void dbse::SchemaIncludeFileWidget::SetRemoveComboBox()
 
     ui->RemoveCombo->clear();
     ui->RemoveCombo->addItems ( IncludeList );
+    ui->RemoveButton->setDisabled ( true );
   }
 }
 
@@ -129,8 +175,8 @@ void dbse::SchemaIncludeFileWidget::SetController()
 {
   connect ( ui->SelectFileButton, SIGNAL ( clicked() ), this, SLOT ( SelectFileToInclude() ),
             Qt::UniqueConnection );
-  // connect ( ui->CreateFileButton, SIGNAL ( clicked() ), this, SLOT ( CreateFileToInclude() ),
-  //           Qt::UniqueConnection );
+  connect ( ui->CreateFileButton, SIGNAL ( clicked() ), this, SLOT ( CreateFileToInclude() ),
+            Qt::UniqueConnection );
   connect ( ui->AddToIncludeButton, SIGNAL ( clicked() ), this, SLOT ( AddFileToInclude() ),
             Qt::UniqueConnection );
   connect ( ui->RemoveButton, SIGNAL ( clicked() ), this, SLOT ( RemoveFileFromInclude() ),
@@ -140,9 +186,20 @@ void dbse::SchemaIncludeFileWidget::SetController()
             Qt::UniqueConnection );
   connect ( ui->DirectoryCombo, SIGNAL ( activated ( const QString & ) ), this,
             SLOT ( SetDirectory ( const QString & ) ), Qt::UniqueConnection );
+  connect ( ui->SaveButton, SIGNAL ( clicked() ), this, SLOT ( SaveSchema() ) );
   connect ( ui->ExitButton, SIGNAL ( clicked() ), this, SLOT ( close() ) );
 }
 
+void dbse::SchemaIncludeFileWidget::SaveSchema()
+{
+  KernelWrapper::GetInstance().SaveSchema( CurrentFile.toStdString() );
+
+  StatusBar->showMessage (
+    QString ( "Schema file %1 saved" ).arg ( CurrentFile ) );
+  ui->SaveButton->setEnabled ( false );
+  SetCurrentIncludeList();
+  SetRemoveComboBox();
+}
 void dbse::SchemaIncludeFileWidget::SelectFileToInclude()
 {
   ui->AddFileLine->clear();
@@ -203,8 +260,17 @@ void dbse::SchemaIncludeFileWidget::AddFileToInclude()
               }
             }
 
-            KernelWrapper::GetInstance().AddInclude( File.toStdString() );
-
+            QString message;
+            try {
+              KernelWrapper::GetInstance().AddInclude(
+                CurrentFile.toStdString(), File.toStdString() );
+              message = QString (
+                "The file %1 was added to the included files" ).arg ( File );
+            }
+            catch (std::exception& exc) {
+              message = QString (
+                "Failed to add %1 to included files, %2" ).arg(File).arg(exc.what());
+            }
             StatusBar->setPalette ( QApplication::palette ( this ) );
             StatusBar->showMessage (
               QString ( "The file %1 was added to the included files" ).arg ( File ) );
@@ -215,6 +281,9 @@ void dbse::SchemaIncludeFileWidget::AddFileToInclude()
 
     ui->AddFileLine->clear();
     ui->AddToIncludeButton->setDisabled ( true );
+    ui->SaveButton->setEnabled ( true );
+
+    SetCurrentIncludeList();
 }
 
 void dbse::SchemaIncludeFileWidget::AddNewFileToInclude ( const QString & File )
@@ -272,13 +341,16 @@ void dbse::SchemaIncludeFileWidget::RemoveFileFromInclude()
     QString File = ui->RemoveCombo->currentText();
 
     std::cout << "File " << File.toStdString() << " being removed\n";
-    KernelWrapper::GetInstance().RemoveInclude( File.toStdString() );
+    KernelWrapper::GetInstance().RemoveInclude( CurrentFile.toStdString(),
+                                                File.toStdString() );
     
     Removed = true;
     StatusBar->setPalette ( QApplication::palette ( this ) );
     StatusBar->showMessage (
       QString ( "The file %1 was removed from the included files" ).arg ( File ) );
     SetRemoveComboBox();
+    ui->SaveButton->setEnabled ( true );
+    SetCurrentIncludeList();
   }
   else
   {
@@ -304,16 +376,7 @@ void dbse::SchemaIncludeFileWidget::RemoveFileFromInclude ( int )
 void dbse::SchemaIncludeFileWidget::SetDirectory ( const QString & Dir )
 {
   if(dbPath.contains(Dir, Qt::CaseSensitivity::CaseSensitive) && QDir(Dir).exists()) {
-    auto sc_dir = Dir;
-    sc_dir.append("schema");
-
-    if (QDir(sc_dir).exists()) {
-      Directory = sc_dir;
-    }
-    else {
-      Directory = Dir;
-    }
-    SelectFile->setDirectory ( Directory );
+    SelectFile->setDirectory ( Dir );
   } else {
     Directory.clear();
     SelectFile->setDirectory(QDir("."));
@@ -363,10 +426,50 @@ void dbse::SchemaIncludeFileWidget::CheckInclude ()
   ui->AddToIncludeButton->setDisabled((ui->AddFileLine->count() == 0) ? true : false);
 }
 
-// void dbse::SchemaIncludeFileWidget::CreateFileToInclude()
-// {
-//   CreateWidget = new CreateDatabaseWidget ( nullptr, true, Directory );
-//   connect ( CreateWidget, SIGNAL ( CanIncludeDatabase ( const QString & ) ), this,
-//             SLOT ( AddNewFileToInclude ( const QString & ) ), Qt::UniqueConnection );
-//   CreateWidget->show();
-// }
+void dbse::SchemaIncludeFileWidget::CreateFileToInclude()
+{
+  QString FileName = QFileDialog::getSaveFileName ( this, tr ( "New schema File" ) );
+
+  if ( FileName.isEmpty() )
+  {
+    QMessageBox::warning ( 0, "Schema editor",
+                           QString ( "Please provide a name for the schema !" ) );
+    return;
+  }
+
+  if ( !FileName.endsWith ( ".schema.xml" ) )
+  {
+    FileName.append ( ".schema.xml" );
+  }
+
+  QFile FileInfo ( FileName );
+  std::string FileNameStd = FileInfo.fileName().toStdString();
+
+  try
+  {
+    auto save_active = KernelWrapper::GetInstance().GetActiveSchema();
+    KernelWrapper::GetInstance().CreateNewSchema ( FileNameStd );
+    KernelWrapper::GetInstance().SaveSchema ( FileNameStd );
+    KernelWrapper::GetInstance().SetActiveSchema(save_active);
+    KernelWrapper::GetInstance().AddInclude(
+      CurrentFile.toStdString(), FileNameStd );
+    StatusBar->showMessage (
+      QString ( "The file %1 was added to the included files" ).arg ( FileInfo.fileName())
+      );
+  }
+  catch ( oks::exception & Ex )
+  {
+    QMessageBox::warning (
+      0,
+      "Schema editor",
+      QString ( "Could not create file : %1.\n\n%2" ).arg ( QString::fromStdString (
+                                                              FileNameStd ) ).arg (
+        QString ( Ex.what() ) ) );
+  }
+
+  ui->SaveButton->setEnabled ( true );
+
+  SetCurrentIncludeList();
+  SetRemoveComboBox();
+
+}
