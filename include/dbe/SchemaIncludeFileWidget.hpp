@@ -28,7 +28,6 @@ public:
   explicit SchemaIncludeFileWidget ( QString FilePath, QWidget * parent = 0 );
 
 private:
-  void SetRemoveComboBox();
   void SetCurrentIncludeList();
   void SetController();
   std::unique_ptr<dbse::Ui::SchemaIncludeFileWidget> ui;
@@ -41,6 +40,7 @@ private:
   QFileDialog * SelectFile;
   QStringList FolderPathList;
   QStringList dbPath;
+  QStringList RemovedFileList;
 
 private slots:
   void SelectFileToInclude();

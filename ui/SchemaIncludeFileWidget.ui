@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>792</width>
-    <height>565</height>
+    <height>465</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -34,29 +34,6 @@
   <layout class="QHBoxLayout" name="horizontalLayout_6">
    <item>
     <layout class="QVBoxLayout" name="VerticalLayout3">
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Files currently included</string>
-       </property>
-       <widget class="QListWidget" name="CurrentIncludeList">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>30</y>
-          <width>711</width>
-          <height>61</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
-     </item>
      <item>
       <layout class="QHBoxLayout" name="HorizontalLayout3">
        <item>
@@ -278,27 +255,27 @@
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
-         <widget class="QComboBox" name="RemoveCombo">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>150</y>
-            <width>300</width>
-            <height>26</height>
-           </rect>
-          </property>
-         </widget>
          <widget class="QPushButton" name="RemoveButton">
           <property name="geometry">
            <rect>
-            <x>230</x>
-            <y>250</y>
+            <x>240</x>
+            <y>310</y>
             <width>80</width>
             <height>26</height>
            </rect>
           </property>
           <property name="text">
            <string>Remove</string>
+          </property>
+         </widget>
+         <widget class="QListWidget" name="CurrentIncludeList">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>80</y>
+            <width>330</width>
+            <height>221</height>
+           </rect>
           </property>
          </widget>
         </widget>

@@ -94,7 +94,6 @@ dbse::SchemaIncludeFileWidget::SchemaIncludeFileWidget ( QString FilePath, QWidg
 
   ui->AddFileLine->setSelectionMode(QAbstractItemView::NoSelection);
 
-  SetRemoveComboBox();
   SetCurrentIncludeList();
 
   SetController();
@@ -120,7 +119,9 @@ void dbse::SchemaIncludeFileWidget::SetCurrentIncludeList()
           break;
         }
       }
-      IncludeList.append ( File );
+      if (!RemovedFileList.contains(File)) {
+        IncludeList.append ( File );
+      }
     }
   }
   if ( !IncludeList.isEmpty() )
@@ -135,41 +136,6 @@ void dbse::SchemaIncludeFileWidget::SetCurrentIncludeList()
   }
 }
 
-void dbse::SchemaIncludeFileWidget::SetRemoveComboBox()
-{
-  std::set<std::string> includes;
-  dbse::KernelWrapper::GetInstance().GetIncludedList ( CurrentFile.toStdString(),
-                                                       includes );
-  QStringList IncludeList;
-  for (auto file: includes) {
-    std::cout << "Include file = <" << file << ">\n";
-    QString File = QString::fromStdString ( file );
-    if ( !File.isEmpty() )
-    {
-      /// Need to strip file....
-      for ( QString & PathFile : FolderPathList )
-      {
-        if ( File.startsWith ( PathFile ) )
-        {
-          File = File.replace ( 0, PathFile.size(), "" );
-          break;
-        }
-      }
-      IncludeList.append ( File );
-    }
-  }
-  if ( !IncludeList.isEmpty() )
-  {
-    if ( IncludeList.contains ( CurrentFile ) )
-    {
-      IncludeList.removeOne ( CurrentFile );
-    }
-
-    ui->RemoveCombo->clear();
-    ui->RemoveCombo->addItems ( IncludeList );
-    ui->RemoveButton->setDisabled ( true );
-  }
-}
 
 void dbse::SchemaIncludeFileWidget::SetController()
 {
@@ -180,9 +146,6 @@ void dbse::SchemaIncludeFileWidget::SetController()
   connect ( ui->AddToIncludeButton, SIGNAL ( clicked() ), this, SLOT ( AddFileToInclude() ),
             Qt::UniqueConnection );
   connect ( ui->RemoveButton, SIGNAL ( clicked() ), this, SLOT ( RemoveFileFromInclude() ),
-            Qt::UniqueConnection );
-  connect ( ui->RemoveCombo, SIGNAL ( activated ( int ) ), this,
-            SLOT ( RemoveFileFromInclude ( int ) ),
             Qt::UniqueConnection );
   connect ( ui->DirectoryCombo, SIGNAL ( activated ( const QString & ) ), this,
             SLOT ( SetDirectory ( const QString & ) ), Qt::UniqueConnection );
@@ -197,8 +160,9 @@ void dbse::SchemaIncludeFileWidget::SaveSchema()
   StatusBar->showMessage (
     QString ( "Schema file %1 saved" ).arg ( CurrentFile ) );
   ui->SaveButton->setEnabled ( false );
+  RemovedFileList.clear();
   SetCurrentIncludeList();
-  SetRemoveComboBox();
+
 }
 void dbse::SchemaIncludeFileWidget::SelectFileToInclude()
 {
@@ -277,7 +241,7 @@ void dbse::SchemaIncludeFileWidget::AddFileToInclude()
         }
     }
 
-    SetRemoveComboBox();
+
 
     ui->AddFileLine->clear();
     ui->AddToIncludeButton->setDisabled ( true );
@@ -328,7 +292,8 @@ void dbse::SchemaIncludeFileWidget::AddNewFileToInclude ( const QString & File )
 
 void dbse::SchemaIncludeFileWidget::RemoveFileFromInclude()
 {
-  if ( ui->RemoveCombo->currentIndex() != -1 )
+  auto selected = ui->CurrentIncludeList->selectedItems();
+  if ( selected.size() != 0 )
   {
     BOOST_SCOPE_EXIT(void)
     {
@@ -338,17 +303,24 @@ void dbse::SchemaIncludeFileWidget::RemoveFileFromInclude()
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    QString File = ui->RemoveCombo->currentText();
-
-    std::cout << "File " << File.toStdString() << " being removed\n";
-    KernelWrapper::GetInstance().RemoveInclude( CurrentFile.toStdString(),
-                                                File.toStdString() );
-    
+    QString removedFiles;
+    QString verb = "was";
+    for ( auto Item : selected) {
+      QString File = Item->text();
+      if (removedFiles.size() >0) {
+        removedFiles.append(", ");
+        verb = "were";
+      }
+      std::cout << "File " << File.toStdString() << " being removed\n";
+      KernelWrapper::GetInstance().RemoveInclude( CurrentFile.toStdString(),
+                                                  File.toStdString() );
+      removedFiles.append(File);
+      RemovedFileList.append(File);
+    }
     Removed = true;
     StatusBar->setPalette ( QApplication::palette ( this ) );
     StatusBar->showMessage (
-      QString ( "The file %1 was removed from the included files" ).arg ( File ) );
-    SetRemoveComboBox();
+      QString ( "The files %1 %2 removed from the included files" ).arg ( removedFiles ).arg(verb) );
     ui->SaveButton->setEnabled ( true );
     SetCurrentIncludeList();
   }
@@ -356,20 +328,27 @@ void dbse::SchemaIncludeFileWidget::RemoveFileFromInclude()
   {
     StatusBar->setPalette ( StyleUtility::AlertStatusBarPallete );
     StatusBar->showMessage (
-      QString ( "The file is NOT selected. Use combo box to select one." ) );
+      QString ( "There is NO file selected. Use file list to select one." ) );
   }
 }
 
 void dbse::SchemaIncludeFileWidget::RemoveFileFromInclude ( int )
 {
-  if ( ui->RemoveCombo->currentIndex() != -1 )
+  auto selected = ui->CurrentIncludeList->selectedItems();
+  if ( selected.size() != 0 )
   {
+    QString files;
+    for ( auto Item : selected) {
+      if (files.size() >0) {
+        files.append(", ");
+      }
+      files.append(Item->text());
+    }
     ui->RemoveButton->setEnabled ( true );
     StatusBar->setPalette ( QApplication::palette ( this ) );
     StatusBar->showMessage (
-      QString ( "The file %1 will be removed from the included files of %2" ).arg (
-        QFileInfo ( ui->RemoveCombo->currentText() ).fileName() ).arg (
-        QFileInfo ( CurrentFile ).fileName() ) );
+      QString ( "The file(s) %1 will be removed from the included files of %2" ).arg (
+        files ).arg ( QFileInfo ( CurrentFile ).fileName() ) );
   }
 }
 
@@ -385,7 +364,6 @@ void dbse::SchemaIncludeFileWidget::SetDirectory ( const QString & Dir )
 
 void dbse::SchemaIncludeFileWidget::CheckInclude ()
 {
-  SetRemoveComboBox();
 
   if ( ui->AddFileLine->count() == 0 )
   {
@@ -396,32 +374,6 @@ void dbse::SchemaIncludeFileWidget::CheckInclude ()
     return;
   }
 
-  std::vector<int> removedItems;
-  for(int i = 0; i < ui->AddFileLine->count(); ++i) {
-      const QString inc = ui->AddFileLine->item(i)->text();
-
-      if(inc == CurrentFile) {
-          removedItems.push_back(i);
-      } else {
-          for(int j = 0; j < ui->RemoveCombo->count(); ++j) {
-              if(ui->RemoveCombo->itemText(j).compare(inc) == 0) {
-                  removedItems.push_back(i);
-              }
-          }
-      }
-  }
-
-  if(removedItems.empty() == false) {
-      QString message = "The following files will not be included because already included:";
-
-      for(int i : removedItems) {
-          QListWidgetItem* item = ui->AddFileLine->takeItem(i);
-          message += "\n- " + item->text();
-          delete item;
-      }
-
-      WARN("File inclusion issue", message.toStdString());
-  }
 
   ui->AddToIncludeButton->setDisabled((ui->AddFileLine->count() == 0) ? true : false);
 }
@@ -470,6 +422,6 @@ void dbse::SchemaIncludeFileWidget::CreateFileToInclude()
   ui->SaveButton->setEnabled ( true );
 
   SetCurrentIncludeList();
-  SetRemoveComboBox();
+
 
 }
