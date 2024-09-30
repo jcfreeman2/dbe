@@ -51,7 +51,10 @@ private slots:
   void CreateNewSchema();
   void LaunchIncludeEditor();
   void LaunchIncludeEditorActiveSchema();
+  // From main menu / shortcut
   void SaveSchema();
+  // From FileView 
+  void SaveSchemaFile();
   void SaveModifiedSchema();
   void ChangeCursorRelationship ( bool State );
   void ChangeCursorInheritance ( bool State );

@@ -219,6 +219,21 @@ void dbse::SchemaMainWindow::SetSchemaFileActive()
   KernelWrapper::GetInstance().SetActiveSchema ( Row.at ( 0 ).toStdString() );
   BuildFileModel();
 }
+void dbse::SchemaMainWindow::SaveSchemaFile()
+{
+  QModelIndex Index = ui->FileView->currentIndex();
+  const auto File = FileModel->getRowFromIndex ( Index ).at ( 0 );
+  QString message;
+  try {
+    KernelWrapper::GetInstance().SaveSchema ( File.toStdString() );
+    message = QString ( "File %1 saved" ).arg ( File );
+  }
+  catch (const oks::exception& exc) {
+    message = QString ( "Faled to save file %1" ).arg ( File );
+  }
+  ui->StatusBar->showMessage( message );
+  BuildFileModel();
+}
 
 void dbse::SchemaMainWindow::PrintCurrentView()
 {
@@ -599,11 +614,14 @@ void dbse::SchemaMainWindow::CustomContextMenuFileView ( QPoint Pos )
 
     QAction * Act = new QAction ( tr ( "Set as Active Schema" ), this );
     connect ( Act, SIGNAL ( triggered() ), this, SLOT ( SetSchemaFileActive() ) );
+    QAction * Sav = new QAction ( tr ( "Save Schema File" ), this );
+    connect ( Sav, SIGNAL ( triggered() ), this, SLOT ( SaveSchemaFile() ) );
     QAction * Inc = new QAction ( tr ( "Show/Update include file list" ), this );
     connect ( Inc, SIGNAL ( triggered() ), this, SLOT ( LaunchIncludeEditor() ) );
 
     ContextMenuFileView->addAction ( Act );
     ContextMenuFileView->addAction ( Inc );
+    ContextMenuFileView->addAction ( Sav );
   }
 
   QModelIndex Index = ui->FileView->currentIndex();
