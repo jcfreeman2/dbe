@@ -41,7 +41,8 @@ private:
   void SetController();
   void BuildFileModel();
   void BuildTableModel();
-  int ShouldSaveChanges() const;
+  [[nodiscard]] int ShouldSaveChanges() const;
+  [[nodiscard]] int ShouldSaveViewChanges() const;
 protected:
   void closeEvent ( QCloseEvent * event );
   void focusInEvent( QFocusEvent * event ) override;

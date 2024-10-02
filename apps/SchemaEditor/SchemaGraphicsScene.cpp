@@ -21,7 +21,8 @@ dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
     m_context_menu ( nullptr ),
     CurrentObject ( nullptr ),
     m_current_arrow ( nullptr ),
-    m_inherited_properties_visible(false)
+    m_inherited_properties_visible(false),
+    m_modified(false)
 {
   CreateActions();
   setSceneRect ( QRectF ( 0, 0, 10000, 10000 ) );
@@ -135,10 +136,7 @@ void dbse::SchemaGraphicsScene::dropEvent ( QGraphicsSceneDragDropEvent * event 
 
 void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEvent * event )
 {
-  if ( !KernelWrapper::GetInstance().IsActive() )
-  {
-    return;
-  }
+  bool active = KernelWrapper::GetInstance().IsActive();
 
   if ( m_context_menu == nullptr )
   {
@@ -159,7 +157,9 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
 
   if ( !itemAt ( event->scenePos(), QTransform() ) )
   {
-    m_context_menu->actions().at ( 0 )->setVisible ( true );
+    if (active) {
+      m_context_menu->actions().at ( 0 )->setVisible ( true );
+    }
     m_context_menu->actions().at ( 1 )->setVisible ( true );
     m_context_menu->actions().at ( 2 )->setVisible ( false );
     m_context_menu->actions().at ( 3 )->setVisible ( false );
@@ -175,10 +175,25 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
   {
     if ( dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) ) )
     {
-      m_context_menu->actions().at ( 0 )->setVisible ( true );
+      CurrentObject =
+        dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
+      auto filename =
+        CurrentObject->GetClass()->get_file()->get_full_file_name();
+      bool writable = KernelWrapper::GetInstance().IsFileWritable ( filename );
+      if (active) {
+        m_context_menu->actions().at ( 0 )->setVisible ( true );
+      }
+      else {
+        m_context_menu->actions().at ( 0 )->setVisible ( false );
+      }
       m_context_menu->actions().at ( 1 )->setVisible ( true );
       m_context_menu->actions().at ( 2 )->setVisible ( true );
-      m_context_menu->actions().at ( 3 )->setVisible ( true );
+      if ( writable ) {
+        m_context_menu->actions().at ( 3 )->setVisible ( true );
+      }
+      else {
+        m_context_menu->actions().at ( 3 )->setVisible ( false );
+      }
       m_context_menu->actions().at ( 4 )->setVisible ( true );
       m_context_menu->actions().at ( 5 )->setVisible ( true );
       m_context_menu->actions().at ( 6 )->setVisible ( true );
@@ -187,8 +202,6 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 9 )->setVisible ( true );
       m_context_menu->actions().at ( 10 )->setVisible ( false );
 
-      CurrentObject =
-        dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
     }
     else if ( dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                             QTransform() ) ) )
@@ -293,7 +306,14 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
       }
     }
   }
+  m_modified = true;
 }
+
+void dbse::SchemaGraphicsScene::RemoveItemFromScene ( QGraphicsItem* item ) {
+  removeItem ( item );
+  m_modified = true;
+}
+
 
 void dbse::SchemaGraphicsScene::RemoveClassObject ( SchemaGraphicObject * Object )
 {
@@ -303,7 +323,7 @@ void dbse::SchemaGraphicsScene::RemoveClassObject ( SchemaGraphicObject * Object
   }
 
   Object->RemoveArrows();
-  removeItem ( Object );
+  RemoveItemFromScene ( Object );
   ItemMap.remove ( Object->GetClassName() );
 }
 
@@ -361,7 +381,7 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
       endItems.removeFirst();
     }
 
-    removeItem ( line );
+    RemoveItemFromScene ( line );
     delete line;
 
     if ( startItems.count() > 0 && endItems.count() > 0
@@ -556,13 +576,13 @@ void dbse::SchemaGraphicsScene::RemoveClassSlot()
   }
 
   CurrentObject->RemoveArrows();
-  removeItem ( CurrentObject );
+  RemoveItemFromScene ( CurrentObject );
   ItemMap.remove ( CurrentObject->GetClassName() );
 }
 
 void dbse::SchemaGraphicsScene::RemoveArrowSlot()
 {
-  removeItem ( m_current_arrow );
+  RemoveItemFromScene ( m_current_arrow );
   m_current_arrow->GetStartItem()->RemoveArrow ( m_current_arrow );
   m_current_arrow->GetEndItem()->RemoveArrow ( m_current_arrow );
   m_current_arrow->RemoveArrow();

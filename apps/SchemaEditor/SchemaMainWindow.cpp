@@ -159,6 +159,22 @@ void dbse::SchemaMainWindow::BuildTableModel()
   ui->ClassTableView->setModel ( proxyModel );
 }
 
+int dbse::SchemaMainWindow::ShouldSaveViewChanges() const
+{
+  bool modified = false;
+  for (int index=0; index<ui->TabWidget->count(); ++index) {
+    auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
+    if (tab->GetScene()->IsModified()) {
+      return QMessageBox::question (
+        0, tr ( "SchemaEditor" ),
+        QString ( "There are unsaved changes in the schema views:\n"
+                  "Do you want to save the changes in the schema views?\n" ),
+        QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Discard );
+    }
+  }
+  return QMessageBox::Discard;
+}
+
 int dbse::SchemaMainWindow::ShouldSaveChanges() const
 {
   // if ( KernelWrapper::GetInstance().GetUndoStack()->isClean() )
@@ -171,7 +187,7 @@ int dbse::SchemaMainWindow::ShouldSaveChanges() const
   std::string msg = "There are unsaved changes in the following files:\n\n"
     + modified + "Do you want to save the changes in the schema?\n";
   return QMessageBox::question (
-           0, tr ( "DBE" ),
+           0, tr ( "SchemaEditor" ),
            QString ( msg.c_str() ),
            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save );
 }
@@ -260,15 +276,20 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
   {
     SaveModifiedSchema();
   }
-  else if ( UserChoice == QMessageBox::Discard )
-  {
-    KernelWrapper::GetInstance().CloseAllSchema();
-  }
   else if ( UserChoice == QMessageBox::Cancel )
   {
     event->ignore();
     return;
   }
+
+  UserChoice = ShouldSaveViewChanges();
+  if ( UserChoice == QMessageBox::Cancel )
+  {
+    event->ignore();
+    return;
+  }
+
+  KernelWrapper::GetInstance().CloseAllSchema();
 
   for ( QWidget * Widget : QApplication::allWidgets() )
   {
@@ -281,7 +302,8 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
 
 void dbse::SchemaMainWindow::focusInEvent( QFocusEvent * event )
 {
-  std::cout << "SchemaMainWindow::focusInEvent()\n";
+  // Try to update whenever the main window receives focus since I
+  // don't know how to force this from another window
   BuildFileModel();
   BuildTableModel();
   event->accept();
@@ -479,6 +501,7 @@ void dbse::SchemaMainWindow::SaveView()
     }
 
     ViewFile.close();
+    CurrentTab->GetScene()->ClearModified();
   }
 }
 
@@ -510,7 +533,7 @@ void dbse::SchemaMainWindow::LoadView()
       int UserAnswer =
         QMessageBox::question (
           0,
-          tr ( "DBE" ),
+          tr ( "SchemaEditor" ),
           QString (
             "If you load this view the current view will be lost.\n\nDo you want to load it anyway?\n" ),
           QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Save );
@@ -543,6 +566,7 @@ void dbse::SchemaMainWindow::LoadView()
     CurrentTab->GetScene()->CleanItemMap();
     CurrentTab->GetScene()->AddItemToScene ( ClassesNames, Positions );
     ViewFile.close();
+    CurrentTab->GetScene()->ClearModified();
   }
 }
 
@@ -593,17 +617,27 @@ void dbse::SchemaMainWindow::BuildTableModelSlot()
   BuildTableModel();
 }
 
-void dbse::SchemaMainWindow::RemoveTab ( int i )
+void dbse::SchemaMainWindow::RemoveTab ( int index )
 {
-  if ( i == -1 || ( ( ui->TabWidget->count() == 1 ) && i == 0 ) )
+  if ( index == -1 || ( ( ui->TabWidget->count() == 1 ) && index == 0 ) )
   {
     return;
   }
 
-  QWidget * Widget = ui->TabWidget->widget ( i );
-  ui->TabWidget->removeTab ( i );
-  delete Widget;
-  Widget = nullptr;
+  auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
+
+  if (tab->GetScene()->IsModified()) {
+    auto choice = QMessageBox::question (
+      0, tr ( "SchemaEditor" ),
+      QString ( "There are unsaved changes in the schema view:\n"
+                "Do you really want to delet this schema view?\n" ),
+      QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel );
+    if (choice == QMessageBox::Cancel) {
+      return;
+    }
+  }
+  ui->TabWidget->removeTab ( index );
+  delete tab;
 }
 
 void dbse::SchemaMainWindow::CustomContextMenuFileView ( QPoint Pos )
