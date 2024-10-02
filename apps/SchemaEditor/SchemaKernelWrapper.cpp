@@ -24,13 +24,9 @@ void dbse::KernelWrapper::SetActiveSchema ( const std::string & ActiveSchema )
 {
   OksFile * File = Kernel->find_schema_file ( ActiveSchema );
 
-  if ( File )
+  if ( File && IsFileWritable( ActiveSchema ))
   {
     Kernel->set_active_schema ( File );
-  }
-  else
-  {
-    /// This never should happen
   }
 }
 
@@ -59,6 +55,17 @@ void dbse::KernelWrapper::GetClassListString ( QStringList & ClassListString ) c
   }
 }
 
+std::string dbse::KernelWrapper::GetActiveSchema () const
+{
+  auto file = Kernel->get_active_schema();
+  if ( file) {
+    return file->get_full_file_name();
+  }
+  else {
+    return "";
+  }
+}
+
 void dbse::KernelWrapper::GetSchemaFiles ( std::vector<std::string> & SchemaFiles )
 {
   for ( OksFile::Map::const_iterator i = Kernel->schema_files().begin();
@@ -74,7 +81,7 @@ void dbse::KernelWrapper::GetIncludedList ( const std::string & FileName,
   Kernel->get_includes ( FileName, IncludedFiles );
 }
 
-bool dbse::KernelWrapper::IsFileWritable ( std::string & FileName ) const
+bool dbse::KernelWrapper::IsFileWritable (const std::string & FileName ) const
 {
   OksFile * File = Kernel->find_schema_file ( FileName );
 
@@ -99,6 +106,29 @@ void dbse::KernelWrapper::LoadSchema ( const std::string & SchemaName ) const
 void dbse::KernelWrapper::SaveAllSchema() const
 {
   Kernel->save_all_schema();
+}
+
+std::string dbse::KernelWrapper::ModifiedSchemaFiles() const
+{
+  std::string modified{""};
+  for (auto [name, file] : Kernel->schema_files()) {
+    if (file->is_updated()) {
+      modified += file->get_full_file_name() + "\n\n";
+    }
+  }
+  return modified;
+}
+
+std::string dbse::KernelWrapper::SaveModifiedSchema() const
+{
+  std::string saved{""};
+  for (auto [name, file] : Kernel->schema_files()) {
+    if (file->is_updated()) {
+      Kernel->save_schema(file);
+      saved += file->get_full_file_name() + "\n\n";
+    }
+  }
+  return saved;
 }
 
 void dbse::KernelWrapper::CloseAllSchema() const

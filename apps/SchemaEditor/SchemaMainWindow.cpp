@@ -17,6 +17,9 @@
 #include <QPrinter>
 #include <QPrintDialog>
 
+//#include <format>
+#include <sstream>
+
 using namespace dunedaq;
 using namespace dunedaq::oks;
 
@@ -75,13 +78,13 @@ void dbse::SchemaMainWindow::InitialTabCorner()
 void dbse::SchemaMainWindow::SetController()
 {
   connect ( ui->OpenFileSchema, SIGNAL ( triggered() ), this, SLOT ( OpenSchemaFile() ) );
-  connect ( ui->LoadFileSchema, SIGNAL ( triggered() ), this, SLOT ( OpenSchemaFile() ) );
   connect ( ui->CreateNewSchema, SIGNAL ( triggered() ), this, SLOT ( CreateNewSchema() ) );
   connect ( ui->SaveSchema, SIGNAL ( triggered() ), this, SLOT ( SaveSchema() ) );
   connect ( ui->SetRelationship, SIGNAL ( triggered ( bool ) ), this,
             SLOT ( ChangeCursorRelationship ( bool ) ) );
   connect ( ui->SetInheritance, SIGNAL ( triggered ( bool ) ), this,
             SLOT ( ChangeCursorInheritance ( bool ) ) );
+  connect ( ui->AddClass, SIGNAL ( triggered() ), this, SLOT ( AddNewClass() ) );
   connect ( ui->SaveView, SIGNAL ( triggered() ), this, SLOT ( SaveView() ) );
   connect ( ui->LoadView, SIGNAL ( triggered() ), this, SLOT ( LoadView() ) );
   connect ( ui->Exit, SIGNAL ( triggered() ), this, SLOT ( close() ) );
@@ -104,7 +107,7 @@ void dbse::SchemaMainWindow::SetController()
 void dbse::SchemaMainWindow::BuildFileModel()
 {
   QStringList Headers
-  { "File Name", "Access" };
+    { "File Name", "Access", "Status" };
 
   if ( FileModel == nullptr )
   {
@@ -115,8 +118,10 @@ void dbse::SchemaMainWindow::BuildFileModel()
     delete FileModel;
     FileModel = new CustomFileModel ( Headers );
   }
-
   ui->FileView->setModel ( FileModel );
+  ui->FileView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  ui->FileView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  ui->FileView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 }
 
 void dbse::SchemaMainWindow::BuildTableModel()
@@ -140,20 +145,25 @@ void dbse::SchemaMainWindow::BuildTableModel()
 
 int dbse::SchemaMainWindow::ShouldSaveChanges() const
 {
-  if ( KernelWrapper::GetInstance().GetUndoStack()->isClean() )
+  // if ( KernelWrapper::GetInstance().GetUndoStack()->isClean() )
+  auto modified = KernelWrapper::GetInstance().ModifiedSchemaFiles();
+  if (modified.empty())
   {
     return QMessageBox::Discard;
   }
 
+  std::string msg = "There are unsaved changes in the following files:\n\n"
+    + modified + "Do you want to save the changes in the schema?\n";
   return QMessageBox::question (
            0, tr ( "DBE" ),
-           QString ( "There are unsaved changes.\n\nDo you want to save the changes in the schema?\n" ),
+           QString ( msg.c_str() ),
            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save );
 }
 
 void dbse::SchemaMainWindow::AddNewClass()
 {
     SchemaClassEditor::createNewClass();
+    BuildFileModel();
 }
 
 void dbse::SchemaMainWindow::RemoveClass()
@@ -182,6 +192,7 @@ void dbse::SchemaMainWindow::RemoveClass()
     KernelWrapper::GetInstance().PushRemoveClassCommand ( SchemaClass, SchemaClass->get_name(),
                                                           SchemaClass->get_description(),
                                                           SchemaClass->get_is_abstract() );
+    BuildFileModel();
   }
 }
 
@@ -190,6 +201,7 @@ void dbse::SchemaMainWindow::SetSchemaFileActive()
   QModelIndex Index = ui->FileView->currentIndex();
   QStringList Row = FileModel->getRowFromIndex ( Index );
   KernelWrapper::GetInstance().SetActiveSchema ( Row.at ( 0 ).toStdString() );
+  BuildFileModel();
 }
 
 void dbse::SchemaMainWindow::PrintCurrentView()
@@ -215,16 +227,7 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
 
   if ( UserChoice == QMessageBox::Save )
   {
-    try
-    {
-      KernelWrapper::GetInstance().SaveAllSchema();
-      KernelWrapper::GetInstance().CloseAllSchema();
-    }
-    catch ( oks::exception & Ex )
-    {
-      QMessageBox::warning ( 0, "Schema editor",
-                             QString ( "Could not save schemas.\n\n%1" ).arg ( QString ( Ex.what() ) ) );
-    }
+    SaveModifiedSchema();
   }
   else if ( UserChoice == QMessageBox::Discard )
   {
@@ -287,14 +290,17 @@ void dbse::SchemaMainWindow::OpenSchemaFile()
 
   OpenSchemaFile(SchemaPath);
 }
-
-void dbse::SchemaMainWindow::SaveSchema()
+void dbse::SchemaMainWindow::SaveModifiedSchema()
 {
-    try
+   try
     {
-      KernelWrapper::GetInstance().SaveAllSchema();
+      auto saved = KernelWrapper::GetInstance().SaveModifiedSchema();
+      //std::format msg("{} schema files successfully saved", nsaved)
+      std::ostringstream ostream;
+      ostream << "Schema files:\n" + saved + " successfully saved";
+      std::string msg = ostream.str();
       QMessageBox::information ( 0, "Schema editor",
-                                 QString ( "Schema successfully saved" ) );
+                                 QString ( msg.c_str() ) );
 
     }
     catch ( oks::exception & Ex )
@@ -302,11 +308,26 @@ void dbse::SchemaMainWindow::SaveSchema()
       QMessageBox::warning ( 0, "Schema editor",
                              QString ( "Could not save schemas.\n\n%1" ).arg ( QString ( Ex.what() ) ) );
     }
+ }
+
+void dbse::SchemaMainWindow::SaveSchema()
+{
+  auto modified = KernelWrapper::GetInstance().ModifiedSchemaFiles();
+  if (modified.empty())
+  {
+      QMessageBox::information ( 0, "Schema editor",
+                                 QString ( "No modified schema files need saving" ) );
+      
+  }
+  else {
+    SaveModifiedSchema();
+  }
+  BuildFileModel();
 }
 
 void dbse::SchemaMainWindow::CreateNewSchema()
 {
-  QString FileName = QFileDialog::getSaveFileName ( this, tr ( "Save File" ) );
+  QString FileName = QFileDialog::getSaveFileName ( this, tr ( "New schema File" ) );
 
   if ( FileName.isEmpty() )
   {
@@ -547,8 +568,6 @@ void dbse::SchemaMainWindow::CustomContextMenuFileView ( QPoint Pos )
     ContextMenuFileView = new QMenu ( this );
 
     QAction * Add = new QAction ( tr ( "&Set Active Schema" ), this );
-    Add->setShortcut ( tr ( "Ctrl+S" ) );
-    Add->setShortcutContext ( Qt::WidgetShortcut );
     connect ( Add, SIGNAL ( triggered() ), this, SLOT ( SetSchemaFileActive() ) );
 
     ContextMenuFileView->addAction ( Add );

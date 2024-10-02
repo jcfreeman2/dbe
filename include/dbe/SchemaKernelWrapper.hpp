@@ -38,11 +38,14 @@ public:
   void GetSchemaFiles ( std::vector<std::string> & SchemaFiles );
   void GetIncludedList ( const std::string & FileName,
                          std::set<std::string> & IncludedFiles );
-  bool IsFileWritable ( std::string & FileName ) const;
+  bool IsFileWritable ( const std::string & FileName ) const;
   bool IsActive() const;
   dunedaq::oks::OksClass * FindClass ( std::string ClassName ) const;
   void LoadSchema ( const std::string & SchemaName ) const;
   void SaveAllSchema() const;
+  std::string ModifiedSchemaFiles() const;
+  std::string SaveModifiedSchema() const;
+  std::string GetActiveSchema() const;
   void CloseAllSchema() const;
   void CreateNewSchema ( const std::string & SchemaName ) const;
   bool AnyClassReferenceThis ( dunedaq::oks::OksClass * SchemaClass );
