@@ -161,7 +161,6 @@ void dbse::SchemaMainWindow::BuildTableModel()
 
 int dbse::SchemaMainWindow::ShouldSaveViewChanges() const
 {
-  bool modified = false;
   for (int index=0; index<ui->TabWidget->count(); ++index) {
     auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
     if (tab->GetScene()->IsModified()) {
@@ -469,7 +468,8 @@ void dbse::SchemaMainWindow::ChangeCursorInheritance ( bool State )
 
 void dbse::SchemaMainWindow::AddTab()
 {
-  ui->TabWidget->addTab ( new SchemaTab(), "Schema View" );
+  auto index = ui->TabWidget->addTab ( new SchemaTab(), "Schema View" );
+  ui->TabWidget->setCurrentIndex ( index );
 }
 
 void dbse::SchemaMainWindow::SaveView()
