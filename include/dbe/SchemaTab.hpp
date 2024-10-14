@@ -18,9 +18,16 @@ public:
   ~SchemaTab();
   SchemaGraphicsScene * GetScene() const;
   QGraphicsView * GetView() const;
+
+  void setName(const QString&);
+  QString getName() {return m_name;};
+  void setFileName(const QString&);
+  QString getFileName ();
 private:
   QGraphicsView * GraphView;
   SchemaGraphicsScene * GraphScene;
+  QString m_name{""};
+  QString m_file_name{};
 };
 
 }  // namespace dbse

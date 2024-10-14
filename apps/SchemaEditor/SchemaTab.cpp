@@ -26,4 +26,24 @@ QGraphicsView * dbse::SchemaTab::GetView() const
   return GraphView;
 }
 
+void dbse::SchemaTab::setName(const QString& name) {
+  m_name = name;
+}
+
+void dbse::SchemaTab::setFileName(const QString& name) {
+  m_file_name = name;
+}
+
+QString dbse::SchemaTab::getFileName() {
+  if (m_file_name == "") {
+    QString fn = "./";
+    fn.append(m_name);
+    //fn.append(".view");
+    return fn;
+  }
+  else {
+    return m_file_name;
+  }
+}
+
 dbse::SchemaTab::~SchemaTab() = default;

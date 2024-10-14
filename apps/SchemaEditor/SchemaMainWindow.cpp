@@ -14,6 +14,7 @@
 #include <QHeaderView>
 #include <QPushButton>
 #include <QGraphicsScene>
+#include "QInputDialog"
 #include <QCloseEvent>
 #include <QPrinter>
 #include <QPrintDialog>
@@ -24,7 +25,8 @@
 using namespace dunedaq;
 using namespace dunedaq::oks;
 
-dbse::SchemaMainWindow::SchemaMainWindow ( QWidget * parent )
+
+dbse::SchemaMainWindow::SchemaMainWindow ( QString SchemaFile, QWidget * parent )
   : QMainWindow ( parent ),
     ui ( new Ui::SchemaMainWindow ),
     FileModel ( nullptr ),
@@ -38,12 +40,8 @@ dbse::SchemaMainWindow::SchemaMainWindow ( QWidget * parent )
   InitialTabCorner();
   SetController();
   setFocusPolicy( Qt::StrongFocus );
-}
 
-dbse::SchemaMainWindow::SchemaMainWindow ( QString SchemaFile, QWidget * parent )
-    : SchemaMainWindow(parent)
-{
-    OpenSchemaFile(SchemaFile);
+  OpenSchemaFile(SchemaFile);
 }
 
 dbse::SchemaMainWindow::~SchemaMainWindow() = default;
@@ -51,7 +49,7 @@ dbse::SchemaMainWindow::~SchemaMainWindow() = default;
 void dbse::SchemaMainWindow::InitialSettings()
 {
   ui->setupUi ( this );
-  setWindowTitle ( "SchemaEditor : The new TDAq schema editor" );
+  setWindowTitle ( Title );
   ui->UndoView->setStack ( KernelWrapper::GetInstance().GetUndoStack() );
   ui->ClassTableView->horizontalHeader()->setSectionResizeMode ( QHeaderView::Stretch );
   ui->ClassTableView->setDragEnabled ( true );
@@ -90,6 +88,7 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->AddClass, SIGNAL ( triggered() ), this, SLOT ( AddNewClass() ) );
   connect ( ui->SaveView, SIGNAL ( triggered() ), this, SLOT ( SaveView() ) );
   connect ( ui->LoadView, SIGNAL ( triggered() ), this, SLOT ( LoadView() ) );
+  connect ( ui->NameView, SIGNAL ( triggered() ), this, SLOT ( NameView() ) );
   connect ( ui->Exit, SIGNAL ( triggered() ), this, SLOT ( close() ) );
   connect ( ui->ClassTableView, SIGNAL ( doubleClicked ( QModelIndex ) ), this,
             SLOT ( LaunchClassEditor ( QModelIndex ) ) );
@@ -328,6 +327,10 @@ void dbse::SchemaMainWindow::OpenSchemaFile(QString SchemaFile) {
                                      QMessageBox::Ok);
             }
 
+    Title.append(QString(": -- "));
+    Title.append(QFileInfo(SchemaFile).fileName());
+  setWindowTitle ( Title );
+
             ui->CreateNewSchema->setDisabled (true );
             ui->OpenFileSchema->setDisabled (true );
     }
@@ -472,17 +475,45 @@ void dbse::SchemaMainWindow::AddTab()
   ui->TabWidget->setCurrentIndex ( index );
 }
 
+void dbse::SchemaMainWindow::NameView() {
+  auto index = ui->TabWidget->currentIndex();
+  bool ok;
+  QString text = QInputDialog::getText(nullptr,
+                                       "Schema editor: rename class view",
+                                       "New view name:",
+                                       QLineEdit::Normal,
+                                       "New Class View",
+                                       &ok);
+  if(ok && !text.isEmpty()) {
+    ui->TabWidget->setTabText(index, text);
+    SchemaTab * CurrentTab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+    CurrentTab->setName(text);
+  }
+
+  auto newtext = ui->TabWidget->tabText(index);
+}
+
 void dbse::SchemaMainWindow::SaveView()
 {
   SchemaTab * CurrentTab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
 
   if ( CurrentTab->GetScene()->items().size() != 0 )
   {
-    QString FileName = QFileDialog::getSaveFileName ( this, tr ( "Save View" ) );
+    auto defName = CurrentTab->getFileName();
+    QString FileName = QFileDialog::getSaveFileName (
+      this, tr ( "Save View" ), defName );
 
     if ( !FileName.endsWith ( ".view" ) )
     {
       FileName.append ( ".view" );
+    }
+
+    CurrentTab->setFileName ( FileName );
+    if (CurrentTab->getName() == "") {
+      auto text = QFileInfo(FileName).baseName();
+      CurrentTab->setName(text);
+      auto index = ui->TabWidget->currentIndex();
+      ui->TabWidget->setTabText(index, text);
     }
 
     QFile ViewFile ( FileName );
@@ -501,53 +532,32 @@ void dbse::SchemaMainWindow::SaveView()
     }
 
     ViewFile.close();
+    auto message = QString("Saved view to %1").arg(FileName);
+    ui->StatusBar->showMessage( message );
     CurrentTab->GetScene()->ClearModified();
   }
 }
 
 void dbse::SchemaMainWindow::LoadView()
 {
-  QFileDialog FileDialog ( this, tr ( "Open File" ), ".", tr ( "View files (*.view)" ) );
-  FileDialog.setAcceptMode ( QFileDialog::AcceptOpen );
-  FileDialog.setFileMode ( QFileDialog::AnyFile );
-  FileDialog.setViewMode ( QFileDialog::Detail );
-  QStringList FilesSelected;
-  QString ViewPath;
-
-  if ( FileDialog.exec() )
-  {
-    FilesSelected = FileDialog.selectedFiles();
-  }
-
-  if ( FilesSelected.size() )
-  {
-    ViewPath = FilesSelected.value ( 0 );
-  }
+  QString ViewPath = QFileDialog::getOpenFileName (
+    this,
+    tr ("Open view file"),
+    ".",
+    "*.view");
 
   if ( !ViewPath.isEmpty() )
   {
-    SchemaTab * CurrentTab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
-
-    if ( CurrentTab->GetScene()->items().size() != 0 )
-    {
-      int UserAnswer =
-        QMessageBox::question (
-          0,
-          tr ( "SchemaEditor" ),
-          QString (
-            "If you load this view the current view will be lost.\n\nDo you want to load it anyway?\n" ),
-          QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Save );
-
-      if ( UserAnswer == QMessageBox::Cancel )
-      {
-        return;
-      }
-    }
-
-    CurrentTab->GetScene()->clear();
-
     QFile ViewFile ( ViewPath );
     ViewFile.open ( QIODevice::ReadOnly );
+
+    auto text = QFileInfo(ViewPath).baseName();
+    auto index = ui->TabWidget->addTab ( new SchemaTab(),
+                                         text );
+    ui->TabWidget->setCurrentIndex ( index );
+    SchemaTab * CurrentTab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+    CurrentTab->setName(text);
+    CurrentTab->setFileName(ViewPath);
 
     QStringList ClassesNames;
     QList<QPointF> Positions;
@@ -562,10 +572,13 @@ void dbse::SchemaMainWindow::LoadView()
       Position.setY ( ObjectDescription.at ( 2 ).toInt() );
       Positions.append ( Position );
     }
+    ViewFile.close();
+
+    auto message = QString("Loaded view from %1").arg(ViewPath);
+    ui->StatusBar->showMessage( message );
 
     CurrentTab->GetScene()->CleanItemMap();
     CurrentTab->GetScene()->AddItemToScene ( ClassesNames, Positions );
-    ViewFile.close();
     CurrentTab->GetScene()->ClearModified();
   }
 }
@@ -630,7 +643,7 @@ void dbse::SchemaMainWindow::RemoveTab ( int index )
     auto choice = QMessageBox::question (
       0, tr ( "SchemaEditor" ),
       QString ( "There are unsaved changes in the schema view:\n"
-                "Do you really want to delet this schema view?\n" ),
+                "Do you really want to delete this schema view?\n" ),
       QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel );
     if (choice == QMessageBox::Cancel) {
       return;
