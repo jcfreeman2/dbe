@@ -81,7 +81,7 @@ inherited properties. The context menu on an individual class within
 the view allows the addition of all its parent/child/related classes to
 the view.
 
-![view object context menu](schema-view-tab-menu.png)
+![view object context menu](schema-view-object-menu.png)
 
 Multiple views of the schema can be created by selecting the
 "+" button next to the view tabs.
