@@ -577,9 +577,17 @@ void dbse::SchemaMainWindow::LoadView()
     auto message = QString("Loaded view from %1").arg(ViewPath);
     ui->StatusBar->showMessage( message );
 
-    CurrentTab->GetScene()->CleanItemMap();
-    CurrentTab->GetScene()->AddItemToScene ( ClassesNames, Positions );
-    CurrentTab->GetScene()->ClearModified();
+    auto scene = CurrentTab->GetScene();
+    scene->CleanItemMap();
+    auto missing = scene->AddItemsToScene ( ClassesNames, Positions );
+    if (!missing.empty()) {
+      QString text{"The following classes in "};
+      text.append(QFileInfo(ViewPath).fileName());
+      text.append(" are not present in the loaded schema:\n  ");
+      text.append(missing.join(",\n  "));
+      QMessageBox::warning(this, tr("Load View"), text);
+    }
+    scene->ClearModified();
   }
 }
 

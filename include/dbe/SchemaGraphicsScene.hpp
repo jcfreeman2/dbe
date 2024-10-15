@@ -22,11 +22,12 @@ public:
   void dragEnterEvent ( QGraphicsSceneDragDropEvent * event );
   void dragMoveEvent ( QGraphicsSceneDragDropEvent * event );
   void dropEvent ( QGraphicsSceneDragDropEvent * event );
+
   void contextMenuEvent ( QGraphicsSceneContextMenuEvent * event );
-  void AddItemToScene ( QStringList SchemaClasses, QList<QPointF> Positions );
+  QStringList AddItemsToScene ( QStringList SchemaClasses, QList<QPointF> Positions );
   void CleanItemMap();
   void RemoveClassObject ( SchemaGraphicObject * Object );
-  bool IsModified () {return m_modified;};
+  [[nodiscard]] bool IsModified () const {return m_modified;};
   void ClearModified() {m_modified = false;};
 protected:
   void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );

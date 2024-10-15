@@ -131,7 +131,7 @@ void dbse::SchemaGraphicsScene::dropEvent ( QGraphicsSceneDragDropEvent * event 
     Positions.push_back ( event->scenePos() );
   }
 
-  AddItemToScene ( SchemaClasses, Positions );
+  AddItemsToScene ( SchemaClasses, Positions );
 }
 
 void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEvent * event )
@@ -226,9 +226,12 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
   m_context_menu->exec ( event->screenPos() );
 }
 
-void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
-                                                 QList<QPointF> Positions )
+QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
+  QStringList SchemaClasses,
+  QList<QPointF> Positions )
 {
+  QStringList missingItems{};
+
   for ( QString & ClassName : SchemaClasses )
   {
     if ( !ItemMap.contains ( ClassName ) )
@@ -236,6 +239,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
 
       if ( !KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() ) ) {
           std::cout << "ERROR: class " << ClassName.toStdString()  << " not found" << std::endl;
+          missingItems.append(ClassName);
           continue;
       } 
 
@@ -307,6 +311,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
     }
   }
   m_modified = true;
+  return missingItems;
 }
 
 void dbse::SchemaGraphicsScene::RemoveItemFromScene ( QGraphicsItem* item ) {
@@ -482,7 +487,7 @@ void dbse::SchemaGraphicsScene::AddDirectSuperClassesSlot() {
       }
   }
 
-  this->AddItemToScene ( super_class_list, positions );
+  this->AddItemsToScene ( super_class_list, positions );
 
 }
 
@@ -503,7 +508,7 @@ void dbse::SchemaGraphicsScene::AddAllSuperClassesSlot() {
   }
 
 
-  this->AddItemToScene ( super_class_list, positions );
+  this->AddItemsToScene ( super_class_list, positions );
 
 }
 
@@ -523,7 +528,7 @@ void dbse::SchemaGraphicsScene::AddAllSubClassesSlot() {
       }
   }
 
-  this->AddItemToScene ( sub_class_list, positions );
+  this->AddItemsToScene ( sub_class_list, positions );
 
 }
 
@@ -544,7 +549,7 @@ void dbse::SchemaGraphicsScene::AddDirectRelationshipClassesSlot() {
 
   }
 
-  this->AddItemToScene ( relationship_classes, positions );
+  this->AddItemsToScene ( relationship_classes, positions );
 
 }
 
@@ -565,7 +570,7 @@ void dbse::SchemaGraphicsScene::AddAllRelationshipClassesSlot() {
 
   }
 
-  this->AddItemToScene ( relationship_classes, positions );
+  this->AddItemsToScene ( relationship_classes, positions );
 }
 
 void dbse::SchemaGraphicsScene::RemoveClassSlot()
