@@ -22,8 +22,8 @@ function schemaeditor ()
 
  Just running the command `schemaeditor` will bring up the
 schemaeditor with no schema files loaded. You can then either open an
-existing schema file `File -> Open Schema` (or <Ctl-O>) or create a
-new empty schema file with `File->Create new schema` (or <Ctl-N>).
+existing schema file `File -> Open Schema` (or Ctrl+O) or create a
+new empty schema file with `File->Create new schema` (or Ctrl+N).
 
 To start with an existing schema file, use the `-f` option.
 
@@ -49,13 +49,20 @@ panel. This will bring up a dialog box for adding and removing include
 files. From here you can add existing files or create a new schema
 file.
 
+![Add / Remove Include Files panel][schema-include.png]
+
+<!--
+ You can also see a list of files which are currently included by the
+current schema file and remove any that are not needed.
+ -->
+
 __Warning:__ To get the main widow to update with the updated include
 file list it is sometimes necessary to click around in the main window
 until it updates!!
 
 ## Saving files
 
- To save all modified schema files, `File->Save Schema` (<Ctl-S>). To
+ To save all modified schema files, `File->Save Schema` (Ctrl+S). To
 save only a single file, use the context menu in the File tab. Tis
 also allows you to save files that have not been updated (sometimes
 useful to ensure proper formatting of files edited outside of the
@@ -64,7 +71,7 @@ schemaeditor.
 
 ## Adding new classes
 
- To add a new class <Ctl-A> anywhere will bring up the new class
+ To add a new class Ctrl+A anywhere will bring up the new class
 dialogue box. From here you can define the attributes and
 relationships of your new class and set its superclass inheritance
 from the list of existing classes.
