@@ -49,7 +49,7 @@ panel. This will bring up a dialog box for adding and removing include
 files. From here you can add existing files or create a new schema
 file.
 
-![Add / Remove Include Files panel][schema-include.png]
+![Add / Remove Include Files panel](schema-include.png)
 
 <!--
  You can also see a list of files which are currently included by the
@@ -90,8 +90,9 @@ the view.
 
 ![view object context menu](schema-view-object-menu.png)
 
-Multiple views of the schema can be created by selecting the
-"+" button next to the view tabs.
+Multiple views of the schema can be created by selecting the "+"
+button next to the view tabs. A tab can be renamed by selecting the
+'Name View' button on the toolbar.
 
 The current schema diagram can be saved from the 'Save View' button on the
 toolbar or printed via the 'Print View' button. 
