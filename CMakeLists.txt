@@ -12,7 +12,7 @@ find_package(oks REQUIRED)
 find_package(conffwk REQUIRED)
 find_package(logging REQUIRED)
 
-find_package( Qt5 REQUIRED COMPONENTS Widgets Gui Core PrintSupport)
+find_package( Qt5 REQUIRED COMPONENTS Widgets Core PrintSupport)
 
 add_definitions(
    -DQT_NO_DEBUG
@@ -24,9 +24,7 @@ add_definitions(
 set(dbe_common_qt_libs
         Qt5::PrintSupport
         Qt5::Widgets
-        Qt5::Gui 
         Qt5::Core
-#	qtutils::qtutils
 )
 
 set(dbe_common_boost_libs
