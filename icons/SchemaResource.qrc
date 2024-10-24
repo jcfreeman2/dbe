@@ -1,21 +1,22 @@
 <RCC>
-    <qresource prefix="/icons">
-        <file>add_class.xpm</file>
-        <file>commit.xpm</file>
-        <file>CreateDatabase.png</file>
-        <file>Exit.png</file>
-        <file>exit.xpm</file>
-        <file>fail.xpm</file>
-        <file>glink.xpm</file>
-        <file>schema_editor_oks_relationship.xpm</file>
-        <file>select-class.xpm</file>
-        <file>link2.xpm</file>
-        <file>new_class.xpm</file>
-        <file>print.xpm</file>
-        <file>save.xpm</file>
-        <file>schema_editor_about.xpm</file>
-        <file>schema_editor_oks_attribute.xpm</file>
-        <file>schema_editor_oks_class.xpm</file>
-        <file>schema_editor_oks_method.xpm</file>
-    </qresource>
+  <qresource prefix="/icons">
+    <file>rename.xpm</file>
+    <file>add_class.xpm</file>
+    <file>commit.xpm</file>
+    <file>CreateDatabase.png</file>
+    <file>Exit.png</file>
+    <file>exit.xpm</file>
+    <file>fail.xpm</file>
+    <file>glink.xpm</file>
+    <file>schema_editor_oks_relationship.xpm</file>
+    <file>select-class.xpm</file>
+    <file>link2.xpm</file>
+    <file>new_class.xpm</file>
+    <file>print.xpm</file>
+    <file>save.xpm</file>
+    <file>schema_editor_about.xpm</file>
+    <file>schema_editor_oks_attribute.xpm</file>
+    <file>schema_editor_oks_class.xpm</file>
+    <file>schema_editor_oks_method.xpm</file>
+  </qresource>
 </RCC>

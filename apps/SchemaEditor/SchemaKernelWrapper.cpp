@@ -66,6 +66,31 @@ std::string dbse::KernelWrapper::GetActiveSchema () const
   }
 }
 
+// void dbse::KernelWrapper::AddInclude( std::string IncludeFile ) const
+// {
+//   auto ActiveSchema = Kernel->get_active_schema();
+//   ActiveSchema->add_include_file( IncludeFile );
+//   Kernel->load_schema( IncludeFile, ActiveSchema );
+// }
+void dbse::KernelWrapper::AddInclude( std::string schemaFile, std::string IncludeFile ) const
+{
+  auto ParentSchema = Kernel->find_schema_file( schemaFile );
+  if ( ParentSchema != nullptr) {
+    ParentSchema->add_include_file( IncludeFile );
+    Kernel->load_schema( IncludeFile, ParentSchema );
+  }
+}
+
+void dbse::KernelWrapper::RemoveInclude( std::string schemaFile, std::string IncludeFile ) const
+{
+  auto ParentSchema = Kernel->find_schema_file( schemaFile );
+  if (ParentSchema != nullptr) {
+    std::cout << "Calling remove_include_file()\n";
+    ParentSchema->remove_include_file( IncludeFile );
+    std::cout << "Called remove_include_file()\n";
+  }
+}
+
 void dbse::KernelWrapper::GetSchemaFiles ( std::vector<std::string> & SchemaFiles )
 {
   for ( OksFile::Map::const_iterator i = Kernel->schema_files().begin();
@@ -130,6 +155,13 @@ std::string dbse::KernelWrapper::SaveModifiedSchema() const
   }
   return saved;
 }
+
+void dbse::KernelWrapper::SaveSchema(const std::string& schema_file) const
+{
+  OksFile * file = Kernel->find_schema_file ( schema_file );
+  Kernel->save_schema(file);
+}
+
 
 void dbse::KernelWrapper::CloseAllSchema() const
 {

@@ -21,7 +21,8 @@ dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
     m_context_menu ( nullptr ),
     CurrentObject ( nullptr ),
     m_current_arrow ( nullptr ),
-    m_inherited_properties_visible(false)
+    m_inherited_properties_visible(false),
+    m_modified(false)
 {
   CreateActions();
   setSceneRect ( QRectF ( 0, 0, 10000, 10000 ) );
@@ -33,64 +34,40 @@ dbse::SchemaGraphicsScene::~SchemaGraphicsScene()
 
 void dbse::SchemaGraphicsScene::CreateActions()
 {
-  // Add new class
-  AddClass = new QAction ( "&Add new class", this );
-  AddClass->setShortcut ( tr ( "Ctrl+A" ) );
-  AddClass->setShortcutContext ( Qt::WidgetShortcut );
-  connect ( AddClass, SIGNAL ( triggered() ), this, SLOT ( AddClassSlot() ) );
-
   // Edit current class
   EditClass = new QAction ( "&Edit class", this );
-  EditClass->setShortcut ( tr ( "Ctrl+E" ) );
-  EditClass->setShortcutContext ( Qt::WidgetShortcut );
   connect ( EditClass, SIGNAL ( triggered() ), this, SLOT ( EditClassSlot() ) );
 
-  // Show superclasses of the current class
+  // Toggle inherited properties of all classes in view
   m_toggle_indirect_infos = new QAction ( "&Toggle inherited properties", this );
-  m_toggle_indirect_infos->setShortcut ( tr ( "Ctrl+T" ) );
-  m_toggle_indirect_infos->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_toggle_indirect_infos, SIGNAL ( triggered() ), this, SLOT ( ToggleIndirectInfos() ) );
 
   // Show superclasses of the current class
   m_add_direct_super_classes = new QAction ( "Add direct &superclasses to view", this );
-  m_add_direct_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
-  m_add_direct_super_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_direct_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddDirectSuperClassesSlot() ) );
 
   // Show relationship classes of the current clas
   m_add_direct_relationship_classes = new QAction ( "Add &direct relationship classes to view", this );
-  m_add_direct_relationship_classes->setShortcut ( tr ( "Ctrl+D" ) );
-  m_add_direct_relationship_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_direct_relationship_classes, SIGNAL ( triggered() ), this, SLOT ( AddDirectRelationshipClassesSlot() ) );
   
   // Show superclasses of the current class
   m_add_all_super_classes = new QAction ( "Add all &superclasses to view", this );
-  m_add_all_super_classes->setShortcut ( tr ( "Ctrl+S" ) );
-  m_add_all_super_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_all_super_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllSuperClassesSlot() ) );
 
   // Show subclasses of the current clas
   m_add_all_sub_classes = new QAction ( "Add all s&ubclasses to view", this );
-  m_add_all_sub_classes->setShortcut ( tr ( "Ctrl+S" ) );
-  m_add_all_sub_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_all_sub_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllSubClassesSlot() ) );
 
-  // Show indirect relationship classes of the current clas
+  // Show indirect relationship classes of the current class
   m_add_all_relationship_classes = new QAction ( "Add a&ll relationship classes to view", this );
-  m_add_all_relationship_classes->setShortcut ( tr ( "Ctrl+D" ) );
-  m_add_all_relationship_classes->setShortcutContext ( Qt::WidgetShortcut );
   connect ( m_add_all_relationship_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllRelationshipClassesSlot() ) );
 
   // Remove class
   RemoveClass = new QAction ( "&Remove Class from view", this );
-  RemoveClass->setShortcut ( tr ( "Ctrl+R" ) );
-  RemoveClass->setShortcutContext ( Qt::WidgetShortcut );
   connect ( RemoveClass, SIGNAL ( triggered() ), this, SLOT ( RemoveClassSlot() ) );
 
   // Remove arrow
   RemoveArrow = new QAction ( "&Remove Arrow", this );
-  RemoveArrow->setShortcut ( tr ( "Ctrl+R" ) );
-  RemoveArrow->setShortcutContext ( Qt::WidgetShortcut );
   connect ( RemoveArrow, SIGNAL ( triggered() ), this, SLOT ( RemoveArrowSlot() ) );
 }
 
@@ -130,20 +107,15 @@ void dbse::SchemaGraphicsScene::dropEvent ( QGraphicsSceneDragDropEvent * event 
     Positions.push_back ( event->scenePos() );
   }
 
-  AddItemToScene ( SchemaClasses, Positions );
+  AddItemsToScene ( SchemaClasses, Positions );
 }
 
 void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEvent * event )
 {
-  if ( !KernelWrapper::GetInstance().IsActive() )
-  {
-    return;
-  }
-
   if ( m_context_menu == nullptr )
   {
     m_context_menu = new QMenu();
-    m_context_menu->addAction ( AddClass );
+    // m_context_menu->addAction ( AddClass );
     m_context_menu->addAction ( m_toggle_indirect_infos );
     m_context_menu->addSeparator();
     m_context_menu->addAction ( EditClass );
@@ -160,7 +132,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
   if ( !itemAt ( event->scenePos(), QTransform() ) )
   {
     m_context_menu->actions().at ( 0 )->setVisible ( true );
-    m_context_menu->actions().at ( 1 )->setVisible ( true );
+    m_context_menu->actions().at ( 1 )->setVisible ( false );
     m_context_menu->actions().at ( 2 )->setVisible ( false );
     m_context_menu->actions().at ( 3 )->setVisible ( false );
     m_context_menu->actions().at ( 4 )->setVisible ( false );
@@ -169,26 +141,32 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu->actions().at ( 7 )->setVisible ( false );
     m_context_menu->actions().at ( 8 )->setVisible ( false );
     m_context_menu->actions().at ( 9 )->setVisible ( false );
-    m_context_menu->actions().at ( 10 )->setVisible ( false );
   }
   else
   {
     if ( dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) ) )
     {
+      CurrentObject =
+        dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
+      auto filename =
+        CurrentObject->GetClass()->get_file()->get_full_file_name();
+      bool writable = KernelWrapper::GetInstance().IsFileWritable ( filename );
       m_context_menu->actions().at ( 0 )->setVisible ( true );
       m_context_menu->actions().at ( 1 )->setVisible ( true );
-      m_context_menu->actions().at ( 2 )->setVisible ( true );
+      if ( writable ) {
+        m_context_menu->actions().at ( 2 )->setVisible ( true );
+      }
+      else {
+        m_context_menu->actions().at ( 2 )->setVisible ( false );
+      }
       m_context_menu->actions().at ( 3 )->setVisible ( true );
       m_context_menu->actions().at ( 4 )->setVisible ( true );
       m_context_menu->actions().at ( 5 )->setVisible ( true );
       m_context_menu->actions().at ( 6 )->setVisible ( true );
       m_context_menu->actions().at ( 7 )->setVisible ( true );
       m_context_menu->actions().at ( 8 )->setVisible ( true );
-      m_context_menu->actions().at ( 9 )->setVisible ( true );
-      m_context_menu->actions().at ( 10 )->setVisible ( false );
+      m_context_menu->actions().at ( 9 )->setVisible ( false );
 
-      CurrentObject =
-        dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
     }
     else if ( dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                             QTransform() ) ) )
@@ -203,19 +181,22 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 6 )->setVisible ( false );
       m_context_menu->actions().at ( 7 )->setVisible ( false );
       m_context_menu->actions().at ( 8 )->setVisible ( false );
-      m_context_menu->actions().at ( 9 )->setVisible ( false );
-      m_context_menu->actions().at ( 10 )->setVisible ( true );
-      m_current_arrow = dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
-                                                                   QTransform() ) );
+      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_current_arrow =
+        dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
+                                                               QTransform() ) );
     }
   }
 
   m_context_menu->exec ( event->screenPos() );
 }
 
-void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
-                                                 QList<QPointF> Positions )
+QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
+  QStringList SchemaClasses,
+  QList<QPointF> Positions )
 {
+  QStringList missingItems{};
+
   for ( QString & ClassName : SchemaClasses )
   {
     if ( !ItemMap.contains ( ClassName ) )
@@ -223,6 +204,7 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
 
       if ( !KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() ) ) {
           std::cout << "ERROR: class " << ClassName.toStdString()  << " not found" << std::endl;
+          missingItems.append(ClassName);
           continue;
       } 
 
@@ -293,7 +275,15 @@ void dbse::SchemaGraphicsScene::AddItemToScene ( QStringList SchemaClasses,
       }
     }
   }
+  m_modified = true;
+  return missingItems;
 }
+
+void dbse::SchemaGraphicsScene::RemoveItemFromScene ( QGraphicsItem* item ) {
+  removeItem ( item );
+  m_modified = true;
+}
+
 
 void dbse::SchemaGraphicsScene::RemoveClassObject ( SchemaGraphicObject * Object )
 {
@@ -303,7 +293,7 @@ void dbse::SchemaGraphicsScene::RemoveClassObject ( SchemaGraphicObject * Object
   }
 
   Object->RemoveArrows();
-  removeItem ( Object );
+  RemoveItemFromScene ( Object );
   ItemMap.remove ( Object->GetClassName() );
 }
 
@@ -361,7 +351,7 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
       endItems.removeFirst();
     }
 
-    removeItem ( line );
+    RemoveItemFromScene ( line );
     delete line;
 
     if ( startItems.count() > 0 && endItems.count() > 0
@@ -462,7 +452,7 @@ void dbse::SchemaGraphicsScene::AddDirectSuperClassesSlot() {
       }
   }
 
-  this->AddItemToScene ( super_class_list, positions );
+  this->AddItemsToScene ( super_class_list, positions );
 
 }
 
@@ -483,7 +473,7 @@ void dbse::SchemaGraphicsScene::AddAllSuperClassesSlot() {
   }
 
 
-  this->AddItemToScene ( super_class_list, positions );
+  this->AddItemsToScene ( super_class_list, positions );
 
 }
 
@@ -503,7 +493,7 @@ void dbse::SchemaGraphicsScene::AddAllSubClassesSlot() {
       }
   }
 
-  this->AddItemToScene ( sub_class_list, positions );
+  this->AddItemsToScene ( sub_class_list, positions );
 
 }
 
@@ -524,7 +514,7 @@ void dbse::SchemaGraphicsScene::AddDirectRelationshipClassesSlot() {
 
   }
 
-  this->AddItemToScene ( relationship_classes, positions );
+  this->AddItemsToScene ( relationship_classes, positions );
 
 }
 
@@ -545,7 +535,7 @@ void dbse::SchemaGraphicsScene::AddAllRelationshipClassesSlot() {
 
   }
 
-  this->AddItemToScene ( relationship_classes, positions );
+  this->AddItemsToScene ( relationship_classes, positions );
 }
 
 void dbse::SchemaGraphicsScene::RemoveClassSlot()
@@ -556,13 +546,13 @@ void dbse::SchemaGraphicsScene::RemoveClassSlot()
   }
 
   CurrentObject->RemoveArrows();
-  removeItem ( CurrentObject );
+  RemoveItemFromScene ( CurrentObject );
   ItemMap.remove ( CurrentObject->GetClassName() );
 }
 
 void dbse::SchemaGraphicsScene::RemoveArrowSlot()
 {
-  removeItem ( m_current_arrow );
+  RemoveItemFromScene ( m_current_arrow );
   m_current_arrow->GetStartItem()->RemoveArrow ( m_current_arrow );
   m_current_arrow->GetEndItem()->RemoveArrow ( m_current_arrow );
   m_current_arrow->RemoveArrow();

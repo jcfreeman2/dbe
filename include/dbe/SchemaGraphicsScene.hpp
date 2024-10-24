@@ -22,14 +22,18 @@ public:
   void dragEnterEvent ( QGraphicsSceneDragDropEvent * event );
   void dragMoveEvent ( QGraphicsSceneDragDropEvent * event );
   void dropEvent ( QGraphicsSceneDragDropEvent * event );
+
   void contextMenuEvent ( QGraphicsSceneContextMenuEvent * event );
-  void AddItemToScene ( QStringList SchemaClasses, QList<QPointF> Positions );
+  QStringList AddItemsToScene ( QStringList SchemaClasses, QList<QPointF> Positions );
   void CleanItemMap();
   void RemoveClassObject ( SchemaGraphicObject * Object );
+  [[nodiscard]] bool IsModified () const {return m_modified;};
+  void ClearModified() {m_modified = false;};
 protected:
   void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent );
+  void RemoveItemFromScene ( QGraphicsItem* item );
 private slots:
   void AddClassSlot();
   void EditClassSlot();
@@ -60,6 +64,7 @@ private:
   SchemaGraphicSegmentedArrow * m_current_arrow;
 
   bool m_inherited_properties_visible;
+  bool m_modified;
 };
 
 }  // namespace dbse

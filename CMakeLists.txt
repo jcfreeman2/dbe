@@ -250,6 +250,7 @@ set(schema_core_ui
                     ui/SchemaMethodEditor.ui
                     ui/SchemaMethodImplementationEditor.ui
                     ui/SchemaRelationshipEditor.ui
+                    ui/SchemaIncludeFileWidget.ui
                     )
 
 qt5_wrap_ui(schema_core_ui_header ${schema_core_ui})
@@ -277,6 +278,7 @@ set(schema_core_src
                     SchemaEditor/SchemaCustomSuperClassModel.cpp
                     SchemaEditor/SchemaCustomSubClassModel.cpp
                     SchemaEditor/SchemaTab.cpp
+                    SchemaEditor/SchemaIncludeFileWidget.cpp
   )
 
 qt5_wrap_cpp(schema_core_moc_src
@@ -293,11 +295,12 @@ qt5_wrap_cpp(schema_core_moc_src
                     include/dbe/SchemaMethodImplementationEditor.hpp
                     include/dbe/SchemaRelationshipEditor.hpp
                     include/dbe/SchemaTab.hpp
+                    include/dbe/SchemaIncludeFileWidget.hpp
 )
 
 qt5_add_resources(qrc_SchemaResource icons/SchemaResource.qrc OPTIONS -name SchemaResource)
 
-daq_add_application(schemaeditor SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource} LINK_LIBRARIES ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
+daq_add_application(schemaeditor SchemaMain.cpp ${schema_core_src} ${schema_core_moc_src} ${schema_core_ui_header} ${qrc_SchemaResource} LINK_LIBRARIES dbe ${dbe_common_libs} oks::oks ${dbe_common_boost_libs} )
 
 daq_add_unit_test(confaccessor_test LINK_LIBRARIES dbe)
 daq_add_unit_test(config_api_set_test LINK_LIBRARIES dbe)

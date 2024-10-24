@@ -24,7 +24,6 @@ class SchemaMainWindow: public QMainWindow
   Q_OBJECT
 public:
   ~SchemaMainWindow();
-  explicit SchemaMainWindow ( QWidget * parent = nullptr );
   explicit SchemaMainWindow ( QString SchemaFile, QWidget * parent = nullptr );
 
 private:
@@ -35,26 +34,35 @@ private:
   QSortFilterProxyModel * proxyModel;
   QMenu * ContextMenuFileView;
   QMenu * ContextMenuTableView;
+  QString Title{"DUNE DAQ Configuration Schema editor"};
   void InitialSettings();
   void InitialTab();
   void InitialTabCorner();
   void SetController();
   void BuildFileModel();
   void BuildTableModel();
-  int ShouldSaveChanges() const;
+  [[nodiscard]] int ShouldSaveChanges() const;
+  [[nodiscard]] int ShouldSaveViewChanges() const;
 protected:
   void closeEvent ( QCloseEvent * event );
+  void focusInEvent( QFocusEvent * event ) override;
   void OpenSchemaFile( QString SchemaFile);
 private slots:
   void OpenSchemaFile();
   void CreateNewSchema();
+  void LaunchIncludeEditor();
+  void LaunchIncludeEditorActiveSchema();
+  // From main menu / shortcut
   void SaveSchema();
+  // From FileView 
+  void SaveSchemaFile();
   void SaveModifiedSchema();
   void ChangeCursorRelationship ( bool State );
   void ChangeCursorInheritance ( bool State );
   void AddTab();
   void SaveView();
   void LoadView();
+  void NameView();
   void LaunchClassEditor ( QModelIndex Index );
   void BuildTableModelSlot();
   void BuildTableModelSlot ( QString ClassName );

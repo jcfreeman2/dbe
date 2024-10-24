@@ -427,7 +427,7 @@ void dbse::SchemaGraphicObject::UpdateObject ( QString Name )
     ClassesPositions.append ( ClassPosition );
 
     Scene->RemoveClassObject ( this );
-    Scene->AddItemToScene ( QStringList ( m_class_object_name ), ClassesPositions );
+    Scene->AddItemsToScene ( QStringList ( m_class_object_name ), ClassesPositions );
   }
 
   /// Repainting object
