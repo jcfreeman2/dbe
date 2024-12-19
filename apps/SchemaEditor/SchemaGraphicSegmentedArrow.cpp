@@ -10,12 +10,15 @@
 namespace dbse {
 
 SchemaGraphicSegmentedArrow::SchemaGraphicSegmentedArrow ( SchemaGraphicObject * start_item,
-                                               SchemaGraphicObject * end_item, bool is_inheritance,
+                                                           SchemaGraphicObject * end_item,
+                                                           int connection_count,
+                                                           bool is_inheritance,
                                                bool is_composite, QString arrow_name,
                                                QString arrow_cardinality, QGraphicsItem * parent )
   : QGraphicsPathItem ( parent ),
     m_start_item ( start_item ),
     m_end_item ( end_item ),
+    m_connection_count ( connection_count),
     m_inheritance ( is_inheritance ),
     m_composite ( is_composite ),
     m_name ( arrow_name ),
@@ -67,22 +70,18 @@ QPainterPath SchemaGraphicSegmentedArrow::shape() const
 
 void SchemaGraphicSegmentedArrow::UpdatePosition()
 {
-
-
-
   if ( m_start_item->collidesWithItem ( m_end_item ) ) {
     // this->setPath(QPainterPath());
     // m_marker = QPolygonF();
     return;
   }
+
   std::vector<QLineF> norms = { 
     {0.,0., 0., 1.}, // up
     {0.,0., 1., 0.}, // right
     {0.,0., 0, -1.}, // down
     {0.,0., -1., 0.}, // left
   };
-
-
   QLineF center_line ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
                       m_end_item->mapToScene ( m_end_item->boundingRect().center() ) );
   QPolygonF start_polygon = QPolygonF ( m_start_item->boundingRect() );
@@ -134,18 +133,24 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
   cardinality_br.translate(-cardinality_br.width()/2, cardinality_br.height()/2);
 
 
-  qreal label_x_padding = 5;
-  qreal label_y_padding = 5;
+  qreal label_x_padding = 0;
+  qreal label_y_padding = 1;
   qreal card_x_padding = 10;
-  qreal card_y_padding = 5;
+  qreal card_y_padding = 1;
 
+  qreal xoffset = m_connection_count*25.0;
+  qreal yoffset = m_connection_count*25.0;
+  QPointF end_offset;
 
   QPainterPath path( intersect_point_start );
 
   if ((intersect_norm_start.dx() == 0) && (intersect_norm_end.dx() == 0)) {
     // Three segments, starting and ending vertically
-    QPointF wp1 = QPointF(direct_line.x1(), direct_line.center().y());
-    QPointF wp2 = QPointF(direct_line.x2(), direct_line.center().y());
+    end_offset.setX(xoffset);
+    direct_line.translate(xoffset, 0.0);
+    QPointF wp1 = QPointF(direct_line.x1(), direct_line.center().y()+yoffset);
+    QPointF wp2 = QPointF(direct_line.x2(), direct_line.center().y()+yoffset);
+    path.moveTo(direct_line.x1(), direct_line.y1());
     path.lineTo(wp1);
     path.lineTo(wp2);
 
@@ -166,13 +171,14 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   } else if ((intersect_norm_start.dy() == 0) && (intersect_norm_end.dy() == 0)) {
     // Three segments, starting and ending horizontally
-    QPointF wp1 = QPointF(direct_line.center().x(), direct_line.y1());
+    end_offset.setY(yoffset);
+    direct_line.translate(0.0, yoffset);
+    QPointF wp1 = QPointF(direct_line.center().x()+xoffset, direct_line.y1());
+    QPointF wp2 = QPointF(direct_line.center().x()+xoffset, direct_line.y2());
 
-    QPointF wp2 = QPointF(direct_line.center().x(), direct_line.y2());
-
+    path.moveTo(direct_line.x1(), direct_line.y1());
     path.lineTo(wp1);
     path.lineTo(wp2);
-
 
     // Place the label
     label_br.translate( wp2 
@@ -190,27 +196,36 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   } else if (intersect_norm_start.dx() == 0) {
     // Two segments, starting vertically, ending horizontally
-    QPointF wp1 = QPointF(direct_line.x1(), direct_line.y2());
+    end_offset.setY(yoffset);
+    direct_line.translate(xoffset, 0.0);
+    QPointF wp1 = QPointF(direct_line.x1(), direct_line.y2()+yoffset);
 
+    path.moveTo(direct_line.x1(), direct_line.y1());
     path.lineTo(wp1);
 
     label_br.translate( wp1 
       + QPointF(
         (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
-        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
+        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding
+                                           + yoffset)
         )
     );
     cardinality_br.translate( intersect_point_start
       + QPointF(
         (direct_line.dx() < 0 ? 1 : -1) * (card_x_padding+cardinality_br.width()/2), 
-        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding)
+        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding
+                                           + yoffset)
       )
     );
 
   } else if (intersect_norm_start.dy() == 0) {
-    QPointF wp1 = QPointF(direct_line.x2(), direct_line.y1());
+    end_offset.setY(yoffset);
+    direct_line.translate(0.0, yoffset);
+    QPointF wp1 = QPointF(direct_line.x2(), direct_line.y1() );
+    path.moveTo(direct_line.x1(), direct_line.y1());
 
     path.lineTo(wp1);
+    path.translate (0, + m_connection_count*10.0);
 
     label_br.translate( wp1 
       + QPointF(
@@ -227,21 +242,20 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   }
 
+  intersect_point_end += end_offset;
   path.lineTo( intersect_point_end );
   setPath(path);
   
   m_rel_label_br = label_br;
   m_rel_cardinality_br = cardinality_br;
 
+  // Why does a function called UpdatePosition add decorations to a line??
+  // =====================================================================
   if ( m_inheritance )
   {
     m_marker = this->make_arrow_head(-intersect_norm_end.angle()/180*M_PI).translated(this->p2());
-  }
-  else if ( m_composite )
-  {
-    m_marker = this->make_rhombus(-intersect_norm_start.angle()/180*M_PI).translated(this->p1());
   } else {
-    m_marker =  this->make_rhombus(-intersect_norm_start.angle()/180*M_PI).translated(this->p1());
+    m_marker = this->make_rhombus(-intersect_norm_start.angle()/180*M_PI).translated(this->p1());
   }
 }
 

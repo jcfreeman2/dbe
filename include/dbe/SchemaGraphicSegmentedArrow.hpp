@@ -14,6 +14,7 @@ class SchemaGraphicSegmentedArrow: public QGraphicsPathItem
 {
 public:
   SchemaGraphicSegmentedArrow ( SchemaGraphicObject * StartItem, SchemaGraphicObject * EndItem,
+                                int connection_count,
                        bool IsInheritance, bool IsComposite, QString ArrowName,
                        QString ArrowCardinality, QGraphicsItem * parent = nullptr );
   ~SchemaGraphicSegmentedArrow();
@@ -39,6 +40,7 @@ private:
 
   SchemaGraphicObject * m_start_item;
   SchemaGraphicObject * m_end_item;
+  int m_connection_count;
   QPolygonF m_marker;
   QRectF m_rel_label_br;
   QRectF m_rel_cardinality_br;

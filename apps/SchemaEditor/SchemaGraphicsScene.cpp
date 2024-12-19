@@ -2,7 +2,7 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
 #include <QWidget>
-#include <QPainter>
+
 #include <QMenu>
 #include <QApplication>
 /// Including Schema Editor
@@ -225,6 +225,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       ClassInfo->direct_relationships();
     const std::list<std::string *> * DirectSuperClassesList = ClassInfo->direct_super_classes();
 
+    int arrow_num=0;
     //// PLotting relationships
     if ( DirectRelationshipList != nullptr )
     {
@@ -233,13 +234,15 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
         QString RelationshipClassType = QString::fromStdString (
                                           ClassRelationship->get_class_type()->get_name() );
 
-        if ( ItemMap.contains ( RelationshipClassType ) && !ItemMap[ClassName]->HasArrow (
-               ItemMap[RelationshipClassType] ) )
+        if ( ItemMap.contains ( RelationshipClassType ) ) //&& !ItemMap[ClassName]->HasArrow (
+          //ItemMap[RelationshipClassType] ) )
         {
           QString SchemaCardinality =
-            KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship );
+            KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship ) + " ";
           SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
-            ItemMap[ClassName], ItemMap[RelationshipClassType], false,
+            ItemMap[ClassName], ItemMap[RelationshipClassType],
+            arrow_num,
+            false,
             ClassRelationship->get_is_composite(),
             QString::fromStdString ( ClassRelationship->get_name() ), SchemaCardinality );
           ItemMap[ClassName]->AddArrow ( NewArrow );
@@ -248,6 +251,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           //NewArrow->SetLabelScene(this);
           NewArrow->setZValue ( -1000.0 );
           NewArrow->UpdatePosition();
+          arrow_num++;
         }
       }
     }
@@ -259,12 +263,15 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       {
         QString SuperClassName = QString::fromStdString ( *SuperClassNameStd );
 
-        if ( ItemMap.contains ( SuperClassName ) && !ItemMap[ClassName]->HasArrow (
-               ItemMap[SuperClassName] ) )
+        if ( ItemMap.contains ( SuperClassName ) ) // && !ItemMap[ClassName]->HasArrow (
+          // ItemMap[SuperClassName] ) )
         {
-          SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow ( ItemMap[ClassName],
-                                                                   ItemMap[SuperClassName], true,
-                                                                   false, "", "" );
+          SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
+            ItemMap[ClassName],
+            ItemMap[SuperClassName],
+            arrow_num,
+            true,
+            false, "", "" );
           ItemMap[ClassName]->AddArrow ( NewArrow );
           ItemMap[SuperClassName]->AddArrow ( NewArrow );
           addItem ( NewArrow );
@@ -368,8 +375,11 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
       {
         startItem->GetClass()->add_super_class ( endItem->GetClassName().toStdString() );
         /// Create arrow
-        SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow ( startItem, endItem, Inheritance,
-                                                                 true, "", "" );
+        SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow (
+          startItem, endItem,
+          0,
+          Inheritance,
+          true, "", "" );
         startItem->AddArrow ( newArrow );
         endItem->AddArrow ( newArrow );
         newArrow->setZValue ( -1000.0 );
@@ -578,7 +588,9 @@ void dbse::SchemaGraphicsScene::DrawArrow ( QString ClassName, QString Relations
     QString RelationshipCardinality =
       KernelWrapper::GetInstance().GetCardinalityStringRelationship ( SchemaRelationship );
     SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow (
-      startItem, endItem, false, SchemaRelationship->get_is_composite(),
+      startItem, endItem,
+      0,
+      false, SchemaRelationship->get_is_composite(),
       QString::fromStdString ( SchemaRelationship->get_name() ), RelationshipCardinality );
     startItem->AddArrow ( newArrow );
     endItem->AddArrow ( newArrow );
