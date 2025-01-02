@@ -48,7 +48,7 @@ private slots:
   void DrawArrow ( QString ClassName, QString RelationshipType, QString RelationshipName );
 private:
   QMap<QString, SchemaGraphicObject *> ItemMap;
-  QGraphicsLineItem * line;
+  QGraphicsLineItem * m_line;
   QMenu * m_context_menu;
   QAction * AddClass;
   QAction * EditClass;

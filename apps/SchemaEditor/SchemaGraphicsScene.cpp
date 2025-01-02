@@ -17,7 +17,7 @@ using namespace dunedaq::oks;
 
 dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
   : QGraphicsScene ( parent ),
-    line ( nullptr ),
+    m_line ( nullptr ),
     m_context_menu ( nullptr ),
     CurrentObject ( nullptr ),
     m_current_arrow ( nullptr ),
@@ -318,9 +318,9 @@ void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mou
 
   if ( mouseEvent->widget()->cursor().shape() == Qt::CrossCursor )
   {
-    line = new QGraphicsLineItem ( QLineF ( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
-    line->setPen ( QPen ( Qt::black, 2 ) );
-    addItem ( line );
+    m_line = new QGraphicsLineItem ( QLineF ( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
+    m_line->setPen ( QPen ( Qt::black, 2 ) );
+    addItem ( m_line );
     return;
   }
 
@@ -329,37 +329,38 @@ void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mou
 
 void dbse::SchemaGraphicsScene::mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
-  if ( line != nullptr )
+  if ( m_line != nullptr )
   {
-    QLineF newLine ( line->line().p1(), mouseEvent->scenePos() );
-    line->setLine ( newLine );
+    QLineF newLine ( m_line->line().p1(), mouseEvent->scenePos() );
+    m_line->setLine ( newLine );
   }
   else
   {
     QGraphicsScene::mouseMoveEvent ( mouseEvent );
   }
+  m_modified = true;
 }
 
 void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
-  if ( line != nullptr )
+  if ( m_line != nullptr )
   {
-    QList<QGraphicsItem *> startItems = items ( line->line().p1() );
+    QList<QGraphicsItem *> startItems = items ( m_line->line().p1() );
 
-    if ( startItems.count() && startItems.first() == line )
+    if ( startItems.count() && startItems.first() == m_line )
     {
       startItems.removeFirst();
     }
 
-    QList<QGraphicsItem *> endItems = items ( line->line().p2() );
+    QList<QGraphicsItem *> endItems = items ( m_line->line().p2() );
 
-    if ( endItems.count() && endItems.first() == line )
+    if ( endItems.count() && endItems.first() == m_line )
     {
       endItems.removeFirst();
     }
 
-    RemoveItemFromScene ( line );
-    delete line;
+    RemoveItemFromScene ( m_line );
+    delete m_line;
 
     if ( startItems.count() > 0 && endItems.count() > 0
          && startItems.first() != endItems.first() )
@@ -398,7 +399,7 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
     }
   }
 
-  line = nullptr;
+  m_line = nullptr;
   QGraphicsScene::mouseReleaseEvent ( mouseEvent );
 }
 
