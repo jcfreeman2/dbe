@@ -82,8 +82,25 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
     {0.,0., 0, -1.}, // down
     {0.,0., -1., 0.}, // left
   };
-  QLineF center_line ( m_start_item->mapToScene ( m_start_item->boundingRect().center() ),
-                      m_end_item->mapToScene ( m_end_item->boundingRect().center() ) );
+
+  qreal xoffset;
+  qreal yoffset;
+  if (m_start_item->boundingRect().x() > m_end_item->boundingRect().x()) {
+    xoffset = m_connection_count*20.0;
+  }
+  else {
+    xoffset = m_connection_count*-20.0;
+  }
+  if (m_start_item->boundingRect().y() > m_end_item->boundingRect().y()) {
+    yoffset = m_connection_count*20.0;
+  }
+  else {
+    yoffset = m_connection_count*-20.0;
+  }
+  QPointF offset(xoffset, yoffset);
+
+  QLineF center_line ( m_start_item->mapToScene ( m_start_item->boundingRect().center()+offset ),
+                      m_end_item->mapToScene ( m_end_item->boundingRect().center()+offset ) );
   QPolygonF start_polygon = QPolygonF ( m_start_item->boundingRect() );
   QPolygonF end_polygon = QPolygonF ( m_end_item->boundingRect() );
   QPointF intersect_point_start, intersect_point_end;
@@ -138,18 +155,12 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
   qreal card_x_padding = 10;
   qreal card_y_padding = 1;
 
-  qreal xoffset = m_connection_count*25.0;
-  qreal yoffset = m_connection_count*25.0;
-  QPointF end_offset;
-
   QPainterPath path( intersect_point_start );
 
   if ((intersect_norm_start.dx() == 0) && (intersect_norm_end.dx() == 0)) {
     // Three segments, starting and ending vertically
-    end_offset.setX(xoffset);
-    direct_line.translate(xoffset, 0.0);
-    QPointF wp1 = QPointF(direct_line.x1(), direct_line.center().y()+yoffset);
-    QPointF wp2 = QPointF(direct_line.x2(), direct_line.center().y()+yoffset);
+    QPointF wp1 = QPointF(direct_line.x1(), direct_line.center().y());
+    QPointF wp2 = QPointF(direct_line.x2(), direct_line.center().y());
     path.moveTo(direct_line.x1(), direct_line.y1());
     path.lineTo(wp1);
     path.lineTo(wp2);
@@ -171,10 +182,8 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   } else if ((intersect_norm_start.dy() == 0) && (intersect_norm_end.dy() == 0)) {
     // Three segments, starting and ending horizontally
-    end_offset.setY(yoffset);
-    direct_line.translate(0.0, yoffset);
-    QPointF wp1 = QPointF(direct_line.center().x()+xoffset, direct_line.y1());
-    QPointF wp2 = QPointF(direct_line.center().x()+xoffset, direct_line.y2());
+    QPointF wp1 = QPointF(direct_line.center().x(), direct_line.y1());
+    QPointF wp2 = QPointF(direct_line.center().x(), direct_line.y2());
 
     path.moveTo(direct_line.x1(), direct_line.y1());
     path.lineTo(wp1);
@@ -196,9 +205,7 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   } else if (intersect_norm_start.dx() == 0) {
     // Two segments, starting vertically, ending horizontally
-    end_offset.setY(yoffset);
-    direct_line.translate(xoffset, 0.0);
-    QPointF wp1 = QPointF(direct_line.x1(), direct_line.y2()+yoffset);
+    QPointF wp1 = QPointF(direct_line.x1(), direct_line.y2());
 
     path.moveTo(direct_line.x1(), direct_line.y1());
     path.lineTo(wp1);
@@ -206,21 +213,17 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
     label_br.translate( wp1 
       + QPointF(
         (direct_line.dx() > 0 ? 1 : -1) * (label_x_padding+label_br.width()/2), 
-        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding
-                                           + yoffset)
+        (direct_line.dy() < 0 ? 1 : -1) * (label_br.height()+label_y_padding)
         )
     );
     cardinality_br.translate( intersect_point_start
       + QPointF(
         (direct_line.dx() < 0 ? 1 : -1) * (card_x_padding+cardinality_br.width()/2), 
-        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding
-                                           + yoffset)
+        (direct_line.dy() > 0 ? 1 : -1) * (cardinality_br.height()+card_y_padding)
       )
     );
 
   } else if (intersect_norm_start.dy() == 0) {
-    end_offset.setY(yoffset);
-    direct_line.translate(0.0, yoffset);
     QPointF wp1 = QPointF(direct_line.x2(), direct_line.y1() );
     path.moveTo(direct_line.x1(), direct_line.y1());
 
@@ -242,7 +245,6 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   }
 
-  intersect_point_end += end_offset;
   path.lineTo( intersect_point_end );
   setPath(path);
   
