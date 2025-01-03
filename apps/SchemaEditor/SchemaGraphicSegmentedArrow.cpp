@@ -85,22 +85,50 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
   qreal xoffset;
   qreal yoffset;
-  if (m_start_item->boundingRect().x() > m_end_item->boundingRect().x()) {
-    xoffset = m_connection_count*20.0;
+  const qreal factor = 18.0;
+  if (m_start_item->boundingRect().x() < m_end_item->boundingRect().x()) {
+    xoffset = m_connection_count*factor;
   }
   else {
-    xoffset = m_connection_count*-20.0;
+    xoffset = m_connection_count*-factor;
   }
-  if (m_start_item->boundingRect().y() > m_end_item->boundingRect().y()) {
-    yoffset = m_connection_count*20.0;
-  }
-  else {
-    yoffset = m_connection_count*-20.0;
-  }
-  QPointF offset(xoffset, yoffset);
 
-  QLineF center_line ( m_start_item->mapToScene ( m_start_item->boundingRect().center()+offset ),
-                      m_end_item->mapToScene ( m_end_item->boundingRect().center()+offset ) );
+  if (m_start_item->boundingRect().y() > m_end_item->boundingRect().y()) {
+    yoffset = m_connection_count*factor;
+  }
+  else {
+    yoffset = m_connection_count*-factor;
+  }
+
+  auto maxy_start_offset = m_start_item->boundingRect().height() / 2;
+  QPointF start_offset(xoffset, yoffset);
+  int max_con_start = m_start_item->boundingRect().height() / factor;
+  if (abs(yoffset) > maxy_start_offset) {
+    if (m_connection_count < max_con_start) {
+      auto sign = yoffset/yoffset;
+      start_offset.setY((m_connection_count - max_con_start/2) * sign * factor);
+    }
+    else {
+      start_offset.setY(0.0);
+    }
+  }
+  QPointF end_offset(xoffset, yoffset);
+  // if (m_end_item->boundingRect().height()/2.0 < abs(yoffset)) {
+  auto maxy_end_offset = m_end_item->boundingRect().height() / 2;
+  int max_con_end = m_end_item->boundingRect().height() / factor;
+  if (abs(yoffset) > maxy_end_offset) {
+    if (m_connection_count < max_con_end) {
+      auto sign = yoffset/yoffset;
+      yoffset = (m_connection_count - max_con_end/2) * sign * factor;
+      end_offset.setY(yoffset);
+    }
+    else {
+      end_offset.setY(0.0);
+    }
+  }
+
+  QLineF center_line ( m_start_item->mapToScene ( m_start_item->boundingRect().center()+start_offset ),
+                      m_end_item->mapToScene ( m_end_item->boundingRect().center()+end_offset ) );
   QPolygonF start_polygon = QPolygonF ( m_start_item->boundingRect() );
   QPolygonF end_polygon = QPolygonF ( m_end_item->boundingRect() );
   QPointF intersect_point_start, intersect_point_end;

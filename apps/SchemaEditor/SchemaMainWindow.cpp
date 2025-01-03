@@ -160,16 +160,23 @@ void dbse::SchemaMainWindow::BuildTableModel()
 
 int dbse::SchemaMainWindow::ShouldSaveViewChanges() const
 {
+  QString modified_views;
   for (int index=0; index<ui->TabWidget->count(); ++index) {
     auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
     if (tab->GetScene()->IsModified()) {
-      return QMessageBox::question (
-        0, tr ( "SchemaEditor" ),
-        QString ( "There are unsaved changes in the schema views:\n"
-                  "Do you want to save the changes in the schema views?\n" ),
-        QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Discard );
+      modified_views.append(tab->getName() + "\n");
     }
   }
+  if (!modified_views.isEmpty()) {
+    QString message ( "There are unsaved changes in the schema views:\n");
+    message.append (modified_views);
+    message.append ("Do you want to save the changes in the schema views?\n" );
+    return QMessageBox::question (
+      0, tr ( "SchemaEditor" ),
+      message,
+      QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Discard );
+  }
+
   return QMessageBox::Discard;
 }
 

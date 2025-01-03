@@ -278,6 +278,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           //NewArrow->SetLabelScene(this);
           NewArrow->setZValue ( -1000.0 );
           NewArrow->UpdatePosition();
+          arrow_num++;
         }
       }
     }
