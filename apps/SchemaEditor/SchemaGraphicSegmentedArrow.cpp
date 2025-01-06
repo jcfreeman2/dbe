@@ -93,7 +93,7 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
     xoffset = m_connection_count*-factor;
   }
 
-  if (m_start_item->boundingRect().y() > m_end_item->boundingRect().y()) {
+  if (m_start_item->boundingRect().y() < m_end_item->boundingRect().y()) {
     yoffset = m_connection_count*factor;
   }
   else {
@@ -112,6 +112,7 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
       start_offset.setY(0.0);
     }
   }
+
   QPointF end_offset(xoffset, yoffset);
   // if (m_end_item->boundingRect().height()/2.0 < abs(yoffset)) {
   auto maxy_end_offset = m_end_item->boundingRect().height() / 2;
@@ -179,9 +180,9 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
 
 
   qreal label_x_padding = 0;
-  qreal label_y_padding = 1;
-  qreal card_x_padding = 10;
-  qreal card_y_padding = 1;
+  qreal label_y_padding = 0;
+  qreal card_x_padding = 20;
+  qreal card_y_padding = 0;
 
   QPainterPath path( intersect_point_start );
 

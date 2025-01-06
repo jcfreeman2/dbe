@@ -225,14 +225,15 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       ClassInfo->direct_relationships();
     const std::list<std::string *> * DirectSuperClassesList = ClassInfo->direct_super_classes();
 
-    int arrow_num=0;
+    std::map<std::string, unsigned int> arrow_count;
+
     //// PLotting relationships
     if ( DirectRelationshipList != nullptr )
     {
       for ( OksRelationship * ClassRelationship : * ( DirectRelationshipList ) )
       {
-        QString RelationshipClassType = QString::fromStdString (
-                                          ClassRelationship->get_class_type()->get_name() );
+        auto rct = ClassRelationship->get_class_type()->get_name();
+        QString RelationshipClassType = QString::fromStdString (rct);
 
         if ( ItemMap.contains ( RelationshipClassType ) ) //&& !ItemMap[ClassName]->HasArrow (
           //ItemMap[RelationshipClassType] ) )
@@ -241,7 +242,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
             KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship ) + " ";
           SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
             ItemMap[ClassName], ItemMap[RelationshipClassType],
-            arrow_num,
+            arrow_count[rct],
             false,
             ClassRelationship->get_is_composite(),
             QString::fromStdString ( ClassRelationship->get_name() ), SchemaCardinality );
@@ -251,7 +252,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           //NewArrow->SetLabelScene(this);
           NewArrow->setZValue ( -1000.0 );
           NewArrow->UpdatePosition();
-          arrow_num++;
+          arrow_count[rct]++;
         }
       }
     }
@@ -269,7 +270,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
             ItemMap[ClassName],
             ItemMap[SuperClassName],
-            arrow_num,
+            arrow_count[*SuperClassNameStd],
             true,
             false, "", "" );
           ItemMap[ClassName]->AddArrow ( NewArrow );
@@ -278,7 +279,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           //NewArrow->SetLabelScene(this);
           NewArrow->setZValue ( -1000.0 );
           NewArrow->UpdatePosition();
-          arrow_num++;
+          arrow_count[*SuperClassNameStd]++;
         }
       }
     }
