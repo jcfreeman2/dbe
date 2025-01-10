@@ -3,6 +3,7 @@
 
 /// Including QT Headers
 #include <QGraphicsObject>
+#include <QGraphicsSceneHoverEvent>
 #include <QFont>
 #include <QColor>
 #include <QPen>
@@ -26,6 +27,7 @@ public:
   void GetInfo();
   /// Graphic API
   void set_inherited_properties_visibility( bool visible );
+  void set_highlight_active( bool highlight );
   QRectF boundingRect() const;
   QPainterPath shape() const;
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
@@ -37,6 +39,9 @@ public:
   bool HasArrow ( SchemaGraphicObject * Dest ) const;
 protected:
   QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
+  void hoverEnterEvent ( QGraphicsSceneHoverEvent* ev );
+  void hoverLeaveEvent ( QGraphicsSceneHoverEvent* ev );
+  void mouseDoubleClickEvent ( QGraphicsSceneMouseEvent* ev );
 private:
   dunedaq::oks::OksClass * m_class_info;
   QString m_class_object_name;
@@ -49,6 +54,7 @@ private:
   QStringList m_class_inherited_methods;
 
   bool m_inherited_properties_visible;  
+  bool m_highlight_active{false};
   QFont m_font;
   QFont m_bold_font;
   QColor m_default_color;

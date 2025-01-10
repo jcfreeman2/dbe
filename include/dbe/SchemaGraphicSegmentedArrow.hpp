@@ -28,6 +28,8 @@ public:
 protected:
   void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
                QWidget * widget = 0 );
+  void hoverEnterEvent ( QGraphicsSceneHoverEvent* ev );
+  void hoverLeaveEvent ( QGraphicsSceneHoverEvent* ev );
 private:
 
   QPointF p1() const { return path().elementCount() > 0 ? path().elementAt(0) : QPointF(); }

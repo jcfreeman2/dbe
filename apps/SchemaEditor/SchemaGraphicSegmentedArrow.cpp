@@ -1,9 +1,14 @@
 /// Including QT Headers
 #include <QPainter>
 #include <QPen>
+#include <QToolTip>
 /// Including Schema Editor
 #include "dbe/SchemaGraphicSegmentedArrow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
+
+/// Including Oks Headers
+#include "oks/class.hpp"
+
 /// Including C++ Headers
 #include <cmath>
 
@@ -26,16 +31,33 @@ SchemaGraphicSegmentedArrow::SchemaGraphicSegmentedArrow ( SchemaGraphicObject *
     LastDegree ( 0 ),
     LastRotation ( 0 )
 {
+  if (!is_inheritance) {
+    setAcceptHoverEvents(true);
+  }
   //setPen(QPen(Qt::black,2,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));
   setFlag ( ItemIsSelectable, true );
   m_default_color = QColor ( 0x1e1b18 );
-  m_label_font = QFont( "Helvetica [Cronyx]", 10);
+  m_label_font = QFont( "Helvetica [Cronyx]", 9);
   m_arrow_size = 20;
 
 }
 
 SchemaGraphicSegmentedArrow::~SchemaGraphicSegmentedArrow()
 {
+}
+
+void dbse::SchemaGraphicSegmentedArrow::hoverEnterEvent ( QGraphicsSceneHoverEvent* he) {
+  if (!m_name.isEmpty()) {
+    auto info = m_start_item->GetClass();
+    
+    auto rel = info->find_relationship(m_name.toStdString());
+    
+    QToolTip::showText( he->screenPos(),
+                        QString::fromStdString(rel->get_description()) );
+  }
+}
+void dbse::SchemaGraphicSegmentedArrow::hoverLeaveEvent ( QGraphicsSceneHoverEvent* he) {
+  QToolTip::hideText();
 }
 
 QRectF SchemaGraphicSegmentedArrow::boundingRect() const
@@ -182,8 +204,8 @@ void SchemaGraphicSegmentedArrow::UpdatePosition()
   cardinality_br.translate(-cardinality_br.width()/2, cardinality_br.height()/2);
 
 
-  qreal label_x_padding = 0;
-  qreal label_y_padding = 0;
+  qreal label_x_padding = 2;
+  qreal label_y_padding = -2;
   qreal card_x_padding = 20;
   qreal card_y_padding = 0;
 

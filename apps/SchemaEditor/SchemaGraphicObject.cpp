@@ -1,11 +1,16 @@
 /// Including QT Headers
-#include <QPainter>
+#include <QApplication>
 #include <QCursor>
+#include <QEvent>
 #include <QGraphicsScene>
+#include <QGraphicsSceneHoverEvent>
 #include <QGraphicsView>
+#include <QPainter>
+#include <QToolTip>
 /// Include oks
 #include"oks/method.hpp"
 /// Including SchemaEditor
+#include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaGraphicObject.hpp"
 #include "dbe/SchemaGraphicSegmentedArrow.hpp"
 #include "dbe/SchemaGraphicsScene.hpp"
@@ -20,6 +25,7 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
     LineOffsetX ( 0 ),
     LineOffsetY ( 0 )
 {
+  setAcceptHoverEvents(true);
   m_font = QFont( "Helvetica [Cronyx]", 9);
   m_bold_font = QFont( "Helvetica [Cronyx]", 9, QFont::DemiBold);
   m_default_color = QColor ( 0x1e1b18 );
@@ -38,6 +44,7 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
   /// Getting Class
   m_class_info = KernelWrapper::GetInstance().FindClass ( ClassName.toStdString() );
   m_class_object_name = ClassName;
+
   /// Getting class info
   GetInfo();
 }
@@ -45,6 +52,46 @@ dbse::SchemaGraphicObject::SchemaGraphicObject ( QString & ClassName,
 dbse::SchemaGraphicObject::~SchemaGraphicObject()
 {
 }
+
+
+
+void dbse::SchemaGraphicObject::hoverEnterEvent ( QGraphicsSceneHoverEvent* he) {
+  QToolTip::showText( he->screenPos(),
+                      QString::fromStdString(m_class_info->get_description()) );
+}
+void dbse::SchemaGraphicObject::hoverLeaveEvent ( QGraphicsSceneHoverEvent* he) {
+  QToolTip::hideText();
+}
+
+void dbse::SchemaGraphicObject::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent* ev ) {
+  std::cout << "Open class editor\n";
+  bool WidgetFound = false;
+  QString ClassName = QString::fromStdString ( m_class_info->get_name() );
+
+  for ( QWidget * Editor : QApplication::allWidgets() )
+  {
+    SchemaClassEditor * Widget = dynamic_cast<SchemaClassEditor *> ( Editor );
+
+    if ( Widget != nullptr )
+    {
+      if ( ( Widget->objectName() ).compare ( ClassName ) == 0 )
+      {
+        Widget->raise();
+        Widget->setVisible ( true );
+        Widget->activateWindow();
+        WidgetFound = true;
+      }
+    }
+  }
+
+  if ( !WidgetFound )
+  {
+    SchemaClassEditor * Editor = new SchemaClassEditor ( m_class_info );
+    Editor->show();
+  }
+
+}
+
 
 OksClass * dbse::SchemaGraphicObject::GetClass() const
 {
@@ -253,8 +300,17 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
   double SpaceX = 3;
   double SpaceY = 3;
 
-  const QPen bounding_box_pen = QPen(m_default_color, 2.5);
-  const QPen inner_line_pen = QPen(m_default_color, 1.5);
+  QColor colour;
+  if (m_highlight_active && (m_class_info->get_file()->get_full_file_name()
+                             == KernelWrapper::GetInstance().GetActiveSchema())) {
+    colour = m_highlight_color;
+  }
+  else {
+    colour = m_default_color;
+  }
+
+  const QPen bounding_box_pen = QPen(colour, 2.5);
+  const QPen inner_line_pen = QPen(colour, 1.5);
 
   painter->setFont ( m_font );
   painter->setPen ( bounding_box_pen );
@@ -287,7 +343,7 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
       HeightOffset += AttributeBoundingRect.height();
       painter->drawText ( SpaceX, HeightOffset, AttributeName );
     }
-    painter->setPen ( m_default_color );
+    painter->setPen ( colour );
   }
 
   HeightOffset += SpaceY;
@@ -309,7 +365,7 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
       HeightOffset += relationship_bounding_rect.height();
       painter->drawText ( SpaceX, HeightOffset, relationship_name );
     }
-    painter->setPen ( m_default_color );
+    painter->setPen ( colour );
   }
 
 
@@ -332,7 +388,7 @@ void dbse::SchemaGraphicObject::paint ( QPainter * painter,
       HeightOffset += AttributeBoundingRect.height();
       painter->drawText ( SpaceX, HeightOffset, MethodName );
     }
-    painter->setPen ( m_default_color );
+    painter->setPen ( colour );
   }
 }
 
@@ -391,6 +447,10 @@ void dbse::SchemaGraphicObject::set_inherited_properties_visibility( bool visibl
     }
 }
 
+void dbse::SchemaGraphicObject::set_highlight_active(bool highlight)
+{
+  m_highlight_active = highlight;
+}
 
 
 QVariant dbse::SchemaGraphicObject::itemChange ( GraphicsItemChange change,

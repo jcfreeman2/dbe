@@ -1,5 +1,6 @@
 /// Including QT Headers
 #include <QGraphicsSceneDragDropEvent>
+#include <QEvent>
 #include <QMimeData>
 #include <QWidget>
 
@@ -22,6 +23,7 @@ dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
     CurrentObject ( nullptr ),
     m_current_arrow ( nullptr ),
     m_inherited_properties_visible(false),
+    m_highlight_active(false),
     m_modified(false)
 {
   CreateActions();
@@ -41,6 +43,10 @@ void dbse::SchemaGraphicsScene::CreateActions()
   // Toggle inherited properties of all classes in view
   m_toggle_indirect_infos = new QAction ( "&Toggle inherited properties", this );
   connect ( m_toggle_indirect_infos, SIGNAL ( triggered() ), this, SLOT ( ToggleIndirectInfos() ) );
+
+  // Toggle highlighting of all classes in active schema
+  m_toggle_highlight_active = new QAction ( "Toggle &highlighting of classes in active schema", this );
+  connect ( m_toggle_highlight_active, SIGNAL ( triggered() ), this, SLOT ( ToggleHighlightActive() ) );
 
   // Show superclasses of the current class
   m_add_direct_super_classes = new QAction ( "Add direct &superclasses to view", this );
@@ -117,6 +123,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu = new QMenu();
     // m_context_menu->addAction ( AddClass );
     m_context_menu->addAction ( m_toggle_indirect_infos );
+    m_context_menu->addAction ( m_toggle_highlight_active );
     m_context_menu->addSeparator();
     m_context_menu->addAction ( EditClass );
     m_context_menu->addAction ( m_add_direct_super_classes );
@@ -132,7 +139,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
   if ( !itemAt ( event->scenePos(), QTransform() ) )
   {
     m_context_menu->actions().at ( 0 )->setVisible ( true );
-    m_context_menu->actions().at ( 1 )->setVisible ( false );
+    m_context_menu->actions().at ( 1 )->setVisible ( true );
     m_context_menu->actions().at ( 2 )->setVisible ( false );
     m_context_menu->actions().at ( 3 )->setVisible ( false );
     m_context_menu->actions().at ( 4 )->setVisible ( false );
@@ -141,6 +148,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu->actions().at ( 7 )->setVisible ( false );
     m_context_menu->actions().at ( 8 )->setVisible ( false );
     m_context_menu->actions().at ( 9 )->setVisible ( false );
+    m_context_menu->actions().at ( 10 )->setVisible ( false );
   }
   else
   {
@@ -153,19 +161,20 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       bool writable = KernelWrapper::GetInstance().IsFileWritable ( filename );
       m_context_menu->actions().at ( 0 )->setVisible ( true );
       m_context_menu->actions().at ( 1 )->setVisible ( true );
+      m_context_menu->actions().at ( 2 )->setVisible ( true );
       if ( writable ) {
-        m_context_menu->actions().at ( 2 )->setVisible ( true );
+        m_context_menu->actions().at ( 3 )->setVisible ( true );
       }
       else {
-        m_context_menu->actions().at ( 2 )->setVisible ( false );
+        m_context_menu->actions().at ( 3 )->setVisible ( false );
       }
-      m_context_menu->actions().at ( 3 )->setVisible ( true );
       m_context_menu->actions().at ( 4 )->setVisible ( true );
       m_context_menu->actions().at ( 5 )->setVisible ( true );
       m_context_menu->actions().at ( 6 )->setVisible ( true );
       m_context_menu->actions().at ( 7 )->setVisible ( true );
       m_context_menu->actions().at ( 8 )->setVisible ( true );
-      m_context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_context_menu->actions().at ( 10 )->setVisible ( false );
 
     }
     else if ( dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
@@ -181,7 +190,8 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 6 )->setVisible ( false );
       m_context_menu->actions().at ( 7 )->setVisible ( false );
       m_context_menu->actions().at ( 8 )->setVisible ( false );
-      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 10 )->setVisible ( true );
       m_current_arrow =
         dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                                QTransform() ) );
@@ -211,6 +221,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );
       Object->set_inherited_properties_visibility(m_inherited_properties_visible);
+      Object->set_highlight_active(m_highlight_active);
       addItem ( Object );
       /// Updating item list
       ItemMap.insert ( ClassName, Object );
@@ -323,6 +334,7 @@ void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mou
     m_line = new QGraphicsLineItem ( QLineF ( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
     m_line->setPen ( QPen ( Qt::black, 2 ) );
     addItem ( m_line );
+    m_modified = true;
     return;
   }
 
@@ -340,7 +352,6 @@ void dbse::SchemaGraphicsScene::mouseMoveEvent ( QGraphicsSceneMouseEvent * mous
   {
     QGraphicsScene::mouseMoveEvent ( mouseEvent );
   }
-  m_modified = true;
 }
 
 void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent )
@@ -436,6 +447,17 @@ void dbse::SchemaGraphicsScene::EditClassSlot()
     SchemaClassEditor * Editor = new SchemaClassEditor ( CurrentObject->GetClass() );
     Editor->show();
   }
+}
+
+void dbse::SchemaGraphicsScene::ToggleHighlightActive() {
+  m_highlight_active = !m_highlight_active;
+
+  for ( SchemaGraphicObject * item : ItemMap.values() ) {
+    item->set_highlight_active(m_highlight_active);
+  }
+
+  this->update();
+
 }
 
 void dbse::SchemaGraphicsScene::ToggleIndirectInfos() {

@@ -238,6 +238,13 @@ void dbse::SchemaMainWindow::SetSchemaFileActive()
   QModelIndex Index = ui->FileView->currentIndex();
   QStringList Row = FileModel->getRowFromIndex ( Index );
   KernelWrapper::GetInstance().SetActiveSchema ( Row.at ( 0 ).toStdString() );
+
+  // In case we are highlighting classes in the active file, redraw current
+  // view tab now we've changed active file
+  SchemaTab * current_tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+  SchemaGraphicsScene * scene = current_tab->GetScene();
+  scene->update();
+
   BuildFileModel();
 }
 void dbse::SchemaMainWindow::SaveSchemaFile()
