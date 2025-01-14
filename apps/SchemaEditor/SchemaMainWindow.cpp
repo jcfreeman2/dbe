@@ -160,16 +160,23 @@ void dbse::SchemaMainWindow::BuildTableModel()
 
 int dbse::SchemaMainWindow::ShouldSaveViewChanges() const
 {
+  QString modified_views;
   for (int index=0; index<ui->TabWidget->count(); ++index) {
     auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
     if (tab->GetScene()->IsModified()) {
-      return QMessageBox::question (
-        0, tr ( "SchemaEditor" ),
-        QString ( "There are unsaved changes in the schema views:\n"
-                  "Do you want to save the changes in the schema views?\n" ),
-        QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Discard );
+      modified_views.append(tab->getName() + "\n");
     }
   }
+  if (!modified_views.isEmpty()) {
+    QString message ( "There are unsaved changes in the schema views:\n");
+    message.append (modified_views);
+    message.append ("Do you want to save the changes in the schema views?\n" );
+    return QMessageBox::question (
+      0, tr ( "SchemaEditor" ),
+      message,
+      QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Discard );
+  }
+
   return QMessageBox::Discard;
 }
 
@@ -231,6 +238,13 @@ void dbse::SchemaMainWindow::SetSchemaFileActive()
   QModelIndex Index = ui->FileView->currentIndex();
   QStringList Row = FileModel->getRowFromIndex ( Index );
   KernelWrapper::GetInstance().SetActiveSchema ( Row.at ( 0 ).toStdString() );
+
+  // In case we are highlighting classes in the active file, redraw current
+  // view tab now we've changed active file
+  SchemaTab * current_tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+  SchemaGraphicsScene * scene = current_tab->GetScene();
+  scene->update();
+
   BuildFileModel();
 }
 void dbse::SchemaMainWindow::SaveSchemaFile()
@@ -500,41 +514,49 @@ void dbse::SchemaMainWindow::SaveView()
   if ( CurrentTab->GetScene()->items().size() != 0 )
   {
     auto defName = CurrentTab->getFileName();
+    if (defName == "./") {
+      defName = m_view_dir;
+    }
     QString FileName = QFileDialog::getSaveFileName (
       this, tr ( "Save View" ), defName );
 
-    if ( !FileName.endsWith ( ".view" ) )
-    {
-      FileName.append ( ".view" );
-    }
-
-    CurrentTab->setFileName ( FileName );
-    if (CurrentTab->getName() == "") {
-      auto text = QFileInfo(FileName).baseName();
-      CurrentTab->setName(text);
-      auto index = ui->TabWidget->currentIndex();
-      ui->TabWidget->setTabText(index, text);
-    }
-
-    QFile ViewFile ( FileName );
-    ViewFile.open ( QIODevice::WriteOnly );
-
-    for ( QGraphicsItem * Item : CurrentTab->GetScene()->items() )
-    {
-      if ( dynamic_cast<SchemaGraphicObject *> ( Item ) )
-      {
-        SchemaGraphicObject * SchemaObject = dynamic_cast<SchemaGraphicObject *> ( Item );
-        QString ObjectDescription = SchemaObject->GetClassName() + ","
-                                    + QString::number ( SchemaObject->scenePos().x() ) + ","
-                                    + QString::number ( SchemaObject->scenePos().y() ) + "\n";
-        ViewFile.write ( ObjectDescription.toUtf8() );
+    if (! FileName.isEmpty()) {
+      auto spos = FileName.lastIndexOf('/');
+      if (spos != -1) {
+        m_view_dir = FileName;
+        m_view_dir.truncate(spos);
       }
-    }
 
-    ViewFile.close();
-    auto message = QString("Saved view to %1").arg(FileName);
-    ui->StatusBar->showMessage( message );
-    CurrentTab->GetScene()->ClearModified();
+      if ( !FileName.endsWith ( ".view" ) ) {
+        FileName.append ( ".view" );
+      }
+
+      CurrentTab->setFileName ( FileName );
+      if (CurrentTab->getName() == "") {
+        auto text = QFileInfo(FileName).baseName();
+        CurrentTab->setName(text);
+        auto index = ui->TabWidget->currentIndex();
+        ui->TabWidget->setTabText(index, text);
+      }
+
+      QFile ViewFile ( FileName );
+      ViewFile.open ( QIODevice::WriteOnly );
+
+      for ( QGraphicsItem * Item : CurrentTab->GetScene()->items() ) {
+        if ( dynamic_cast<SchemaGraphicObject *> ( Item ) ) {
+          SchemaGraphicObject * SchemaObject = dynamic_cast<SchemaGraphicObject *> ( Item );
+          QString ObjectDescription = SchemaObject->GetClassName() + ","
+            + QString::number ( SchemaObject->scenePos().x() ) + ","
+            + QString::number ( SchemaObject->scenePos().y() ) + "\n";
+          ViewFile.write ( ObjectDescription.toUtf8() );
+        }
+      }
+
+      ViewFile.close();
+      auto message = QString("Saved view to %1").arg(FileName);
+      ui->StatusBar->showMessage( message );
+      CurrentTab->GetScene()->ClearModified();
+    }
   }
 }
 
@@ -543,11 +565,16 @@ void dbse::SchemaMainWindow::LoadView()
   QString ViewPath = QFileDialog::getOpenFileName (
     this,
     tr ("Open view file"),
-    ".",
+    m_view_dir,
     "*.view");
 
   if ( !ViewPath.isEmpty() )
   {
+    auto spos = ViewPath.lastIndexOf('/');
+    if (spos != -1) {
+      m_view_dir = ViewPath;
+      m_view_dir.truncate(spos);
+    }
     QFile ViewFile ( ViewPath );
     ViewFile.open ( QIODevice::ReadOnly );
 

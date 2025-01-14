@@ -1,8 +1,9 @@
 /// Including QT Headers
 #include <QGraphicsSceneDragDropEvent>
+#include <QEvent>
 #include <QMimeData>
 #include <QWidget>
-#include <QPainter>
+
 #include <QMenu>
 #include <QApplication>
 /// Including Schema Editor
@@ -17,11 +18,12 @@ using namespace dunedaq::oks;
 
 dbse::SchemaGraphicsScene::SchemaGraphicsScene ( QObject * parent )
   : QGraphicsScene ( parent ),
-    line ( nullptr ),
+    m_line ( nullptr ),
     m_context_menu ( nullptr ),
     CurrentObject ( nullptr ),
     m_current_arrow ( nullptr ),
     m_inherited_properties_visible(false),
+    m_highlight_active(false),
     m_modified(false)
 {
   CreateActions();
@@ -41,6 +43,10 @@ void dbse::SchemaGraphicsScene::CreateActions()
   // Toggle inherited properties of all classes in view
   m_toggle_indirect_infos = new QAction ( "&Toggle inherited properties", this );
   connect ( m_toggle_indirect_infos, SIGNAL ( triggered() ), this, SLOT ( ToggleIndirectInfos() ) );
+
+  // Toggle highlighting of all classes in active schema
+  m_toggle_highlight_active = new QAction ( "Toggle &highlighting of classes in active schema", this );
+  connect ( m_toggle_highlight_active, SIGNAL ( triggered() ), this, SLOT ( ToggleHighlightActive() ) );
 
   // Show superclasses of the current class
   m_add_direct_super_classes = new QAction ( "Add direct &superclasses to view", this );
@@ -117,6 +123,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu = new QMenu();
     // m_context_menu->addAction ( AddClass );
     m_context_menu->addAction ( m_toggle_indirect_infos );
+    m_context_menu->addAction ( m_toggle_highlight_active );
     m_context_menu->addSeparator();
     m_context_menu->addAction ( EditClass );
     m_context_menu->addAction ( m_add_direct_super_classes );
@@ -132,7 +139,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
   if ( !itemAt ( event->scenePos(), QTransform() ) )
   {
     m_context_menu->actions().at ( 0 )->setVisible ( true );
-    m_context_menu->actions().at ( 1 )->setVisible ( false );
+    m_context_menu->actions().at ( 1 )->setVisible ( true );
     m_context_menu->actions().at ( 2 )->setVisible ( false );
     m_context_menu->actions().at ( 3 )->setVisible ( false );
     m_context_menu->actions().at ( 4 )->setVisible ( false );
@@ -141,6 +148,7 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu->actions().at ( 7 )->setVisible ( false );
     m_context_menu->actions().at ( 8 )->setVisible ( false );
     m_context_menu->actions().at ( 9 )->setVisible ( false );
+    m_context_menu->actions().at ( 10 )->setVisible ( false );
   }
   else
   {
@@ -153,19 +161,20 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       bool writable = KernelWrapper::GetInstance().IsFileWritable ( filename );
       m_context_menu->actions().at ( 0 )->setVisible ( true );
       m_context_menu->actions().at ( 1 )->setVisible ( true );
+      m_context_menu->actions().at ( 2 )->setVisible ( true );
       if ( writable ) {
-        m_context_menu->actions().at ( 2 )->setVisible ( true );
+        m_context_menu->actions().at ( 3 )->setVisible ( true );
       }
       else {
-        m_context_menu->actions().at ( 2 )->setVisible ( false );
+        m_context_menu->actions().at ( 3 )->setVisible ( false );
       }
-      m_context_menu->actions().at ( 3 )->setVisible ( true );
       m_context_menu->actions().at ( 4 )->setVisible ( true );
       m_context_menu->actions().at ( 5 )->setVisible ( true );
       m_context_menu->actions().at ( 6 )->setVisible ( true );
       m_context_menu->actions().at ( 7 )->setVisible ( true );
       m_context_menu->actions().at ( 8 )->setVisible ( true );
-      m_context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_context_menu->actions().at ( 10 )->setVisible ( false );
 
     }
     else if ( dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
@@ -181,7 +190,8 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       m_context_menu->actions().at ( 6 )->setVisible ( false );
       m_context_menu->actions().at ( 7 )->setVisible ( false );
       m_context_menu->actions().at ( 8 )->setVisible ( false );
-      m_context_menu->actions().at ( 9 )->setVisible ( true );
+      m_context_menu->actions().at ( 9 )->setVisible ( false );
+      m_context_menu->actions().at ( 10 )->setVisible ( true );
       m_current_arrow =
         dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
                                                                QTransform() ) );
@@ -211,6 +221,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );
       Object->set_inherited_properties_visibility(m_inherited_properties_visible);
+      Object->set_highlight_active(m_highlight_active);
       addItem ( Object );
       /// Updating item list
       ItemMap.insert ( ClassName, Object );
@@ -225,21 +236,25 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       ClassInfo->direct_relationships();
     const std::list<std::string *> * DirectSuperClassesList = ClassInfo->direct_super_classes();
 
+    std::map<std::string, unsigned int> arrow_count;
+
     //// PLotting relationships
     if ( DirectRelationshipList != nullptr )
     {
       for ( OksRelationship * ClassRelationship : * ( DirectRelationshipList ) )
       {
-        QString RelationshipClassType = QString::fromStdString (
-                                          ClassRelationship->get_class_type()->get_name() );
+        auto rct = ClassRelationship->get_class_type()->get_name();
+        QString RelationshipClassType = QString::fromStdString (rct);
 
-        if ( ItemMap.contains ( RelationshipClassType ) && !ItemMap[ClassName]->HasArrow (
-               ItemMap[RelationshipClassType] ) )
+        if ( ItemMap.contains ( RelationshipClassType ) ) //&& !ItemMap[ClassName]->HasArrow (
+          //ItemMap[RelationshipClassType] ) )
         {
           QString SchemaCardinality =
-            KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship );
+            KernelWrapper::GetInstance().GetCardinalityStringRelationship ( ClassRelationship ) + " ";
           SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
-            ItemMap[ClassName], ItemMap[RelationshipClassType], false,
+            ItemMap[ClassName], ItemMap[RelationshipClassType],
+            arrow_count[rct],
+            false,
             ClassRelationship->get_is_composite(),
             QString::fromStdString ( ClassRelationship->get_name() ), SchemaCardinality );
           ItemMap[ClassName]->AddArrow ( NewArrow );
@@ -248,6 +263,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           //NewArrow->SetLabelScene(this);
           NewArrow->setZValue ( -1000.0 );
           NewArrow->UpdatePosition();
+          arrow_count[rct]++;
         }
       }
     }
@@ -259,18 +275,22 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       {
         QString SuperClassName = QString::fromStdString ( *SuperClassNameStd );
 
-        if ( ItemMap.contains ( SuperClassName ) && !ItemMap[ClassName]->HasArrow (
-               ItemMap[SuperClassName] ) )
+        if ( ItemMap.contains ( SuperClassName ) ) // && !ItemMap[ClassName]->HasArrow (
+          // ItemMap[SuperClassName] ) )
         {
-          SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow ( ItemMap[ClassName],
-                                                                   ItemMap[SuperClassName], true,
-                                                                   false, "", "" );
+          SchemaGraphicSegmentedArrow * NewArrow = new SchemaGraphicSegmentedArrow (
+            ItemMap[ClassName],
+            ItemMap[SuperClassName],
+            arrow_count[*SuperClassNameStd],
+            true,
+            false, "", "" );
           ItemMap[ClassName]->AddArrow ( NewArrow );
           ItemMap[SuperClassName]->AddArrow ( NewArrow );
           addItem ( NewArrow );
           //NewArrow->SetLabelScene(this);
           NewArrow->setZValue ( -1000.0 );
           NewArrow->UpdatePosition();
+          arrow_count[*SuperClassNameStd]++;
         }
       }
     }
@@ -311,9 +331,10 @@ void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mou
 
   if ( mouseEvent->widget()->cursor().shape() == Qt::CrossCursor )
   {
-    line = new QGraphicsLineItem ( QLineF ( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
-    line->setPen ( QPen ( Qt::black, 2 ) );
-    addItem ( line );
+    m_line = new QGraphicsLineItem ( QLineF ( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
+    m_line->setPen ( QPen ( Qt::black, 2 ) );
+    addItem ( m_line );
+    m_modified = true;
     return;
   }
 
@@ -322,10 +343,10 @@ void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mou
 
 void dbse::SchemaGraphicsScene::mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
-  if ( line != nullptr )
+  if ( m_line != nullptr )
   {
-    QLineF newLine ( line->line().p1(), mouseEvent->scenePos() );
-    line->setLine ( newLine );
+    QLineF newLine ( m_line->line().p1(), mouseEvent->scenePos() );
+    m_line->setLine ( newLine );
   }
   else
   {
@@ -335,24 +356,24 @@ void dbse::SchemaGraphicsScene::mouseMoveEvent ( QGraphicsSceneMouseEvent * mous
 
 void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
-  if ( line != nullptr )
+  if ( m_line != nullptr )
   {
-    QList<QGraphicsItem *> startItems = items ( line->line().p1() );
+    QList<QGraphicsItem *> startItems = items ( m_line->line().p1() );
 
-    if ( startItems.count() && startItems.first() == line )
+    if ( startItems.count() && startItems.first() == m_line )
     {
       startItems.removeFirst();
     }
 
-    QList<QGraphicsItem *> endItems = items ( line->line().p2() );
+    QList<QGraphicsItem *> endItems = items ( m_line->line().p2() );
 
-    if ( endItems.count() && endItems.first() == line )
+    if ( endItems.count() && endItems.first() == m_line )
     {
       endItems.removeFirst();
     }
 
-    RemoveItemFromScene ( line );
-    delete line;
+    RemoveItemFromScene ( m_line );
+    delete m_line;
 
     if ( startItems.count() > 0 && endItems.count() > 0
          && startItems.first() != endItems.first() )
@@ -368,8 +389,11 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
       {
         startItem->GetClass()->add_super_class ( endItem->GetClassName().toStdString() );
         /// Create arrow
-        SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow ( startItem, endItem, Inheritance,
-                                                                 true, "", "" );
+        SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow (
+          startItem, endItem,
+          0,
+          Inheritance,
+          true, "", "" );
         startItem->AddArrow ( newArrow );
         endItem->AddArrow ( newArrow );
         newArrow->setZValue ( -1000.0 );
@@ -388,7 +412,7 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
     }
   }
 
-  line = nullptr;
+  m_line = nullptr;
   QGraphicsScene::mouseReleaseEvent ( mouseEvent );
 }
 
@@ -423,6 +447,17 @@ void dbse::SchemaGraphicsScene::EditClassSlot()
     SchemaClassEditor * Editor = new SchemaClassEditor ( CurrentObject->GetClass() );
     Editor->show();
   }
+}
+
+void dbse::SchemaGraphicsScene::ToggleHighlightActive() {
+  m_highlight_active = !m_highlight_active;
+
+  for ( SchemaGraphicObject * item : ItemMap.values() ) {
+    item->set_highlight_active(m_highlight_active);
+  }
+
+  this->update();
+
 }
 
 void dbse::SchemaGraphicsScene::ToggleIndirectInfos() {
@@ -578,7 +613,9 @@ void dbse::SchemaGraphicsScene::DrawArrow ( QString ClassName, QString Relations
     QString RelationshipCardinality =
       KernelWrapper::GetInstance().GetCardinalityStringRelationship ( SchemaRelationship );
     SchemaGraphicSegmentedArrow * newArrow = new SchemaGraphicSegmentedArrow (
-      startItem, endItem, false, SchemaRelationship->get_is_composite(),
+      startItem, endItem,
+      0,
+      false, SchemaRelationship->get_is_composite(),
       QString::fromStdString ( SchemaRelationship->get_name() ), RelationshipCardinality );
     startItem->AddArrow ( newArrow );
     endItem->AddArrow ( newArrow );

@@ -30,6 +30,7 @@ public:
   [[nodiscard]] bool IsModified () const {return m_modified;};
   void ClearModified() {m_modified = false;};
 protected:
+  // bool event ( QEvent* event );
   void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent );
@@ -38,6 +39,7 @@ private slots:
   void AddClassSlot();
   void EditClassSlot();
   void ToggleIndirectInfos();
+  void ToggleHighlightActive();
   void AddDirectSuperClassesSlot();
   void AddAllSuperClassesSlot();
   void AddAllSubClassesSlot();
@@ -48,11 +50,12 @@ private slots:
   void DrawArrow ( QString ClassName, QString RelationshipType, QString RelationshipName );
 private:
   QMap<QString, SchemaGraphicObject *> ItemMap;
-  QGraphicsLineItem * line;
+  QGraphicsLineItem * m_line;
   QMenu * m_context_menu;
   QAction * AddClass;
   QAction * EditClass;
   QAction * m_toggle_indirect_infos;
+  QAction * m_toggle_highlight_active;
   QAction * m_add_direct_super_classes;
   QAction * m_add_direct_relationship_classes;
   QAction * m_add_all_super_classes;
@@ -64,6 +67,7 @@ private:
   SchemaGraphicSegmentedArrow * m_current_arrow;
 
   bool m_inherited_properties_visible;
+  bool m_highlight_active;
   bool m_modified;
 };
 
