@@ -66,13 +66,13 @@ void dbse::SchemaMethodEditor::ClassUpdated( QString ClassName)
 
 void dbse::SchemaMethodEditor::FillInfo()
 {
-    setObjectName ( QString::fromStdString ( m_method->get_name() ) );
-    setWindowTitle (
-      QString ( "Method Editor : %1" ).arg ( QString::fromStdString (
-                                               m_method->get_name() ) ) );
-    ui->MethodName->setText ( QString::fromStdString ( m_method->get_name() ) );
-    ui->DescriptionTextBox->setPlainText (
-      QString::fromStdString ( m_method->get_description() ) );
+  auto name = QString::fromStdString (
+    m_class->get_name() + "::" + m_method->get_name() );
+  setObjectName ( name );
+  setWindowTitle ( QString ( "Method Editor : %1" ).arg ( name ) );
+  ui->MethodName->setText ( QString::fromStdString ( m_method->get_name() ) );
+  ui->DescriptionTextBox->setPlainText (
+    QString::fromStdString ( m_method->get_description() ) );
 }
 
 void dbse::SchemaMethodEditor::InitialSettings()

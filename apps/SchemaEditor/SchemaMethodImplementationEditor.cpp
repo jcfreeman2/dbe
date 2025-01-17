@@ -67,7 +67,8 @@ void dbse::SchemaMethodImplementationEditor::FillInfo()
   ui->MethodImplementationDescription->setPlainText (
     QString::fromStdString ( m_implementation->get_body() ) );
 
-  std::string name = m_method->get_name() + m_implementation->get_language();
+  std::string name = m_class->get_name() + m_method->get_name()
+    + m_implementation->get_language();
   setObjectName ( QString::fromStdString(name) );
 }
 
