@@ -43,7 +43,8 @@ dbse::SchemaMethodEditor::SchemaMethodEditor ( OksClass * ClassInfo, QWidget * p
 
 void dbse::SchemaMethodEditor::SetController()
 {
-  connect ( ui->SaveButton, SIGNAL ( clicked() ), this, SLOT ( ProxySlot() ) );
+  connect ( ui->buttonBox, SIGNAL ( accepted() ), this, SLOT ( ProxySlot() ) );
+  connect ( ui->buttonBox, SIGNAL ( rejected() ), this, SLOT ( close() ) );
   connect ( ui->AddButton, SIGNAL ( clicked() ), this,
             SLOT ( AddNewMethodImplementation() ) );
   connect ( ui->ImplementationsView, SIGNAL ( doubleClicked ( QModelIndex ) ), this,
