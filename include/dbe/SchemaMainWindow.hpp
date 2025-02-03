@@ -13,6 +13,7 @@ class QGraphicsView;
 
 namespace dbse
 {
+  class SchemaTab;
 
 namespace Ui
 {
@@ -42,6 +43,7 @@ private:
   void SetController();
   void BuildFileModel();
   void BuildTableModel();
+  void write_view_file(const QString& fn, SchemaTab* tab);
   [[nodiscard]] int ShouldSaveChanges() const;
   [[nodiscard]] int ShouldSaveViewChanges() const;
 protected:
@@ -62,6 +64,7 @@ private slots:
   void ChangeCursorInheritance ( bool State );
   void AddTab();
   void SaveView();
+  void SaveViewAs();
   void LoadView();
   void NameView();
   void LaunchClassEditor ( QModelIndex Index );
@@ -72,6 +75,7 @@ private slots:
   void CustomContextMenuTableView ( QPoint Pos );
   void AddNewClass();
   void RemoveClass();
+  void editClass();
   void SetSchemaFileActive();
   void PrintCurrentView();
 };
