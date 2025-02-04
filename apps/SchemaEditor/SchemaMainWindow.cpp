@@ -654,7 +654,6 @@ void dbse::SchemaMainWindow::LoadView()
         Position.setX ( ObjectDescription.at ( 1 ).toInt() );
         Position.setY ( ObjectDescription.at ( 2 ).toInt() );
         if (ObjectDescription.at ( 0 ) == "#") {
-          std::cout << "Found note <" << ObjectDescription.at(3).toStdString() << ">\n";
           note_positions.append (Position);
           auto text = ObjectDescription.at(3);
           if (text.back() == '\n') {

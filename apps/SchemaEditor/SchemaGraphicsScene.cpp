@@ -134,18 +134,16 @@ void dbse::SchemaGraphicsScene::dropEvent ( QGraphicsSceneDragDropEvent * event 
 void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEvent * event )
 {
   if ( m_context_menu == nullptr ) {
-    std::cout << "Adding actions to menu\n";std::cout.flush();
-
     m_context_menu = new QMenu();
     m_context_menu->addAction ( m_add_class );
     m_context_menu->addAction ( m_add_note );
     m_context_menu->addAction ( m_toggle_indirect_infos );
     m_context_menu->addAction ( m_toggle_highlight_active );
 
-    m_seperator_pos =m_context_menu->actions().size();
+    m_seperator_pos = m_context_menu->actions().size();
     m_context_menu->addSeparator();
 
-    m_class_pos =m_context_menu->actions().size();
+    m_class_pos = m_context_menu->actions().size();
     m_context_menu->addAction ( m_edit_class );
     m_context_menu->addAction ( m_remove_class );
     m_context_menu->addAction ( m_add_direct_super_classes );
@@ -163,19 +161,19 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
     m_context_menu->addAction ( m_remove_note );
   }
 
-  std::cout << "Setting common items visible\n";std::cout.flush();
   for (int item=0; item<m_seperator_pos; item++) {
     m_context_menu->actions().at ( item )->setVisible ( true );
   }
 
-  std::cout << "Setting all other items invisible\n";std::cout.flush();
+  // Set all other items invisible
   int nitems = m_context_menu->actions().size();
   for (int item=m_seperator_pos; item<nitems; item++) {
     m_context_menu->actions().at ( item )->setVisible ( false );
   }
 
   if ( itemAt ( event->scenePos(), QTransform() ) ) {
-    std::cout << "Something under mouse pointer, setting additional items\n";
+    // Something under mouse pointer, set additional items visible
+    // depending on what it is
     m_context_menu->actions().at ( m_seperator_pos )->setVisible ( true );
 
     auto object = dynamic_cast<SchemaGraphicObject *> (
@@ -317,12 +315,10 @@ void dbse::SchemaGraphicsScene::RemoveItemFromScene ( QGraphicsItem* item ) {
 
 void dbse::SchemaGraphicsScene::add_notes (QStringList notes,
                                            QList<QPointF> positions ) {
-  std::cout << __FUNCTION__ << " entered\n";
   for ( int index = 0; index<notes.size(); index++) {
     auto note = new SchemaGraphicNote (
       QString("#" + QString::number(m_next_note++)),
       notes.at(index) );
-    std::cout << "Adding note <" << notes.at(index).toStdString() << ">\n";
     note->setPos ( positions.at ( index ) );
     addItem(note);
   }
@@ -455,7 +451,6 @@ void dbse::SchemaGraphicsScene::removeNoteSlot() {
 }
 
 void dbse::SchemaGraphicsScene::addNoteSlot() {
-  std::cout << "Add Note\n";
   auto note = new SchemaGraphicNote (
     QString("#") + QString::number(m_next_note++), QString());
   note->setPos(m_current_pos);
