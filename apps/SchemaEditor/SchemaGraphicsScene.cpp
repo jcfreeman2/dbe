@@ -8,9 +8,11 @@
 #include <QApplication>
 /// Including Schema Editor
 #include "dbe/SchemaGraphicsScene.hpp"
+#include "dbe/SchemaGraphicNote.hpp"
 #include "dbe/SchemaGraphicObject.hpp"
 #include "dbe/SchemaGraphicSegmentedArrow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
+#include "dbe/SchemaNoteEditor.hpp"
 #include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaRelationshipEditor.hpp"
 
@@ -36,9 +38,13 @@ dbse::SchemaGraphicsScene::~SchemaGraphicsScene()
 
 void dbse::SchemaGraphicsScene::CreateActions()
 {
+  // Add new class
+  m_add_class = new QAction ( "&Add new class", this );
+  connect ( m_add_class, SIGNAL ( triggered() ), this, SLOT ( AddClassSlot() ) );
+
   // Edit current class
-  EditClass = new QAction ( "&Edit class", this );
-  connect ( EditClass, SIGNAL ( triggered() ), this, SLOT ( EditClassSlot() ) );
+  m_edit_class = new QAction ( "&Edit class", this );
+  connect ( m_edit_class, SIGNAL ( triggered() ), this, SLOT ( EditClassSlot() ) );
 
   // Toggle inherited properties of all classes in view
   m_toggle_indirect_infos = new QAction ( "&Toggle inherited properties", this );
@@ -47,6 +53,15 @@ void dbse::SchemaGraphicsScene::CreateActions()
   // Toggle highlighting of all classes in active schema
   m_toggle_highlight_active = new QAction ( "Toggle &highlighting of classes in active schema", this );
   connect ( m_toggle_highlight_active, SIGNAL ( triggered() ), this, SLOT ( ToggleHighlightActive() ) );
+
+  m_add_note = new QAction ( "Add note to view", this );
+  connect ( m_add_note, SIGNAL ( triggered() ), this, SLOT ( addNoteSlot() ) );
+
+  m_edit_note = new QAction ( "Edit note", this );
+  connect ( m_edit_note, SIGNAL ( triggered() ), this, SLOT ( editNoteSlot() ) );
+
+  m_remove_note = new QAction ( "Remove note", this );
+  connect ( m_remove_note, SIGNAL ( triggered() ), this, SLOT ( removeNoteSlot() ) );
 
   // Show superclasses of the current class
   m_add_direct_super_classes = new QAction ( "Add direct &superclasses to view", this );
@@ -69,12 +84,12 @@ void dbse::SchemaGraphicsScene::CreateActions()
   connect ( m_add_all_relationship_classes, SIGNAL ( triggered() ), this, SLOT ( AddAllRelationshipClassesSlot() ) );
 
   // Remove class
-  RemoveClass = new QAction ( "&Remove Class from view", this );
-  connect ( RemoveClass, SIGNAL ( triggered() ), this, SLOT ( RemoveClassSlot() ) );
+  m_remove_class = new QAction ( "&Remove Class from view", this );
+  connect ( m_remove_class, SIGNAL ( triggered() ), this, SLOT ( RemoveClassSlot() ) );
 
   // Remove arrow
-  RemoveArrow = new QAction ( "&Remove Arrow", this );
-  connect ( RemoveArrow, SIGNAL ( triggered() ), this, SLOT ( RemoveArrowSlot() ) );
+  m_remove_arrow = new QAction ( "&Remove Arrow", this );
+  connect ( m_remove_arrow, SIGNAL ( triggered() ), this, SLOT ( RemoveArrowSlot() ) );
 }
 
 void dbse::SchemaGraphicsScene::dragEnterEvent ( QGraphicsSceneDragDropEvent * event )
@@ -118,86 +133,82 @@ void dbse::SchemaGraphicsScene::dropEvent ( QGraphicsSceneDragDropEvent * event 
 
 void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEvent * event )
 {
-  if ( m_context_menu == nullptr )
-  {
+  if ( m_context_menu == nullptr ) {
+    std::cout << "Adding actions to menu\n";std::cout.flush();
+
     m_context_menu = new QMenu();
-    // m_context_menu->addAction ( AddClass );
+    m_context_menu->addAction ( m_add_class );
+    m_context_menu->addAction ( m_add_note );
     m_context_menu->addAction ( m_toggle_indirect_infos );
     m_context_menu->addAction ( m_toggle_highlight_active );
+
+    m_seperator_pos =m_context_menu->actions().size();
     m_context_menu->addSeparator();
-    m_context_menu->addAction ( EditClass );
+
+    m_class_pos =m_context_menu->actions().size();
+    m_context_menu->addAction ( m_edit_class );
+    m_context_menu->addAction ( m_remove_class );
     m_context_menu->addAction ( m_add_direct_super_classes );
     m_context_menu->addAction ( m_add_direct_relationship_classes );
     m_context_menu->addAction ( m_add_all_super_classes );
     m_context_menu->addAction ( m_add_all_sub_classes );
     m_context_menu->addAction ( m_add_all_sub_classes );
     m_context_menu->addAction ( m_add_all_relationship_classes );
-    m_context_menu->addAction ( RemoveClass );
-    m_context_menu->addAction ( RemoveArrow );
+
+    m_arrow_pos = m_context_menu->actions().size();
+    m_context_menu->addAction ( m_remove_arrow );
+
+    m_note_pos = m_context_menu->actions().size();
+    m_context_menu->addAction ( m_edit_note );
+    m_context_menu->addAction ( m_remove_note );
   }
 
-  if ( !itemAt ( event->scenePos(), QTransform() ) )
-  {
-    m_context_menu->actions().at ( 0 )->setVisible ( true );
-    m_context_menu->actions().at ( 1 )->setVisible ( true );
-    m_context_menu->actions().at ( 2 )->setVisible ( false );
-    m_context_menu->actions().at ( 3 )->setVisible ( false );
-    m_context_menu->actions().at ( 4 )->setVisible ( false );
-    m_context_menu->actions().at ( 5 )->setVisible ( false );
-    m_context_menu->actions().at ( 6 )->setVisible ( false );
-    m_context_menu->actions().at ( 7 )->setVisible ( false );
-    m_context_menu->actions().at ( 8 )->setVisible ( false );
-    m_context_menu->actions().at ( 9 )->setVisible ( false );
-    m_context_menu->actions().at ( 10 )->setVisible ( false );
+  std::cout << "Setting common items visible\n";std::cout.flush();
+  for (int item=0; item<m_seperator_pos; item++) {
+    m_context_menu->actions().at ( item )->setVisible ( true );
   }
-  else
-  {
-    if ( dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) ) )
-    {
-      CurrentObject =
-        dynamic_cast<SchemaGraphicObject *> ( itemAt ( event->scenePos(), QTransform() ) );
+
+  std::cout << "Setting all other items invisible\n";std::cout.flush();
+  int nitems = m_context_menu->actions().size();
+  for (int item=m_seperator_pos; item<nitems; item++) {
+    m_context_menu->actions().at ( item )->setVisible ( false );
+  }
+
+  if ( itemAt ( event->scenePos(), QTransform() ) ) {
+    std::cout << "Something under mouse pointer, setting additional items\n";
+    m_context_menu->actions().at ( m_seperator_pos )->setVisible ( true );
+
+    auto object = dynamic_cast<SchemaGraphicObject *> (
+      itemAt ( event->scenePos(), QTransform() ) );
+    auto arrow = dynamic_cast<SchemaGraphicSegmentedArrow *> (
+      itemAt ( event->scenePos(), QTransform() ) );
+    auto note = dynamic_cast<SchemaGraphicNote *> (
+      itemAt ( event->scenePos(), QTransform() ) );
+    std::cout << "object=" << object << " arrow=" << arrow << " note=" << note <<"\n";
+
+    if ( object != nullptr) {
+      CurrentObject = object;
       auto filename =
         CurrentObject->GetClass()->get_file()->get_full_file_name();
       bool writable = KernelWrapper::GetInstance().IsFileWritable ( filename );
-      m_context_menu->actions().at ( 0 )->setVisible ( true );
-      m_context_menu->actions().at ( 1 )->setVisible ( true );
-      m_context_menu->actions().at ( 2 )->setVisible ( true );
-      if ( writable ) {
-        m_context_menu->actions().at ( 3 )->setVisible ( true );
+      m_context_menu->actions().at ( m_class_pos )->setVisible ( writable );
+      m_context_menu->actions().at ( m_class_pos+1 )->setVisible ( writable );
+      for (int item=m_class_pos+2; item<m_arrow_pos; item++) {
+        m_context_menu->actions().at ( item )->setVisible ( true );
       }
-      else {
-        m_context_menu->actions().at ( 3 )->setVisible ( false );
-      }
-      m_context_menu->actions().at ( 4 )->setVisible ( true );
-      m_context_menu->actions().at ( 5 )->setVisible ( true );
-      m_context_menu->actions().at ( 6 )->setVisible ( true );
-      m_context_menu->actions().at ( 7 )->setVisible ( true );
-      m_context_menu->actions().at ( 8 )->setVisible ( true );
-      m_context_menu->actions().at ( 9 )->setVisible ( true );
-      m_context_menu->actions().at ( 10 )->setVisible ( false );
-
     }
-    else if ( dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
-                                                            QTransform() ) ) )
-    {
-      m_context_menu->actions().at ( 0 )->setVisible ( false );
-      m_context_menu->actions().at ( 1 )->setVisible ( false );
-      m_context_menu->actions().at ( 1 )->setVisible ( false );
-      m_context_menu->actions().at ( 2 )->setVisible ( false );
-      m_context_menu->actions().at ( 3 )->setVisible ( false );
-      m_context_menu->actions().at ( 4 )->setVisible ( false );
-      m_context_menu->actions().at ( 5 )->setVisible ( false );
-      m_context_menu->actions().at ( 6 )->setVisible ( false );
-      m_context_menu->actions().at ( 7 )->setVisible ( false );
-      m_context_menu->actions().at ( 8 )->setVisible ( false );
-      m_context_menu->actions().at ( 9 )->setVisible ( false );
-      m_context_menu->actions().at ( 10 )->setVisible ( true );
-      m_current_arrow =
-        dynamic_cast<SchemaGraphicSegmentedArrow *> ( itemAt ( event->scenePos(),
-                                                               QTransform() ) );
+    else if ( arrow != nullptr ) {
+      m_context_menu->actions().at ( m_arrow_pos )->setVisible ( true );
+      m_current_arrow = arrow;
+    }
+    else if ( note != nullptr) {
+      for (int item=m_note_pos; item<nitems; item++) {
+        m_context_menu->actions().at ( item )->setVisible ( true );
+      }
+      m_current_note = note;
     }
   }
-
+  m_current_pos = event->scenePos();
   m_context_menu->exec ( event->screenPos() );
 }
 
@@ -304,6 +315,25 @@ void dbse::SchemaGraphicsScene::RemoveItemFromScene ( QGraphicsItem* item ) {
   m_modified = true;
 }
 
+void dbse::SchemaGraphicsScene::add_notes (QStringList notes,
+                                           QList<QPointF> positions ) {
+  std::cout << __FUNCTION__ << " entered\n";
+  for ( int index = 0; index<notes.size(); index++) {
+    auto note = new SchemaGraphicNote (
+      QString("#" + QString::number(m_next_note++)),
+      notes.at(index) );
+    std::cout << "Adding note <" << notes.at(index).toStdString() << ">\n";
+    note->setPos ( positions.at ( index ) );
+    addItem(note);
+  }
+
+}
+void dbse::SchemaGraphicsScene::remove_note_object (SchemaGraphicNote* note ) {
+  if (note == nullptr) {
+    return;
+  }
+  RemoveItemFromScene (note);
+}
 
 void dbse::SchemaGraphicsScene::RemoveClassObject ( SchemaGraphicObject * Object )
 {
@@ -414,6 +444,24 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
 
   m_line = nullptr;
   QGraphicsScene::mouseReleaseEvent ( mouseEvent );
+}
+
+void dbse::SchemaGraphicsScene::editNoteSlot() {
+  m_current_note->open_editor();
+}
+
+void dbse::SchemaGraphicsScene::removeNoteSlot() {
+  remove_note_object(m_current_note);
+}
+
+void dbse::SchemaGraphicsScene::addNoteSlot() {
+  std::cout << "Add Note\n";
+  auto note = new SchemaGraphicNote (
+    QString("#") + QString::number(m_next_note++), QString());
+  note->setPos(m_current_pos);
+  addItem(note);
+  auto editor = new SchemaNoteEditor(note);
+  editor->show();
 }
 
 void dbse::SchemaGraphicsScene::AddClassSlot()

@@ -59,11 +59,11 @@ void dbse::SchemaGraphicObject::hoverEnterEvent ( QGraphicsSceneHoverEvent* he) 
   QToolTip::showText( he->screenPos(),
                       QString::fromStdString(m_class_info->get_description()) );
 }
-void dbse::SchemaGraphicObject::hoverLeaveEvent ( QGraphicsSceneHoverEvent* he) {
+void dbse::SchemaGraphicObject::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
   QToolTip::hideText();
 }
 
-void dbse::SchemaGraphicObject::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent* ev ) {
+void dbse::SchemaGraphicObject::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent* ) {
   std::cout << "Open class editor\n";
   bool WidgetFound = false;
   QString ClassName = QString::fromStdString ( m_class_info->get_name() );

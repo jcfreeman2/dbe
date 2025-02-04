@@ -6,6 +6,7 @@
 #include <QGraphicsLineItem>
 #include <QAction>
 /// Including Schema Editor
+#include "dbe/SchemaGraphicNote.hpp"
 #include "dbe/SchemaGraphicObject.hpp"
 
 namespace dbse
@@ -27,6 +28,9 @@ public:
   QStringList AddItemsToScene ( QStringList SchemaClasses, QList<QPointF> Positions );
   void CleanItemMap();
   void RemoveClassObject ( SchemaGraphicObject * Object );
+  void add_notes (QStringList notes, QList<QPointF> positions );
+  void remove_note_object(SchemaGraphicNote* obj);
+
   [[nodiscard]] bool IsModified () const {return m_modified;};
   void ClearModified() {m_modified = false;};
 protected:
@@ -37,6 +41,9 @@ protected:
   void RemoveItemFromScene ( QGraphicsItem* item );
 private slots:
   void AddClassSlot();
+  void addNoteSlot();
+  void editNoteSlot();
+  void removeNoteSlot();
   void EditClassSlot();
   void ToggleIndirectInfos();
   void ToggleHighlightActive();
@@ -52,8 +59,12 @@ private:
   QMap<QString, SchemaGraphicObject *> ItemMap;
   QGraphicsLineItem * m_line;
   QMenu * m_context_menu;
-  QAction * AddClass;
-  QAction * EditClass;
+  int m_seperator_pos;
+  int m_class_pos;
+  int m_arrow_pos;
+  int m_note_pos;
+  QAction * m_add_class;
+  QAction * m_edit_class;
   QAction * m_toggle_indirect_infos;
   QAction * m_toggle_highlight_active;
   QAction * m_add_direct_super_classes;
@@ -61,11 +72,16 @@ private:
   QAction * m_add_all_super_classes;
   QAction * m_add_all_sub_classes;
   QAction * m_add_all_relationship_classes;
-  QAction * RemoveClass;
-  QAction * RemoveArrow;
+  QAction * m_add_note;
+  QAction * m_edit_note;
+  QAction * m_remove_note;
+  QAction * m_remove_class;
+  QAction * m_remove_arrow;
   SchemaGraphicObject * CurrentObject;
   SchemaGraphicSegmentedArrow * m_current_arrow;
-
+  SchemaGraphicNote* m_current_note;
+  QPointF m_current_pos;
+  int m_next_note{0};
   bool m_inherited_properties_visible;
   bool m_highlight_active;
   bool m_modified;

@@ -542,13 +542,24 @@ void dbse::SchemaMainWindow::SaveView()
       QFile ViewFile ( FileName );
       ViewFile.open ( QIODevice::WriteOnly );
 
-      for ( QGraphicsItem * Item : CurrentTab->GetScene()->items() ) {
-        if ( dynamic_cast<SchemaGraphicObject *> ( Item ) ) {
-          SchemaGraphicObject * SchemaObject = dynamic_cast<SchemaGraphicObject *> ( Item );
-          QString ObjectDescription = SchemaObject->GetClassName() + ","
-            + QString::number ( SchemaObject->scenePos().x() ) + ","
-            + QString::number ( SchemaObject->scenePos().y() ) + "\n";
-          ViewFile.write ( ObjectDescription.toUtf8() );
+      for ( QGraphicsItem * item : CurrentTab->GetScene()->items() ) {
+        SchemaGraphicObject* schema_object = dynamic_cast<SchemaGraphicObject *> ( item );
+        if ( schema_object != nullptr ) {
+          QString description = schema_object->GetClassName() + ","
+            + QString::number ( schema_object->scenePos().x() ) + ","
+            + QString::number ( schema_object->scenePos().y() ) + "\n";
+          ViewFile.write ( description.toUtf8() );
+        }
+        else {
+          auto note = dynamic_cast<SchemaGraphicNote*> (item);
+          if ( note != nullptr && !note->text().isEmpty()) {
+            auto text = note->text().replace("\n", "<br>");
+            QString line = "#,"
+              + QString::number ( note->scenePos().x() ) + ","
+              + QString::number ( note->scenePos().y() ) + ","
+              + text + "\n";
+            ViewFile.write ( line.toUtf8() );
+          }
         }
       }
 
@@ -588,16 +599,31 @@ void dbse::SchemaMainWindow::LoadView()
 
     QStringList ClassesNames;
     QList<QPointF> Positions;
-
+    QList<QPointF> note_positions;
+    QStringList notes;
     while ( !ViewFile.atEnd() )
     {
       QString Line ( ViewFile.readLine() );
-      QStringList ObjectDescription = Line.split ( "," );
-      ClassesNames.append ( ObjectDescription.at ( 0 ) );
-      QPointF Position;
-      Position.setX ( ObjectDescription.at ( 1 ).toInt() );
-      Position.setY ( ObjectDescription.at ( 2 ).toInt() );
-      Positions.append ( Position );
+      if (!Line.isEmpty()) {
+        QStringList ObjectDescription = Line.split ( "," );
+        QPointF Position;
+        Position.setX ( ObjectDescription.at ( 1 ).toInt() );
+        Position.setY ( ObjectDescription.at ( 2 ).toInt() );
+        if (ObjectDescription.at ( 0 ) == "#") {
+          std::cout << "Found note <" << ObjectDescription.at(3).toStdString() << ">\n";
+          note_positions.append (Position);
+          auto text = ObjectDescription.at(3);
+          if (text.back() == '\n') {
+            text.chop(1);
+          }
+          text = text.replace("<br>", "\n");
+          notes.append ( text );
+        }
+        else {
+          ClassesNames.append ( ObjectDescription.at ( 0 ) );
+          Positions.append ( Position );
+        }
+      }
     }
     ViewFile.close();
 
@@ -615,6 +641,8 @@ void dbse::SchemaMainWindow::LoadView()
       QMessageBox::warning(this, tr("Load View"), text);
     }
     scene->ClearModified();
+
+    scene->add_notes(notes, note_positions);
   }
 }
 

@@ -249,6 +249,7 @@ set(schema_core_ui
                     ui/SchemaMainWindow.ui
                     ui/SchemaMethodEditor.ui
                     ui/SchemaMethodImplementationEditor.ui
+                    ui/SchemaNoteEditor.ui
                     ui/SchemaRelationshipEditor.ui
                     ui/SchemaIncludeFileWidget.ui
                     )
@@ -264,6 +265,8 @@ set(schema_core_src
                     SchemaEditor/SchemaClassEditor.cpp
                     SchemaEditor/SchemaCustomMethodModel.cpp
                     SchemaEditor/SchemaGraphicObject.cpp
+                    SchemaEditor/SchemaGraphicNote.cpp
+                    SchemaEditor/SchemaNoteEditor.cpp
                     SchemaEditor/SchemaMethodEditor.cpp
                     SchemaEditor/SchemaCommand.cpp
                     SchemaEditor/SchemaCustomModelInterface.cpp
@@ -288,11 +291,13 @@ qt5_wrap_cpp(schema_core_moc_src
                     include/dbe/SchemaCustomModelInterface.hpp
                     include/dbe/SchemaCustomTableModel.hpp
                     include/dbe/SchemaGraphicObject.hpp
+                    include/dbe/SchemaGraphicNote.hpp
                     include/dbe/SchemaGraphicsScene.hpp
                     include/dbe/SchemaKernelWrapper.hpp
                     include/dbe/SchemaMainWindow.hpp
                     include/dbe/SchemaMethodEditor.hpp
                     include/dbe/SchemaMethodImplementationEditor.hpp
+                    include/dbe/SchemaNoteEditor.hpp
                     include/dbe/SchemaRelationshipEditor.hpp
                     include/dbe/SchemaTab.hpp
                     include/dbe/SchemaIncludeFileWidget.hpp
