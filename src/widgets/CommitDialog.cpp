@@ -36,7 +36,7 @@ QString dbe::CommitDialog::GetCommitMessage() const
   return CommitMessageLine->text();
 }
 
-void dbe::CommitDialog::CommitMessageEdited ( QString TextEdited )
+void dbe::CommitDialog::CommitMessageEdited ()
 {
   if ( !CommitMessageLine->text().isEmpty() )
   {

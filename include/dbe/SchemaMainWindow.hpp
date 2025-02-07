@@ -78,6 +78,7 @@ private slots:
   void editClass();
   void SetSchemaFileActive();
   void PrintCurrentView();
+  void export_current_view();
 };
 
 }  // namespace dbse

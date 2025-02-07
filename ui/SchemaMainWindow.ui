@@ -55,6 +55,7 @@
     </property>
     <addaction name="SaveView"/>
     <addaction name="SaveViewAs"/>
+    <addaction name="exportView"/>
     <addaction name="LoadView"/>
     <addaction name="separator"/>
     <addaction name="PrintView"/>
@@ -295,10 +296,16 @@
   </action>
   <action name="SaveViewAs">
    <property name="icon">
-    <iconset theme="document-save-as"/>
+    <iconset theme="document-save-as">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save View As</string>
+   </property>
+  </action>
+  <action name="exportView">
+   <property name="text">
+    <string>Export View</string>
    </property>
   </action>
  </widget>

@@ -18,6 +18,7 @@
 #include <QCloseEvent>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QSvgGenerator>
 
 //#include <format>
 #include <sstream>
@@ -104,6 +105,7 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->ClassTableView, SIGNAL ( customContextMenuRequested ( QPoint ) ), this,
             SLOT ( CustomContextMenuTableView ( QPoint ) ) );
   connect ( ui->PrintView, SIGNAL ( triggered() ), this, SLOT ( PrintCurrentView() ) );
+  connect ( ui->exportView, SIGNAL ( triggered() ), this, SLOT ( export_current_view() ) );
   connect ( ui->ClassTableSearchLine, SIGNAL( textChanged ( QString ) ), proxyModel, SLOT( setFilterRegExp( QString ) ) );
 }
 
@@ -308,6 +310,29 @@ void dbse::SchemaMainWindow::PrintCurrentView()
     QGraphicsView * View = CurrentTab->GetView();
     Scene->render ( &painter, QRectF(), View->viewport()->rect() );
   }
+}
+void dbse::SchemaMainWindow::export_current_view(){
+  auto tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+
+  auto file = QFileDialog::getSaveFileName(this, tr("Export to SVG"), "./",
+                                           tr("SVG files (*.svg)"));
+  if (file.isEmpty()) {
+    return;
+  }
+
+  auto scene = tab->GetScene();
+  auto view = tab->GetView();
+
+  QSvgGenerator generator;
+  generator.setFileName(file);
+  auto vpr=view->viewport()->rect();
+  generator.setSize(QSize(vpr.width(),vpr.height()));
+  generator.setViewBox(vpr);
+
+  QPainter painter;
+  painter.begin(&generator);
+  scene->render ( &painter, QRectF(), view->viewport()->rect() );
+  painter.end();
 }
 
 void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
@@ -600,6 +625,7 @@ void dbse::SchemaMainWindow::write_view_file (const QString& file_name,
       auto note = dynamic_cast<SchemaGraphicNote*> (item);
       if ( note != nullptr && !note->text().isEmpty()) {
         auto text = note->text().replace("\n", "<br>");
+        text = text.replace(",", "<comma>");
         QString line = "#,"
           + QString::number ( note->scenePos().x() ) + ","
           + QString::number ( note->scenePos().y() ) + ","
@@ -660,6 +686,7 @@ void dbse::SchemaMainWindow::LoadView()
             text.chop(1);
           }
           text = text.replace("<br>", "\n");
+          text = text.replace("<comma>", ",");
           notes.append ( text );
         }
         else {
