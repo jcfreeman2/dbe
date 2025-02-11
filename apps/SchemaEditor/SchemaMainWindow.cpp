@@ -1,6 +1,7 @@
 /// Including Schema Editor
 #include "dbe/SchemaMainWindow.hpp"
 #include "dbe/SchemaKernelWrapper.hpp"
+#include "dbe/SchemaGraphicsScene.hpp"
 #include "dbe/SchemaTab.hpp"
 #include "dbe/SchemaClassEditor.hpp"
 #include "dbe/SchemaRelationshipEditor.hpp"
@@ -65,7 +66,7 @@ void dbse::SchemaMainWindow::InitialSettings()
 
 void dbse::SchemaMainWindow::InitialTab()
 {
-  ui->TabWidget->addTab ( new SchemaTab(), "Schema View" );
+  add_tab();
   ui->TabWidget->removeTab ( 0 );
 }
 
@@ -73,7 +74,7 @@ void dbse::SchemaMainWindow::InitialTabCorner()
 {
   QPushButton * RightButton = new QPushButton ( "+" );
   ui->TabWidget->setCornerWidget ( RightButton, Qt::TopLeftCorner );
-  connect ( RightButton, SIGNAL ( clicked() ), this, SLOT ( AddTab() ) );
+  connect ( RightButton, SIGNAL ( clicked() ), this, SLOT ( add_tab() ) );
 }
 
 void dbse::SchemaMainWindow::SetController()
@@ -95,9 +96,9 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->ClassTableView, SIGNAL ( doubleClicked ( QModelIndex ) ), this,
             SLOT ( LaunchClassEditor ( QModelIndex ) ) );
   connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassCreated() ), this,
-            SLOT ( BuildTableModelSlot() ) );
+            SLOT ( update_models() ) );
   connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassRemoved ( QString ) ), this,
-            SLOT ( BuildTableModelSlot ( QString ) ) );
+            SLOT ( update_models() ) );
   connect ( ui->TabWidget, SIGNAL ( tabCloseRequested ( int ) ), this,
             SLOT ( RemoveTab ( int ) ) );
   connect ( ui->FileView, SIGNAL ( customContextMenuRequested ( QPoint ) ), this,
@@ -107,23 +108,27 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->PrintView, SIGNAL ( triggered() ), this, SLOT ( PrintCurrentView() ) );
   connect ( ui->exportView, SIGNAL ( triggered() ), this, SLOT ( export_current_view() ) );
   connect ( ui->ClassTableSearchLine, SIGNAL( textChanged ( QString ) ), proxyModel, SLOT( setFilterRegExp( QString ) ) );
+
 }
 
 void dbse::SchemaMainWindow::LaunchIncludeEditor()
 {
   QModelIndex Index = ui->FileView->currentIndex();
   QStringList Row = FileModel->getRowFromIndex ( Index );
-  auto * FileWidget = new dbse::SchemaIncludeFileWidget ( Row.at ( 0 ) );
-  FileWidget->show();
-
+  auto * file_widget = new dbse::SchemaIncludeFileWidget ( Row.at ( 0 ) );
+  connect (file_widget, &SchemaIncludeFileWidget::files_updated,
+           this, &SchemaMainWindow::update_models);
+  file_widget->show();
 }
 
 void dbse::SchemaMainWindow::LaunchIncludeEditorActiveSchema()
 {
   std::string ActiveSchema = KernelWrapper::GetInstance().GetActiveSchema();
 
-  auto * FileWidget = new dbse::SchemaIncludeFileWidget ( QString::fromStdString (ActiveSchema) );
-  FileWidget->show();
+  auto file_widget = new dbse::SchemaIncludeFileWidget ( QString::fromStdString (ActiveSchema) );
+  connect (file_widget, &SchemaIncludeFileWidget::files_updated,
+           this, &SchemaMainWindow::update_models);
+  file_widget->show();
 }
 
 void dbse::SchemaMainWindow::BuildFileModel()
@@ -366,14 +371,9 @@ void dbse::SchemaMainWindow::closeEvent ( QCloseEvent * event )
   event->accept();
 }
 
-
-void dbse::SchemaMainWindow::focusInEvent( QFocusEvent * event )
-{
-  // Try to update whenever the main window receives focus since I
-  // don't know how to force this from another window
+void dbse::SchemaMainWindow::update_models() {
   BuildFileModel();
   BuildTableModel();
-  event->accept();
 }
 
 void dbse::SchemaMainWindow::OpenSchemaFile(QString SchemaFile) {
@@ -538,10 +538,25 @@ void dbse::SchemaMainWindow::ChangeCursorInheritance ( bool State )
   KernelWrapper::GetInstance().SetInheritanceMode ( true );
 }
 
-void dbse::SchemaMainWindow::AddTab()
+void dbse::SchemaMainWindow::add_tab()
 {
-  auto index = ui->TabWidget->addTab ( new SchemaTab(), "Schema View" );
+  auto index = ui->TabWidget->addTab ( new SchemaTab(), "unnamed Schema View" );
   ui->TabWidget->setCurrentIndex ( index );
+  auto  tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+  connect (tab->GetScene(), &SchemaGraphicsScene::sceneModified,
+           this, &dbse::SchemaMainWindow::modifiedView);
+}
+
+void dbse::SchemaMainWindow::modifiedView(bool modified) {
+  auto index = ui->TabWidget->currentIndex();
+  auto label = ui->TabWidget->tabText(index);
+  if (modified && !label.endsWith("*")) {
+    label += "*";
+  }
+  if (!modified && label.endsWith("*")) {
+    label = label.remove('*');
+  }
+  ui->TabWidget->setTabText(index, label);
 }
 
 void dbse::SchemaMainWindow::NameView() {
@@ -597,12 +612,11 @@ void dbse::SchemaMainWindow::SaveViewAs() {
       }
 
       CurrentTab->setFileName ( FileName );
-      if (CurrentTab->getName() == "") {
-        auto text = QFileInfo(FileName).baseName();
-        CurrentTab->setName(text);
-        auto index = ui->TabWidget->currentIndex();
-        ui->TabWidget->setTabText(index, text);
-      }
+      auto text = QFileInfo(FileName).baseName();
+      CurrentTab->setName(text);
+      auto index = ui->TabWidget->currentIndex();
+      ui->TabWidget->setTabText(index, text);
+
       write_view_file(FileName, CurrentTab);
     }
   }
@@ -641,8 +655,7 @@ void dbse::SchemaMainWindow::write_view_file (const QString& file_name,
   tab->GetScene()->ClearModified();
 }
 
-void dbse::SchemaMainWindow::LoadView()
-{
+void dbse::SchemaMainWindow::LoadView() {
   QString ViewPath = QFileDialog::getOpenFileName (
     this,
     tr ("Open view file"),
@@ -660,12 +673,14 @@ void dbse::SchemaMainWindow::LoadView()
     ViewFile.open ( QIODevice::ReadOnly );
 
     auto text = QFileInfo(ViewPath).baseName();
-    auto index = ui->TabWidget->addTab ( new SchemaTab(),
-                                         text );
-    ui->TabWidget->setCurrentIndex ( index );
-    SchemaTab * CurrentTab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
-    CurrentTab->setName(text);
-    CurrentTab->setFileName(ViewPath);
+    SchemaTab * tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+    if (!tab->getName().isEmpty() || tab->GetScene()->IsModified()) {
+      add_tab();
+    }
+    auto index = ui->TabWidget->currentIndex();
+    ui->TabWidget->setTabText(index, text);
+    tab->setName(text);
+    tab->setFileName(ViewPath);
 
     QStringList ClassesNames;
     QList<QPointF> Positions;
@@ -700,7 +715,7 @@ void dbse::SchemaMainWindow::LoadView()
     auto message = QString("Loaded view from %1").arg(ViewPath);
     ui->StatusBar->showMessage( message );
 
-    auto scene = CurrentTab->GetScene();
+    auto scene = tab->GetScene();
     scene->CleanItemMap();
     auto missing = scene->AddItemsToScene ( ClassesNames, Positions );
     if (!missing.empty()) {
@@ -749,18 +764,6 @@ void dbse::SchemaMainWindow::LaunchClassEditor ( QModelIndex Index )
       Editor->show();
     }
   }
-}
-
-void dbse::SchemaMainWindow::BuildTableModelSlot ( QString ClassName )
-{
-  Q_UNUSED ( ClassName )
-
-  BuildTableModel();
-}
-
-void dbse::SchemaMainWindow::BuildTableModelSlot()
-{
-  BuildTableModel();
 }
 
 void dbse::SchemaMainWindow::RemoveTab ( int index )

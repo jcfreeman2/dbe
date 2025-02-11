@@ -182,7 +182,6 @@ void dbse::SchemaGraphicsScene::contextMenuEvent ( QGraphicsSceneContextMenuEven
       itemAt ( event->scenePos(), QTransform() ) );
     auto note = dynamic_cast<SchemaGraphicNote *> (
       itemAt ( event->scenePos(), QTransform() ) );
-    std::cout << "object=" << object << " arrow=" << arrow << " note=" << note <<"\n";
 
     if ( object != nullptr) {
       CurrentObject = object;
@@ -304,13 +303,13 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
       }
     }
   }
-  m_modified = true;
+  modified(true);
   return missingItems;
 }
 
 void dbse::SchemaGraphicsScene::RemoveItemFromScene ( QGraphicsItem* item ) {
   removeItem ( item );
-  m_modified = true;
+  modified(true);
 }
 
 void dbse::SchemaGraphicsScene::add_notes (QStringList notes,
@@ -350,6 +349,11 @@ void dbse::SchemaGraphicsScene::CleanItemMap()
 
 void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
+  if ( itemAt ( mouseEvent->scenePos(), QTransform() ) ) {
+    // Save position of item under mouse so we can see if it has been
+    // moved in mouseReleaseEvent
+    m_mouse_item_pos = itemAt(mouseEvent->scenePos(), QTransform())->pos();
+  }
   if ( mouseEvent->button() != Qt::LeftButton )
   {
     return;
@@ -360,7 +364,7 @@ void dbse::SchemaGraphicsScene::mousePressEvent ( QGraphicsSceneMouseEvent * mou
     m_line = new QGraphicsLineItem ( QLineF ( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
     m_line->setPen ( QPen ( Qt::black, 2 ) );
     addItem ( m_line );
-    m_modified = true;
+    modified(true);
     return;
   }
 
@@ -380,8 +384,23 @@ void dbse::SchemaGraphicsScene::mouseMoveEvent ( QGraphicsSceneMouseEvent * mous
   }
 }
 
+void dbse::SchemaGraphicsScene::ClearModified() {
+  modified(false);
+}
+
+void dbse::SchemaGraphicsScene::modified(bool state) {
+  m_modified = state;
+  emit sceneModified(state);
+}
 void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
+  if ( itemAt ( mouseEvent->scenePos(), QTransform() ) ) {
+    auto item = itemAt(mouseEvent->scenePos(), QTransform() );
+    if (!m_mouse_item_pos.isNull()) {
+      modified(m_mouse_item_pos != item->pos());
+      m_mouse_item_pos = QPointF();
+    }
+  }
   if ( m_line != nullptr )
   {
     QList<QGraphicsItem *> startItems = items ( m_line->line().p1() );

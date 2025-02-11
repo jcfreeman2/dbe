@@ -55,9 +55,11 @@ void dbse::SchemaGraphicSegmentedArrow::hoverEnterEvent ( QGraphicsSceneHoverEve
     QToolTip::showText( he->screenPos(),
                         QString::fromStdString(rel->get_description()) );
   }
+  he->ignore();
 }
 void dbse::SchemaGraphicSegmentedArrow::hoverLeaveEvent ( QGraphicsSceneHoverEvent* he) {
   QToolTip::hideText();
+  he->ignore();
 }
 
 QRectF SchemaGraphicSegmentedArrow::boundingRect() const

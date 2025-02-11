@@ -48,8 +48,10 @@ private:
   [[nodiscard]] int ShouldSaveViewChanges() const;
 protected:
   void closeEvent ( QCloseEvent * event );
-  void focusInEvent( QFocusEvent * event ) override;
   void OpenSchemaFile( QString SchemaFile);
+public slots:
+  void modifiedView (bool modified);
+  void update_models();
 private slots:
   void OpenSchemaFile();
   void CreateNewSchema();
@@ -62,14 +64,12 @@ private slots:
   void SaveModifiedSchema();
   void ChangeCursorRelationship ( bool State );
   void ChangeCursorInheritance ( bool State );
-  void AddTab();
+  void add_tab();
   void SaveView();
   void SaveViewAs();
   void LoadView();
   void NameView();
   void LaunchClassEditor ( QModelIndex Index );
-  void BuildTableModelSlot();
-  void BuildTableModelSlot ( QString ClassName );
   void RemoveTab ( int i );
   void CustomContextMenuFileView ( QPoint Pos );
   void CustomContextMenuTableView ( QPoint Pos );

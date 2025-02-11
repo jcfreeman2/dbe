@@ -32,13 +32,16 @@ public:
   void remove_note_object(SchemaGraphicNote* obj);
 
   [[nodiscard]] bool IsModified () const {return m_modified;};
-  void ClearModified() {m_modified = false;};
+  void ClearModified();
+signals:
+  void sceneModified(bool);
 protected:
   // bool event ( QEvent* event );
   void mousePressEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent );
   void RemoveItemFromScene ( QGraphicsItem* item );
+  void modified(bool state);
 private slots:
   void AddClassSlot();
   void addNoteSlot();
@@ -81,6 +84,7 @@ private:
   SchemaGraphicSegmentedArrow * m_current_arrow;
   SchemaGraphicNote* m_current_note;
   QPointF m_current_pos;
+  QPointF m_mouse_item_pos;
   int m_next_note{0};
   bool m_inherited_properties_visible;
   bool m_highlight_active;
