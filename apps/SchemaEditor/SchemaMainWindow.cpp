@@ -673,9 +673,10 @@ void dbse::SchemaMainWindow::LoadView() {
     ViewFile.open ( QIODevice::ReadOnly );
 
     auto text = QFileInfo(ViewPath).baseName();
-    SchemaTab * tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
+    auto tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
     if (!tab->getName().isEmpty() || tab->GetScene()->IsModified()) {
       add_tab();
+      tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
     }
     auto index = ui->TabWidget->currentIndex();
     ui->TabWidget->setTabText(index, text);
