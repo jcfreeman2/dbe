@@ -95,7 +95,7 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->Exit, SIGNAL ( triggered() ), this, SLOT ( close() ) );
   connect ( ui->ClassTableView, SIGNAL ( doubleClicked ( QModelIndex ) ), this,
             SLOT ( LaunchClassEditor ( QModelIndex ) ) );
-  connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassCreated() ), this,
+  connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassCreated( QString ) ), this,
             SLOT ( update_models() ) );
   connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassRemoved ( QString ) ), this,
             SLOT ( update_models() ) );

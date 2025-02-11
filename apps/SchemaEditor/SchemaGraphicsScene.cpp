@@ -40,7 +40,7 @@ void dbse::SchemaGraphicsScene::CreateActions()
 {
   // Add new class
   m_add_class = new QAction ( "&Add new class", this );
-  connect ( m_add_class, SIGNAL ( triggered() ), this, SLOT ( AddClassSlot() ) );
+  connect ( m_add_class, SIGNAL ( triggered() ), this, SLOT ( new_class_slot() ) );
 
   // Edit current class
   m_edit_class = new QAction ( "&Edit class", this );
@@ -55,13 +55,13 @@ void dbse::SchemaGraphicsScene::CreateActions()
   connect ( m_toggle_highlight_active, SIGNAL ( triggered() ), this, SLOT ( ToggleHighlightActive() ) );
 
   m_add_note = new QAction ( "Add note to view", this );
-  connect ( m_add_note, SIGNAL ( triggered() ), this, SLOT ( addNoteSlot() ) );
+  connect ( m_add_note, SIGNAL ( triggered() ), this, SLOT ( add_note_slot() ) );
 
   m_edit_note = new QAction ( "Edit note", this );
-  connect ( m_edit_note, SIGNAL ( triggered() ), this, SLOT ( editNoteSlot() ) );
+  connect ( m_edit_note, SIGNAL ( triggered() ), this, SLOT ( edit_note_slot() ) );
 
   m_remove_note = new QAction ( "Remove note", this );
-  connect ( m_remove_note, SIGNAL ( triggered() ), this, SLOT ( removeNoteSlot() ) );
+  connect ( m_remove_note, SIGNAL ( triggered() ), this, SLOT ( remove_note_slot() ) );
 
   // Show superclasses of the current class
   m_add_direct_super_classes = new QAction ( "Add direct &superclasses to view", this );
@@ -224,7 +224,7 @@ QStringList dbse::SchemaGraphicsScene::AddItemsToScene (
           std::cout << "ERROR: class " << ClassName.toStdString()  << " not found" << std::endl;
           missingItems.append(ClassName);
           continue;
-      } 
+      }
 
       SchemaGraphicObject * Object = new SchemaGraphicObject ( ClassName );
       Object->setPos ( Positions.at ( SchemaClasses.indexOf ( ClassName ) ) );
@@ -461,15 +461,15 @@ void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * m
   QGraphicsScene::mouseReleaseEvent ( mouseEvent );
 }
 
-void dbse::SchemaGraphicsScene::editNoteSlot() {
+void dbse::SchemaGraphicsScene::edit_note_slot() {
   m_current_note->open_editor();
 }
 
-void dbse::SchemaGraphicsScene::removeNoteSlot() {
+void dbse::SchemaGraphicsScene::remove_note_slot() {
   remove_note_object(m_current_note);
 }
 
-void dbse::SchemaGraphicsScene::addNoteSlot() {
+void dbse::SchemaGraphicsScene::add_note_slot() {
   auto note = new SchemaGraphicNote (
     QString("#") + QString::number(m_next_note++), QString());
   note->setPos(m_current_pos);
@@ -478,8 +478,21 @@ void dbse::SchemaGraphicsScene::addNoteSlot() {
   editor->show();
 }
 
-void dbse::SchemaGraphicsScene::AddClassSlot()
-{
+void dbse::SchemaGraphicsScene::add_class_slot(QString class_name) {
+  disconnect(m_addclass_connection);
+
+  auto object = new SchemaGraphicObject(class_name);
+  object->setPos(m_current_pos);
+  object->set_inherited_properties_visibility(m_inherited_properties_visible);
+  object->set_highlight_active(m_highlight_active);
+  addItem (object);
+  /// Updating item list
+  ItemMap.insert(class_name, object);
+}
+void dbse::SchemaGraphicsScene::new_class_slot() {
+  m_addclass_connection = connect (
+    &KernelWrapper::GetInstance(), SIGNAL ( ClassCreated(QString) ),
+    this, SLOT ( add_class_slot(QString) ) );
   SchemaClassEditor::createNewClass();
 }
 

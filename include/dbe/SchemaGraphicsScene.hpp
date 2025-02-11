@@ -43,10 +43,11 @@ protected:
   void RemoveItemFromScene ( QGraphicsItem* item );
   void modified(bool state);
 private slots:
-  void AddClassSlot();
-  void addNoteSlot();
-  void editNoteSlot();
-  void removeNoteSlot();
+  void new_class_slot();
+  void add_class_slot(QString);
+  void add_note_slot();
+  void edit_note_slot();
+  void remove_note_slot();
   void EditClassSlot();
   void ToggleIndirectInfos();
   void ToggleHighlightActive();
@@ -80,6 +81,7 @@ private:
   QAction * m_remove_note;
   QAction * m_remove_class;
   QAction * m_remove_arrow;
+  QMetaObject::Connection m_addclass_connection;
   SchemaGraphicObject * CurrentObject;
   SchemaGraphicSegmentedArrow * m_current_arrow;
   SchemaGraphicNote* m_current_note;
