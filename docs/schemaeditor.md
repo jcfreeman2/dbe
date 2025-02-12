@@ -56,10 +56,6 @@ file.
 current schema file and remove any that are not needed.
  -->
 
-__Warning:__ To get the main widow to update with the updated include
-file list it is sometimes necessary to click around in the main window
-until it updates!!
-
 ## Saving files
 
  To save all modified schema files, `File->Save Schema` (Ctrl+S). To
@@ -94,10 +90,31 @@ Multiple views of the schema can be created by selecting the "+"
 button next to the view tabs. A tab can be renamed by selecting the
 'Name View' button on the toolbar.
 
-The current schema diagram can be saved from the 'Save View' button on the
-toolbar or printed via the 'Print View' button. 
+### Tooltips
 
-The View menu allows you to name, load, save and print the view tabs.
+hovering the mouse over a class in the schema view will bring up a
+tooltip with the description fields of the class and all its direct
+attributes, relationships and methods.
+
+### View files
+
+The current schema diagram can be saved from the 'Save View' or 'Save
+View as' buttons on the toolbar or printed via the 'Print View'
+button. These options also exist in the View menu along with an option
+to export to an SVG file.
+
+Views can be loaded from files by using the Ctl-V shortcut or
+selecting 'Load View' from the View menu. Views load into new tabs
+unless the current tab is empty.
+
+### Notes
+
+Notes can be added to the view by selecting 'Add note to view' from
+the context menu. Notes are currently written in very simple boxes
+with plain text. Line breaks should be added by hand.
+
+![Note editor](schema-view-note-editor.png)
+
 
 
 ## Keyboard shortcuts
