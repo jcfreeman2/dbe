@@ -31,8 +31,9 @@ To start with an existing schema file, use the `-f` option.
 
  All new classes are created in the active schema file. This will
 initially be the file you loaded or created above unless the loaded
-file is read-only. To make another file the active schema file, use
-the context menu in the files tab (right-click).
+file is read-only or locked by another process. To make another file
+the active schema file, use the context menu in the files tab
+(right-click).
 
 _NB:_ You cannot add new classes unless you have made a schema file
 'Active'.
@@ -72,6 +73,10 @@ dialogue box. From here you can define the attributes and
 relationships of your new class and set its superclass inheritance
 from the list of existing classes.
 
+New classes can also be added from the context menu in the schema view
+tabs. This will place the new class on the schema diagram at the
+current cursor position.
+
 ## Schema diagrams
 
  To create a class diagram of the defined classes, simply drag the
@@ -88,12 +93,21 @@ the view.
 
 Multiple views of the schema can be created by selecting the "+"
 button next to the view tabs. A tab can be renamed by selecting the
-'Name View' button on the toolbar.
+'Name View' button on the toolbar. Tbas can be closed by selecting the
+cross ont the top corner of the tab or with the shortcut Ctl-W.
 
-### Tooltips
+### Highlighting classes from the active schema file
 
-hovering the mouse over a class in the schema view will bring up a
-tooltip with the description fields of the class and all its direct
+The classes contained in the current schema fie can be highlighted by
+selecting this option from the conrext menu. This can be useful to see
+at a glance which classes are in which file. Changing the active file
+from the File info tab will change which classes are highlighted
+accordingly.
+
+### Tool-tips
+
+Hovering the mouse over a class in the schema view will bring up a
+tool-tip with the description fields of the class and all its direct
 attributes, relationships and methods.
 
 ### View files
@@ -127,4 +141,5 @@ with plain text. Line breaks should be added by hand.
 | Ctl-I | Open include dialog  | Only available when there is an 'Active' schema file|
 | Ctl-S | Save modifed schema files  ||
 | Ctl-V | Load View ||
+| Ctl-W | Close tab ||
 | Ctl-Q |  Quit  ||
