@@ -179,7 +179,9 @@ int dbse::SchemaMainWindow::ShouldSaveViewChanges() const
   for (int index=0; index<ui->TabWidget->count(); ++index) {
     auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
     if (tab->GetScene()->IsModified()) {
-      modified_views.append(tab->getName() + "\n");
+      auto label = ui->TabWidget->tabText(index);
+      label = label.remove('*');
+      modified_views.append("  " + label + "\n");
     }
   }
   if (!modified_views.isEmpty()) {
