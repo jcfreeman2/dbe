@@ -25,12 +25,14 @@ namespace dbse
     void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option,
                  QWidget * widget ) override;
 
-    void set(const QString& text) {m_text=text;}
+
     [[nodiscard]] QString text() {return m_text;}
-    void update_note ( );
+    void update_note (QString text);
     void open_editor();
   protected:
     void mouseDoubleClickEvent ( QGraphicsSceneMouseEvent* ev ) override;
+  signals:
+    void updated();
 
   private:
     QString m_name;
@@ -41,8 +43,6 @@ namespace dbse
     QColor m_highlight_color;
     QColor m_background_color;
 
-  private slots:
-    void remove_note ( QString name );
 
   };
 }  // namespace dbse

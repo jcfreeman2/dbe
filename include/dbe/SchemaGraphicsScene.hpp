@@ -45,9 +45,12 @@ protected:
 private slots:
   void new_class_slot();
   void add_class_slot(QString);
-  void add_note_slot();
+  void new_note_slot();
+  void add_note_slot(SchemaGraphicNote*);
+  void cancel_note_slot(SchemaGraphicNote*);
   void edit_note_slot();
   void remove_note_slot();
+  void modified_slot();
   void EditClassSlot();
   void ToggleIndirectInfos();
   void ToggleHighlightActive();

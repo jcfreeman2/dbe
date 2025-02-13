@@ -55,7 +55,7 @@ void dbse::SchemaGraphicsScene::CreateActions()
   connect ( m_toggle_highlight_active, SIGNAL ( triggered() ), this, SLOT ( ToggleHighlightActive() ) );
 
   m_add_note = new QAction ( "Add note to view", this );
-  connect ( m_add_note, SIGNAL ( triggered() ), this, SLOT ( add_note_slot() ) );
+  connect ( m_add_note, SIGNAL ( triggered() ), this, SLOT ( new_note_slot() ) );
 
   m_edit_note = new QAction ( "Edit note", this );
   connect ( m_edit_note, SIGNAL ( triggered() ), this, SLOT ( edit_note_slot() ) );
@@ -392,6 +392,10 @@ void dbse::SchemaGraphicsScene::modified(bool state) {
   m_modified = state;
   emit sceneModified(state);
 }
+
+void dbse::SchemaGraphicsScene::modified_slot() {
+  modified(true);
+}
 void dbse::SchemaGraphicsScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent * mouseEvent )
 {
   if ( itemAt ( mouseEvent->scenePos(), QTransform() ) ) {
@@ -469,12 +473,21 @@ void dbse::SchemaGraphicsScene::remove_note_slot() {
   remove_note_object(m_current_note);
 }
 
-void dbse::SchemaGraphicsScene::add_note_slot() {
+void dbse::SchemaGraphicsScene::add_note_slot(SchemaGraphicNote* note) {
+  addItem(note);
+  modified(true);
+}
+void dbse::SchemaGraphicsScene::cancel_note_slot(SchemaGraphicNote* note) {
+  delete note;
+}
+
+void dbse::SchemaGraphicsScene::new_note_slot() {
   auto note = new SchemaGraphicNote (
     QString("#") + QString::number(m_next_note++), QString());
   note->setPos(m_current_pos);
-  addItem(note);
   auto editor = new SchemaNoteEditor(note);
+  connect(editor, SIGNAL(note_accepted(SchemaGraphicNote*)), this, SLOT(add_note_slot(SchemaGraphicNote*)));
+  connect(editor, SIGNAL(cancelled(SchemaGraphicNote*)), this, SLOT(cancel_note_slot(SchemaGraphicNote*)));
   editor->show();
 }
 

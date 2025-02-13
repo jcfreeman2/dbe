@@ -85,6 +85,7 @@
    <addaction name="NameView"/>
    <addaction name="SaveViewAs"/>
    <addaction name="SaveView"/>
+   <addaction name="close_tab"/>
    <addaction name="PrintView"/>
    <addaction name="separator"/>
   </widget>
@@ -306,6 +307,18 @@
   <action name="exportView">
    <property name="text">
     <string>Export View</string>
+   </property>
+  </action>
+  <action name="close_tab">
+   <property name="icon">
+    <iconset resource="../icons/SchemaResource.qrc">
+     <normaloff>:/icons/fail.xpm</normaloff>:/icons/fail.xpm</iconset>
+   </property>
+   <property name="text">
+    <string>Close Tab</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

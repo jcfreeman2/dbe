@@ -7,6 +7,9 @@
 #include "dbe/SchemaRelationshipEditor.hpp"
 #include "dbe/SchemaMethodImplementationEditor.hpp"
 #include "dbe/SchemaIncludeFileWidget.hpp"
+
+#include "oks/kernel.hpp"  // for CanNotSetActiveFile exception
+
 /// Including Auto-Generated Files
 #include "ui_SchemaMainWindow.h"
 /// Including QT Headers
@@ -51,7 +54,7 @@ dbse::SchemaMainWindow::~SchemaMainWindow() = default;
 void dbse::SchemaMainWindow::InitialSettings()
 {
   ui->setupUi ( this );
-  setWindowTitle ( Title );
+  setWindowTitle ( m_title );
   ui->UndoView->setStack ( KernelWrapper::GetInstance().GetUndoStack() );
   ui->ClassTableView->horizontalHeader()->setSectionResizeMode ( QHeaderView::Stretch );
   ui->ClassTableView->setDragEnabled ( true );
@@ -95,7 +98,11 @@ void dbse::SchemaMainWindow::SetController()
   connect ( ui->Exit, SIGNAL ( triggered() ), this, SLOT ( close() ) );
   connect ( ui->ClassTableView, SIGNAL ( doubleClicked ( QModelIndex ) ), this,
             SLOT ( LaunchClassEditor ( QModelIndex ) ) );
+  connect ( ui->close_tab, SIGNAL ( triggered() ), this, SLOT ( close_tab() ) );
+
   connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassCreated( QString ) ), this,
+            SLOT ( update_models() ) );
+  connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassUpdated ( QString ) ), this,
             SLOT ( update_models() ) );
   connect ( &KernelWrapper::GetInstance(), SIGNAL ( ClassRemoved ( QString ) ), this,
             SLOT ( update_models() ) );
@@ -272,9 +279,19 @@ void dbse::SchemaMainWindow::editClass() {
 
 void dbse::SchemaMainWindow::SetSchemaFileActive()
 {
-  QModelIndex Index = ui->FileView->currentIndex();
-  QStringList Row = FileModel->getRowFromIndex ( Index );
-  KernelWrapper::GetInstance().SetActiveSchema ( Row.at ( 0 ).toStdString() );
+  QModelIndex index = ui->FileView->currentIndex();
+  QString file = FileModel->getRowFromIndex ( index ).at(0);
+  try {
+    KernelWrapper::GetInstance().SetActiveSchema ( file.toStdString() );
+  }
+  catch (oks::CanNotSetActiveFile& exc) {
+    QMessageBox::warning(0,
+                         "Set Active Schema",
+                         QString("Could not make schema active!\n\n").append(QString(exc.what())),
+                         QMessageBox::Ok);
+    return;
+  }
+  update_window_title(file);
 
   // In case we are highlighting classes in the active file, redraw current
   // view tab now we've changed active file
@@ -377,32 +394,43 @@ void dbse::SchemaMainWindow::update_models() {
 }
 
 void dbse::SchemaMainWindow::OpenSchemaFile(QString SchemaFile) {
-    if(!SchemaFile.isEmpty()) {
-            try {
-                KernelWrapper::GetInstance().LoadSchema(SchemaFile.toStdString());
-                KernelWrapper::GetInstance().SetActiveSchema(SchemaFile.toStdString());
-
-                BuildTableModel();
-                BuildFileModel();
+  if(!SchemaFile.isEmpty()) {
+    try {
+      KernelWrapper::GetInstance().LoadSchema(SchemaFile.toStdString());
 
 #ifdef QT_DEBUG
-          /// KernelWrapper::GetInstance().ShowSchemaClasses();
+      /// KernelWrapper::GetInstance().ShowSchemaClasses();
 #endif
-            }
-            catch(oks::exception &Ex) {
-                QMessageBox::warning(0,
-                                     "Load Schema",
-                                     QString("Could not load schema!\n\n").append(QString(Ex.what())),
-                                     QMessageBox::Ok);
-            }
-
-    Title.append(QString(": -- "));
-    Title.append(QFileInfo(SchemaFile).fileName());
-  setWindowTitle ( Title );
-
-            ui->CreateNewSchema->setDisabled (true );
-            ui->OpenFileSchema->setDisabled (true );
     }
+    catch(oks::exception &Ex) {
+      QMessageBox::warning(0,
+                           "Load Schema",
+                           QString("Could not load schema!\n\n").append(QString(Ex.what())),
+                           QMessageBox::Ok);
+    }
+    try {
+      KernelWrapper::GetInstance().SetActiveSchema(SchemaFile.toStdString());
+    }
+    catch (oks::CanNotSetActiveFile& exc) {
+      QMessageBox::warning(0,
+                           "Load Schema",
+                           QString("Could not make schema active!\n\n").append(QString(exc.what())),
+                           QMessageBox::Ok);
+    }
+
+    BuildTableModel();
+    BuildFileModel();
+
+    update_window_title(QFileInfo(SchemaFile).fileName());
+    ui->CreateNewSchema->setDisabled (true );
+    ui->OpenFileSchema->setDisabled (true );
+  }
+}
+
+void dbse:: SchemaMainWindow::update_window_title(QString text) {
+  m_title.remove(QRegularExpression(": --.*"));
+  m_title.append(QString(": -- ") + text);
+    setWindowTitle ( m_title );
 }
 
 void dbse::SchemaMainWindow::OpenSchemaFile()
@@ -767,15 +795,17 @@ void dbse::SchemaMainWindow::LaunchClassEditor ( QModelIndex Index )
   }
 }
 
+void dbse::SchemaMainWindow::close_tab() {
+  RemoveTab(ui->TabWidget->currentIndex());
+}
+
 void dbse::SchemaMainWindow::RemoveTab ( int index )
 {
-  if ( index == -1 || ( ( ui->TabWidget->count() == 1 ) && index == 0 ) )
-  {
+  if ( index == -1 || ( ( ui->TabWidget->count() == 1 ) && index == 0 ) ) {
     return;
   }
 
   auto tab = dynamic_cast<SchemaTab *> (ui->TabWidget->widget(index));
-
   if (tab->GetScene()->IsModified()) {
     auto choice = QMessageBox::question (
       0, tr ( "SchemaEditor" ),

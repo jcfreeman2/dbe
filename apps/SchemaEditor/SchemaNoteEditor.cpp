@@ -10,15 +10,21 @@ namespace dbse {
 
     m_ui->setupUi(this);
     m_ui->text->setPlainText(m_note->text());
+    m_ui->text->setFocus();
     connect(m_ui->buttons, SIGNAL(accepted()), this, SLOT(update_text()));
+    connect(m_ui->buttons, SIGNAL(rejected()), this, SLOT(cancel_note()));
   }
 
   SchemaNoteEditor::~SchemaNoteEditor() {
     delete m_ui;
   }
 
+  void SchemaNoteEditor::cancel_note() {
+    emit cancelled(m_note);
+  }
+
   void SchemaNoteEditor::update_text() {
-    m_note->set(m_ui->text->toPlainText());
-    m_note->update_note();
+    emit note_accepted(m_note);
+    m_note->update_note(m_ui->text->toPlainText());
   }
 } //namespace dbse

@@ -38,7 +38,6 @@ SchemaGraphicNote::SchemaGraphicNote (const QString& name,
 }
 
 void SchemaGraphicNote::open_editor() {
-  std::cout << "Open note editor\n";
   bool editorFound = false;
 
   for ( auto widget : QApplication::allWidgets() ) {
@@ -64,38 +63,27 @@ void SchemaGraphicNote::mouseDoubleClickEvent ( QGraphicsSceneMouseEvent* ) {
 }
 
 
-void SchemaGraphicNote::update_note ( ) {
-  update();
-}
-
-void SchemaGraphicNote::remove_note ( QString name )
-{
-  if ( name != m_name ) {
-    return;
-  }
-
-  /// Updating object representation
-  SchemaGraphicsScene* this_scene = dynamic_cast<SchemaGraphicsScene *> ( scene() );
-
-  if ( this_scene ) {
-    this_scene->remove_note_object ( this );
-  }
+void SchemaGraphicNote::update_note (QString text) {
+  auto this_scene = dynamic_cast<SchemaGraphicsScene*>(scene());
+  this_scene->remove_note_object(this);
+  m_text = text;
+  this_scene->addItem(this);
+  emit updated();
 }
 
 QRectF SchemaGraphicNote::boundingRect() const
 {
-  double height = 10;
-  int max_len = 0;
   QFontMetrics font_metrics(m_font);
-  QRectF font_rect;
+  double height = font_metrics.height()/2;
+  double width = 0;
   for (auto line: m_text.split("\n")) {
     height += font_metrics.height();
-    if (line.size()>max_len) {
-      max_len = line.size();
-      font_rect = font_metrics.boundingRect(line);
+    QRectF font_rect = font_metrics.boundingRect(line);
+    if (font_rect.width() > width) {
+      width = font_rect.width();
     }
   }
-  double width=font_rect.width() + 10;
+  width += font_metrics.averageCharWidth()*2;
 
   return QRectF(0, 0, width, height);
   //return font_metrics.boundingRect(m_text);

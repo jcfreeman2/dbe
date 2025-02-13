@@ -14,11 +14,15 @@ namespace dbse {
   public:
     SchemaNoteEditor(SchemaGraphicNote* note, QWidget* parent=0);
     ~SchemaNoteEditor();
+  signals:
+    void note_accepted(SchemaGraphicNote* note);
+    void cancelled(SchemaGraphicNote* note);
   private:
     SchemaGraphicNote* m_note;
     Ui::SchemaNoteEditor* m_ui;
   private slots:
     void update_text();
+    void cancel_note();
   };
 } //namespace dbse
 #endif // SCHEMANOTEEDITOR_HPP

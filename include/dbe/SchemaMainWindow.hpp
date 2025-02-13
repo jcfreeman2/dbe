@@ -35,7 +35,7 @@ private:
   QSortFilterProxyModel * proxyModel;
   QMenu * ContextMenuFileView;
   QMenu * ContextMenuTableView;
-  QString Title{"DUNE DAQ Configuration Schema editor"};
+  QString m_title{"DUNE DAQ Configuration Schema editor"};
   QString m_view_dir{"."};
   void InitialSettings();
   void InitialTab();
@@ -43,6 +43,7 @@ private:
   void SetController();
   void BuildFileModel();
   void BuildTableModel();
+  void update_window_title(QString text);
   void write_view_file(const QString& fn, SchemaTab* tab);
   [[nodiscard]] int ShouldSaveChanges() const;
   [[nodiscard]] int ShouldSaveViewChanges() const;
@@ -71,6 +72,7 @@ private slots:
   void NameView();
   void LaunchClassEditor ( QModelIndex Index );
   void RemoveTab ( int i );
+  void close_tab();
   void CustomContextMenuFileView ( QPoint Pos );
   void CustomContextMenuTableView ( QPoint Pos );
   void AddNewClass();
