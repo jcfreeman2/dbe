@@ -338,10 +338,18 @@ void dbse::SchemaMainWindow::PrintCurrentView()
 void dbse::SchemaMainWindow::export_current_view(){
   auto tab = dynamic_cast<SchemaTab *> ( ui->TabWidget->currentWidget() );
 
-  auto file = QFileDialog::getSaveFileName(this, tr("Export to SVG"), "./",
-                                           tr("SVG files (*.svg)"));
+  auto file = QFileDialog::getSaveFileName(
+    this, tr("Export to SVG"),
+    m_export_path,
+    tr("SVG files (*.svg);;All files (*)"));
   if (file.isEmpty()) {
     return;
+  }
+
+  auto spos = file.lastIndexOf('/');
+  if (spos != -1) {
+    m_export_path = file;
+    m_export_path.truncate(spos);
   }
 
   auto scene = tab->GetScene();
@@ -628,7 +636,8 @@ void dbse::SchemaMainWindow::SaveViewAs() {
       defName = m_view_dir;
     }
     QString FileName = QFileDialog::getSaveFileName (
-      this, tr ( "Save View" ), defName );
+      this, tr ( "Save View" ), defName,
+      tr("View files (*.view);;All files (*)") );
 
     if (! FileName.isEmpty()) {
       auto spos = FileName.lastIndexOf('/');
@@ -690,7 +699,7 @@ void dbse::SchemaMainWindow::LoadView() {
     this,
     tr ("Open view file"),
     m_view_dir,
-    "*.view");
+    tr("View files (*.view);;All files (*)"));
 
   if ( !ViewPath.isEmpty() )
   {

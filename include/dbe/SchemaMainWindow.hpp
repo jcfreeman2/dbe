@@ -37,6 +37,7 @@ private:
   QMenu * ContextMenuTableView;
   QString m_title{"DUNE DAQ Configuration Schema editor"};
   QString m_view_dir{"."};
+  QString m_export_path{"."};
   void InitialSettings();
   void InitialTab();
   void InitialTabCorner();
