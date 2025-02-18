@@ -13,9 +13,8 @@ dbe::CommitDialog::CommitDialog ( QWidget * parent )
   /// Setting initial values
   setModal ( true );
   setSizePolicy ( QSizePolicy::Preferred, QSizePolicy::Preferred );
-  setToolTip ( "Enter the commit message and press the ok button." );
+  setToolTip ( "Enter a commit message (optional) and press the ok button." );
   show();
-  OkButton->setDisabled ( true );
 
   /// Setting Controller
   SetController();
@@ -27,8 +26,6 @@ void dbe::CommitDialog::SetController()
             Qt::UniqueConnection );
   connect ( CancelButton, SIGNAL ( clicked() ), this, SLOT ( CancelCommitMessage() ),
             Qt::UniqueConnection );
-  connect ( CommitMessageLine, SIGNAL ( textEdited ( QString ) ), this,
-            SLOT ( CommitMessageEdited ( QString ) ), Qt::UniqueConnection );
 }
 
 QString dbe::CommitDialog::GetCommitMessage() const
