@@ -386,8 +386,6 @@ void dbe::CustomTreeView::referencedBy ( bool All )
 
       if ( objects.size() > 0 )
       {
-        QStringList ColumnNames;
-        ColumnNames << "Class Name" << "Number of Referencing Instances";
         dbe::models::tree * Source = dynamic_cast<dbe::models::tree *> ( filtermodel
                                                                          ->ReturnSourceModel() );
         models::treeselection * Selection = new models::treeselection();
@@ -446,8 +444,6 @@ void dbe::CustomTreeView::referencedBy ( bool All, tref obj )
 
     if ( objects.size() > 0 )
     {
-      QStringList ColumnNames;
-      ColumnNames << "Class Name"; // << "Number of Referencing Instances";
       dbe::models::tree * Source = dynamic_cast<dbe::models::tree *> ( filtermodel
                                                                        ->ReturnSourceModel() );
       models::treeselection * Selection = new models::treeselection();

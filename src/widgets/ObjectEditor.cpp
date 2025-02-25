@@ -20,7 +20,7 @@ namespace {
         public:
             NoScrollingTable(QWidget* parent = 0) : QTableWidget(parent) {}
 
-            void scrollTo(const QModelIndex& index, ScrollHint hint = EnsureVisible) override {
+      void scrollTo(const QModelIndex& /*index*/, ScrollHint /*hint = EnsureVisible*/) override {
                 // NOTE: for the reason why this is an empty implementation, see ATLASDBE-202
             }
     };
@@ -876,6 +876,8 @@ void dbe::ObjectEditor::ParseToSave()
       }
     }
 
+    MainWindow::findthis()->build_file_model();
+
     ui->ApplyButton->setDisabled ( true );
     this_editor_values_changed = false;
   }
@@ -965,7 +967,7 @@ void dbe::ObjectEditor::RenameObject()
 }
 
 void dbe::ObjectEditor::slot_external_rename_object ( QString const & src,
-                                                      dref const & obj )
+                                                      dref const & /* obj */)
 {
   // Rename can only occur by undoing a command issued from an ObjectEditor therefore
   // the uuid and src have to be equal. We also check the UID

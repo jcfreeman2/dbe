@@ -36,11 +36,8 @@ dbe::CustomTableView::CustomTableView ( QWidget * parent )
     GoButton ( nullptr ),
     ListIndex ( 0 )
 {
-  verticalHeader()->setVisible(true);
-  verticalHeader()->setSectionResizeMode ( QHeaderView::Interactive );
-  verticalHeader()->setMinimumSectionSize(40);
-  horizontalHeader()->setSectionResizeMode( QHeaderView::Interactive );
-  horizontalHeader()->setDefaultSectionSize(250);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  horizontalHeader()->setMaximumSectionSize(750);
   setSortingEnabled ( true );
   setAlternatingRowColors ( true );
   setSelectionMode ( SelectionMode::SingleSelection );

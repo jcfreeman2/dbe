@@ -148,9 +148,10 @@ QVariant dbe::models::table::headerData ( int section, Qt::Orientation orientati
     {
       return this_headers.at ( section );
     }
-    else if ( orientation == Qt::Vertical) {
-      return QString::fromStdString(this_objects.at(section).UID());
-    }
+    // if ( orientation == Qt::Vertical )
+    // {
+    //   return section + 1;
+    // }
   }
 
   if ( role == Qt::FontRole )
@@ -309,16 +310,16 @@ QList<dbe::models::table::type_datum *> dbe::models::table::createrow (
   std::bitset<1024> hindex; // maximum number of columns to display
 
   {
-    int c = 0;
+    int column = 0;
 
-    for ( dunedaq::conffwk::attribute_t const & a : attributes )
+    for ( dunedaq::conffwk::attribute_t const & attr : attributes )
     {
-      hindex.set ( c++, this_headers.contains ( QString::fromStdString ( a.p_name ) ) );
+      hindex.set ( column++, this_headers.contains ( QString::fromStdString ( attr.p_name ) ) );
     }
 
-    for ( dunedaq::conffwk::relationship_t const & r : relations )
+    for ( dunedaq::conffwk::relationship_t const & rel : relations )
     {
-      hindex.set ( c++, this_headers.contains ( QString::fromStdString ( r.p_name ) ) );
+      hindex.set ( column++, this_headers.contains ( QString::fromStdString ( rel.p_name ) ) );
     }
   }
 
