@@ -222,12 +222,15 @@ void dbe::CustomFileView::FindFileSlot()
 
 void dbe::CustomFileView::LaunchIncludeEditorSlot()
 {
-  QModelIndex Index = currentIndex();
-  QString Data = model()->data ( model()->index ( Index.row(), 1,
-                                                  Index.parent() ) ).toString();
+  QModelIndex index = currentIndex();
+  QString file = model()->data ( model()->index ( index.row(), 0,
+                                                  index.parent() ) ).toString();
+  QString path = model()->data ( model()->index ( index.row(), 1,
+                                                  index.parent() ) ).toString();
+  auto full_name = path + "/" + file;
+  auto * file_widget = new IncludeFileWidget ( full_name );
 
-  IncludeFileWidget * FileWidget = new IncludeFileWidget ( Data );
-  FileWidget->show();
+  file_widget->show();
 }
 
 void dbe::CustomFileView::HideReadOnlyFilesSlot ( bool Hide )
@@ -265,9 +268,9 @@ void dbe::CustomFileView::EditedSearchString()
   EditedSearchString ( Dummy );
 }
 
-void dbe::CustomFileView::ChangeSelection ( QModelIndex Index )
+void dbe::CustomFileView::ChangeSelection ( QModelIndex index )
 {
-  QString Data = model()->data ( model()->index ( Index.row(), 1,
-                                                  Index.parent() ) ).toString();
+  QString Data = model()->data ( model()->index ( index.row(), 1,
+                                                  index.parent() ) ).toString();
   emit stateChanged ( Data );
 }
